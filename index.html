@@ -214,6 +214,9 @@
     letter-spacing: .01em;
     color: var(--md-sys-color-on-surface);
   }
+  .card { scroll-margin-top: 64px; }
+  a.xref { color: var(--md-sys-color-primary); text-decoration: none; font-weight: 500; white-space: nowrap; }
+  a.xref:hover { text-decoration: underline; }
   .panel { display: none; }
   .panel.active { display: block; }
   .appendix-intro { max-width: 860px; margin: 4px 0 18px; color: var(--md-sys-color-on-surface-variant); }
@@ -1001,8 +1004,28 @@ const KPIS = [
 d3.select("#kpis").selectAll("div").data(KPIS).join("div").attr("class", "kpi").html(d =>
   `<p class="kpi-label">${d.label}</p><p class="kpi-value">${d.value}</p><p class="kpi-delta ${d.dir}">${d.delta}</p>`);
 
-const chartNumbers = {};
-TABS.filter(t => t.charts).forEach(t => t.charts.forEach((id, i) => { chartNumbers[id] = t.num + "." + (i + 1); }));
+const chartNumbers = {}, tableNumbers = {}, chartTab = {};
+let tSeq = 0;
+TABS.filter(t => t.charts).forEach(t => t.charts.forEach((id, i) => {
+  chartNumbers[id] = t.num + "." + (i + 1);
+  tableNumbers[id] = ++tSeq;
+  chartTab[id] = t.id;
+}));
+
+/* switch tab (panels + component indicator) and scroll to an element */
+function jumpTo(tabId, elId) {
+  activate(tabId);
+  const tabs = document.getElementById("tabs");
+  const i = TABS.findIndex(t => t.id === tabId);
+  if (typeof tabs.activeTabIndex === "number") tabs.activeTabIndex = i;
+  tabs.querySelectorAll("md-primary-tab").forEach(tb => tb.removeAttribute("active"));
+  const tabEl = document.getElementById("tab-" + tabId);
+  if (tabEl) tabEl.setAttribute("active", "");
+  setTimeout(() => {
+    const el = document.getElementById(elId);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 60);
+}
 
 /* ---------------- Appendix table generator ---------------- */
 const SIGNED = { occ:1, units:1, pricechange:1 };
@@ -1065,25 +1088,34 @@ TABS.forEach((t, i) => {
   if (t.charts) {
     t.charts.forEach(id => {
       const c = CHARTS.find(ch => ch.id === id);
-      const card = grid.append("div").attr("class", "card" + (c.half ? "" : " wide")).attr("data-chart", id);
+      const card = grid.append("div").attr("class", "card" + (c.half ? "" : " wide"))
+        .attr("data-chart", id).attr("id", "chart-" + id);
       card.append("span").attr("class", "chip").text("Chart " + chartNumbers[id]);
       card.append("h3").text(c.sub);
       card.append("div").attr("class", "legend");
       card.append("div").attr("class", "chart-holder");
-      card.append("p").attr("class", "source").text("Source: " + c.source);
+      const src = card.append("p").attr("class", "source");
+      src.append("span").text("Source: " + c.source + " \u00b7 ");
+      src.append("a").attr("class", "xref").attr("href", "#tableA-" + tableNumbers[id])
+        .text("Data table A." + tableNumbers[id] + " \u2197")
+        .on("click", event => { event.preventDefault(); jumpTo("appendix", "tableA-" + tableNumbers[id]); });
     });
   } else {
     panel.insert("p", ".grid").attr("class", "appendix-intro")
       .text("Underlying data for every chart in this dashboard. Every value shown is printed in the May 21, 2026 IHS presentation; charts whose values the deck does not label are not included.");
-    let tnum = 0;
     TABS.filter(x => x.charts).forEach(x => x.charts.forEach(id => {
       const c = CHARTS.find(ch => ch.id === id);
-      tnum += 1;
-      const card = grid.append("div").attr("class", "card" + ((c.half || c.type === "ranked") ? "" : " wide"));
+      const tnum = tableNumbers[id];
+      const card = grid.append("div").attr("class", "card" + ((c.half || c.type === "ranked") ? "" : " wide"))
+        .attr("id", "tableA-" + tnum);
       card.append("span").attr("class", "chip").text("Table A." + tnum + " \u00b7 Chart " + chartNumbers[id]);
       card.append("h3").text(c.sub);
       card.append("div").html(appendixTable(c));
-      card.append("p").attr("class", "source").text("Source: " + c.source);
+      const src = card.append("p").attr("class", "source");
+      src.append("span").text("Source: " + c.source + " \u00b7 ");
+      src.append("a").attr("class", "xref").attr("href", "#chart-" + id)
+        .text("View Chart " + chartNumbers[id] + " \u2197")
+        .on("click", event => { event.preventDefault(); jumpTo(chartTab[id], "chart-" + id); });
     }));
   }
 });
