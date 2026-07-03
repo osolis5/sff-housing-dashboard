@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>North Lawndale Housing Dashboard | Institute for Housing Studies - DePaul University</title>
+<script src="vendor/d3.v7.min.js"></script>
+<link rel="stylesheet" href="vendor/fonts.css">
+<script type="module" src="vendor/material-tabs.min.js"></script>
+<style>
+  /* v3 - Material Design 3 (material-web). Light color scheme generated from a
+     navy seed (Material Theme Builder tones); Roboto type scale; M3 shape and
+     elevation conventions. Data-mark palette mapped onto the M3 primary tonal
+     range so the charts stay legible and consistent with earlier versions. */
+  :root {
+    /* M3 system color tokens - light scheme, blue seed */
+    --md-sys-color-primary: #415F91;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #D6E3FF;
+    --md-sys-color-on-primary-container: #001B3E;
+    --md-sys-color-secondary: #565F71;
+    --md-sys-color-secondary-container: #DAE2F9;
+    --md-sys-color-on-secondary-container: #131C2B;
+    --md-sys-color-error: #BA1A1A;
+    --md-sys-color-surface: #FFFFFF;
+    --md-sys-color-surface-dim: #D9D9E0;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+    --md-sys-color-surface-container-low: #F3F3FA;
+    --md-sys-color-surface-container: #EDEDF4;
+    --md-sys-color-surface-container-high: #E7E8EE;
+    --md-sys-color-surface-container-highest: #E2E2E9;
+    --md-sys-color-on-surface: #191C20;
+    --md-sys-color-on-surface-variant: #44474E;
+    --md-sys-color-outline: #74777F;
+    --md-sys-color-outline-variant: #C4C6D0;
+    --md-sys-color-inverse-surface: #2E3036;
+    --md-sys-color-inverse-on-surface: #F0F0F7;
+
+    /* chart palette mapped to the M3 primary tonal range */
+    --navy: #33518A;
+    --navy-mid: #5578AE;
+    --navy-light: #91AAD4;
+    --gray-bar: #C4C6D0;
+    --ihs-gray: #44474E;
+    --gray-sub: #74777F;
+    --red: #BA1A1A;
+    --pos: #146C2E;
+    --neg: #A63B00;
+
+    /* M3 elevation shadows */
+    --elev-1: 0 1px 2px rgba(0,0,0,.30), 0 1px 3px 1px rgba(0,0,0,.15);
+    --elev-2: 0 1px 2px rgba(0,0,0,.30), 0 2px 6px 2px rgba(0,0,0,.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 400 14px/1.5 'Roboto', system-ui, sans-serif;
+    letter-spacing: .015em;
+    color: var(--md-sys-color-on-surface);
+    background: var(--md-sys-color-surface);
+  }
+  /* --- top app bar (black banner, white text) --- */
+  .appbar {
+    background: #000000;
+    color: #FFFFFF;
+    padding: 0 24px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .appbar-title { font: 500 14px/1 'Roboto'; letter-spacing: .1px; color: #FFFFFF; }
+  .appbar-date {
+    font: 500 12px/1 'Roboto';
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  /* --- hero: animated liquid-blue gradient landing band (offline, pure CSS) --- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: #1c2c50;
+    isolation: isolate;
+  }
+  /* morphing plasma: layered radial blues, blurred + slowly drifting */
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: -45%;
+    z-index: 0;
+    background:
+      radial-gradient(38% 38% at 20% 28%, #e2e9f7 0%, rgba(226,233,247,0) 60%),
+      radial-gradient(42% 42% at 78% 22%, #93aede 0%, rgba(147,174,222,0) 58%),
+      radial-gradient(46% 46% at 62% 72%, #1e2f74 0%, rgba(30,47,116,0) 60%),
+      radial-gradient(40% 40% at 28% 76%, #2a51b6 0%, rgba(42,81,182,0) 58%),
+      radial-gradient(70% 70% at 50% 50%, #3f61a6 0%, #23346c 100%);
+    filter: blur(34px) saturate(1.12);
+    animation: heroFlow 22s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  /* the user's custom gradient animation (vendor/hero.mp4), full-bleed behind
+     the headline; the CSS plasma below remains as an automatic fallback */
+  .hero-video {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  /* fine grain over the video for texture, matching the chart treatment */
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+  }
+  @keyframes heroFlow {
+    0%   { transform: translate(-3%, -2%) scale(1.10) rotate(0deg); }
+    50%  { transform: translate(3%, 3%) scale(1.26) rotate(7deg); }
+    100% { transform: translate(-2%, 2%) scale(1.14) rotate(-5deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero::before { animation: none; }
+    .hero-video { display: none; }
+  }
+  .hero-inner { position: relative; z-index: 3; max-width: 1200px; margin: 0 auto; padding: 46px 24px 40px; }
+  .hero h1 {
+    margin: 0 0 8px;
+    font: 400 36px/1.15 'Roboto';
+    letter-spacing: 0;
+    color: #FFFFFF;
+    text-shadow: 0 1px 12px rgba(10, 20, 45, 0.35);
+  }
+  .hero p { margin: 0; font: 400 16px/1.5 'Roboto'; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 10px rgba(10, 20, 45, 0.3); }
+  /* --- tabs (md-tabs component) --- */
+  .tabs-sticky {
+    position: sticky; top: 0; z-index: 6;
+    background: var(--md-sys-color-surface);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  }
+  md-tabs { max-width: 1200px; margin: 0 auto; --md-sys-color-surface: transparent; }
+  /* fallback so the tab bar stays usable even if the component script fails:
+     un-upgraded custom elements still receive clicks via the handlers below */
+  md-tabs:not(:defined) { display: flex; }
+  md-primary-tab:not(:defined) {
+    display: inline-block; cursor: pointer;
+    padding: 16px 16px 13px;
+    font: 500 14px/1 'Roboto';
+    color: var(--md-sys-color-on-surface-variant);
+    border-bottom: 3px solid transparent;
+  }
+  md-primary-tab:not(:defined)[active] {
+    color: var(--md-sys-color-primary);
+    border-bottom-color: var(--md-sys-color-primary);
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px 40px; }
+  /* --- KPI cards (M3 elevated card) --- */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+    gap: 12px;
+    margin: 4px 0 20px;
+  }
+  .kpi {
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: 12px;
+    padding: 14px 16px 12px;
+    box-shadow: var(--elev-1);
+  }
+  .kpi-label {
+    margin: 0 0 10px;
+    font: 500 11px/1.4 'Roboto';
+    letter-spacing: .05em; text-transform: uppercase;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+  .kpi-value {
+    margin: 0 0 4px;
+    font: 400 30px/1 'Roboto';
+    color: var(--md-sys-color-on-surface);
+  }
+  .kpi-delta { margin: 0; font: 500 12px/1.3 'Roboto'; }
+  .kpi-delta.pos { color: var(--pos); }
+  .kpi-delta.neg { color: var(--neg); }
+  /* --- chart cards (M3 outlined card) --- */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--md-sys-color-surface-container-lowest);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: 12px;
+    padding: 18px 20px 14px;
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .chip {
+    display: inline-block;
+    font: 500 11px/1 'Roboto';
+    letter-spacing: .06em;
+    color: var(--md-sys-color-on-secondary-container);
+    background: var(--md-sys-color-secondary-container);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+  }
+  .card h3 {
+    margin: 0 0 10px;
+    font: 500 16px/1.4 'Roboto';
+    letter-spacing: .01em;
+    color: var(--md-sys-color-on-surface);
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .appendix-intro { max-width: 860px; margin: 4px 0 18px; color: var(--md-sys-color-on-surface-variant); }
+  .source { font: 400 12px/1.4 'Roboto'; color: var(--md-sys-color-on-surface-variant); margin: 10px 0 2px; }
+  svg { display: block; width: 100%; height: auto; }
+  .chart-holder { min-height: 240px; }
+  .bar-label { font-size: 14.5px; font-weight: 500; fill: var(--md-sys-color-on-surface-variant); font-family: 'Roboto'; }
+  .bar-label.sm { font-size: 12px; }
+  .seg-label { font-size: 12px; font-weight: 500; fill: #fff; font-family: 'Roboto'; }
+  .axis text { font-size: 12.5px; fill: var(--md-sys-color-on-surface-variant); font-weight: 400; font-family: 'Roboto'; }
+  .axis-x text { font-size: 11px; letter-spacing: .04em; }
+  .axis path, .axis line { stroke: var(--md-sys-color-outline-variant); }
+  .zero-line { stroke: var(--md-sys-color-outline); stroke-width: 1.2; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 2px 0 6px; font: 400 12.5px/1.4 'Roboto'; color: var(--md-sys-color-on-surface-variant); }
+  .legend .swatch { display: inline-block; width: 13px; height: 13px; margin-right: 6px; vertical-align: -2px; border-radius: 4px; }
+  table.data { border-collapse: collapse; width: 100%; margin: 4px 0 2px; font: 400 13px/1.45 'Roboto'; }
+  table.data thead { background: var(--md-sys-color-surface-container); }
+  table.data th { font-weight: 500; color: var(--md-sys-color-on-surface-variant); }
+  table.data th, table.data td { padding: 8px 10px; border-bottom: 1px solid var(--md-sys-color-outline-variant); text-align: left; }
+  table.data th.num, table.data td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: var(--pos); }
+  .neg { color: var(--neg); }
+  footer { font: 400 12.5px/1.5 'Roboto'; color: var(--md-sys-color-on-surface-variant); margin-top: 34px; }
+  footer a { color: var(--md-sys-color-primary); text-decoration: none; }
+  /* --- tooltip (M3 inverse surface, like rich tooltips) --- */
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--md-sys-color-inverse-surface);
+    color: var(--md-sys-color-inverse-on-surface);
+    font: 400 12.5px/1.45 'Roboto';
+    padding: 8px 12px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity .12s;
+    max-width: 260px;
+    z-index: 10;
+    box-shadow: var(--elev-2);
+  }
+  .tooltip strong { font-weight: 500; font-size: 13px; }
+</style>
+</head>
+<body>
+<header class="appbar">
+  <span class="appbar-title">Institute for Housing Studies at DePaul University &middot; Steans Family Foundation</span>
+  <span class="appbar-date">Baseline Data &middot; May 21, 2026</span>
+</header>
+<div class="hero">
+  <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="vendor/hero.mp4" type="video/mp4">
+  </video>
+  <div class="hero-inner">
+    <h1>North Lawndale Housing Dashboard</h1>
+    <p>Housing affordability and trends in North Lawndale and West Side communities</p>
+  </div>
+</div>
+<nav class="tabs-sticky"><md-tabs id="tabs" aria-label="Dashboard sections"></md-tabs></nav>
+<main class="wrap">
+  <section class="kpis" id="kpis"></section>
+  <div id="panels"></div>
+  <footer>&copy; 2026 <a href="https://www.housingstudies.org/">Institute for Housing Studies at DePaul University</a> | Interactive companion to the May 21, 2026 baseline data presentation &middot; <a href="v1-report.html">Report version</a> &middot; <a href="v2-gradient.html">Gradient version</a></footer>
+</main>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ================= DATA =================
+   Transcribed from IHS_NLawndale_Dashboard_Presentation_05182026.pdf
+   (Institute for Housing Studies at DePaul University, May 21 2026).
+   Every value below is a labeled data point from the deck's charts.   */
+
+const GEO_META = {
+  "North Lawndale":     { short:"NORTH\nLAWNDALE",     role:"focus" },
+  "City of Chicago":    { short:"CITY OF\nCHICAGO",    role:"benchmark" },
+  "Near West Side":     { short:"NEAR WEST\nSIDE" },
+  "South Lawndale":     { short:"SOUTH\nLAWNDALE" },
+  "Lower West Side":    { short:"LOWER WEST\nSIDE" },
+  "West Town":          { short:"WEST TOWN" },
+  "East Garfield Park": { short:"EAST\nGARFIELD\nPARK" },
+  "West Garfield Park": { short:"WEST\nGARFIELD\nPARK" },
+  "Humboldt Park":      { short:"HUMBOLDT\nPARK" },
+  "Austin":             { short:"AUSTIN" },
+  /* non-geography categories (race / income buckets) */
+  "White":            { short:"WHITE" },
+  "African American": { short:"AFRICAN\nAMERICAN" },
+  "Hispanic":         { short:"HISPANIC" },
+  "Asian":            { short:"ASIAN" },
+  "Others":           { short:"OTHERS" },
+  "N/A":              { short:"N/A" },
+  "LMI":              { short:"LMI" },
+  "Middle Income":    { short:"MIDDLE\nINCOME" },
+  "Upper Income":     { short:"UPPER\nINCOME" },
+};
+
+const ACS = "US Census 5-Year American Communities Survey, 2010 and 2024";
+const IHS_DC = "IHS Data Clearinghouse";
+const HMDA = "Home Mortgage Disclosure Act";
+
+const CHARTS = [
+  {
+    id:"occ", type:"ranked", format:"pct", deckPage:7,
+    headline:"North Lawndale experienced slower growth in housing demand",
+    sub:"Change in Occupied Housing Units in Select West Side Communities, 2010 to 2024",
+    source:ACS,
+    values:{ "Near West Side":53.9, "South Lawndale":31.6, "Lower West Side":24.0, "West Town":17.2,
+             "East Garfield Park":16.4, "Humboldt Park":12.8, "City of Chicago":12.3,
+             "North Lawndale":10.6, "Austin":7.3, "West Garfield Park":-2.6 }
+  },
+  {
+    id:"units", type:"ranked", format:"pct", deckPage:8,
+    headline:"North Lawndale also saw loss of total housing units",
+    sub:"Change in Total Housing Units in Select West Side Communities, 2010 to 2024",
+    source:ACS,
+    values:{ "Near West Side":44.7, "Lower West Side":11.5, "South Lawndale":9.9, "West Town":9.2,
+             "City of Chicago":6.6, "Humboldt Park":2.2, "North Lawndale":-1.0,
+             "East Garfield Park":-1.3, "Austin":-1.9, "West Garfield Park":-10.5 }
+  },
+  {
+    id:"netchange", type:"divergingH", format:"count", deckPage:10,
+    headline:"Product of increased occupied units and loss of vacant units",
+    sub:"Net Change in Total, Occupied, Vacant Housing Units in Select West Side Communities, 2010 to 2024",
+    source:ACS + " · Values digitized from the deck's vector geometry (±20 units)",
+    categories:["Near West Side","West Town","South Lawndale","Lower West Side","Humboldt Park",
+                "East Garfield Park","North Lawndale","Austin","West Garfield Park"],
+    series:[
+      { name:"Change in Occupied Housing Units", color:"var(--navy-mid)",
+        values:{ "Near West Side":12730, "West Town":6320, "South Lawndale":4980, "Lower West Side":2840,
+                 "Humboldt Park":2160, "East Garfield Park":1090, "North Lawndale":1170,
+                 "Austin":2420, "West Garfield Park":-160 } },
+      { name:"Change in Vacant Housing Units", color:"#999b9e",
+        values:{ "Near West Side":-730, "West Town":-2450, "South Lawndale":-2970, "Lower West Side":-1190,
+                 "Humboldt Park":-1740, "East Garfield Park":-1230, "North Lawndale":-1350,
+                 "Austin":-3210, "West Garfield Park":-710 } },
+    ],
+    total:{ name:"Change in Total Housing Units",
+      values:{ "Near West Side":12010, "West Town":3860, "South Lawndale":2010, "Lower West Side":1660,
+               "Humboldt Park":440, "East Garfield Park":-130, "North Lawndale":-160,
+               "Austin":-780, "West Garfield Park":-880 } }
+  },
+  {
+    id:"buildingtype", type:"divergingH", format:"count", deckPage:11,
+    headline:"Supply shifts vary by property type and community",
+    sub:"Net Change in Housing Units by Building Type in Select West Side Communities, 2010 to 2024",
+    source:ACS + " · Values digitized from the deck's vector geometry (±20 units)",
+    categories:["Near West Side","West Town","South Lawndale","Lower West Side","Humboldt Park",
+                "East Garfield Park","North Lawndale","Austin","West Garfield Park"],
+    series:[
+      { name:"1-Unit", color:"var(--navy)",
+        values:{ "Near West Side":-240, "West Town":-110, "South Lawndale":2160, "Lower West Side":800,
+                 "Humboldt Park":390, "East Garfield Park":-20, "North Lawndale":-180,
+                 "Austin":840, "West Garfield Park":20 } },
+      { name:"2 to 4 Units", color:"var(--navy-mid)",
+        values:{ "Near West Side":680, "West Town":-1170, "South Lawndale":-860, "Lower West Side":-340,
+                 "Humboldt Park":-620, "East Garfield Park":-290, "North Lawndale":-180,
+                 "Austin":-1790, "West Garfield Park":-230 } },
+      { name:"5 to 49 Units", color:"#989898",
+        values:{ "Near West Side":1070, "West Town":4290, "South Lawndale":320, "Lower West Side":830,
+                 "Humboldt Park":620, "East Garfield Park":-260, "North Lawndale":-150,
+                 "Austin":-210, "West Garfield Park":-620 } },
+      { name:"50+ Units", color:"#c5c6c8",
+        values:{ "Near West Side":10540, "West Town":960, "South Lawndale":30, "Lower West Side":320,
+                 "Humboldt Park":30, "East Garfield Park":410, "North Lawndale":360,
+                 "Austin":390, "West Garfield Park":-20 } },
+      { name:"Other", color:"#e2e3e4",
+        values:{ "Near West Side":-30, "West Town":-100, "South Lawndale":340, "Lower West Side":50,
+                 "Humboldt Park":20, "East Garfield Park":30, "North Lawndale":-30,
+                 "Austin":-30, "West Garfield Park":-20 } },
+    ],
+    total:{ name:"Total",
+      values:{ "Near West Side":12010, "West Town":3860, "South Lawndale":2010, "Lower West Side":1660,
+               "Humboldt Park":440, "East Garfield Park":-130, "North Lawndale":-160,
+               "Austin":-780, "West Garfield Park":-880 } }
+  },
+  {
+    id:"foreclosure", type:"ranked", format:"pct", deckPage:12,
+    headline:"Many West Side communities heavily impacted by foreclosure",
+    sub:"Share of Residential Parcels with at Least One Foreclosure Filing Since 2005, 2024",
+    source:IHS_DC,
+    values:{ "West Garfield Park":52.2, "North Lawndale":46.9, "East Garfield Park":45.6,
+             "Humboldt Park":43.1, "Austin":39.8, "South Lawndale":26.1, "City of Chicago":22.2,
+             "Lower West Side":16.8, "West Town":12.7, "Near West Side":12.1 }
+  },
+  {
+    id:"vacantland", type:"dumbbell", format:"pct", deckPage:13,
+    headline:"Many West Side communities have abundant vacant land",
+    sub:"Share of Parcels that are Privately- or City-Owned Vacant Land, 2024",
+    source:"IHS calculations of data from Cook County Assessor and City of Chicago",
+    categories:["East Garfield Park","West Garfield Park","North Lawndale","Humboldt Park","Austin",
+                "South Lawndale","City of Chicago","Lower West Side","Near West Side","West Town"],
+    series:[
+      { name:"Privately-Held Vacant Parcels", color:"var(--navy)",
+        values:{ "East Garfield Park":17.3, "West Garfield Park":17.2, "North Lawndale":15.8,
+                 "Humboldt Park":6.2, "Austin":4.9, "South Lawndale":4.4, "City of Chicago":3.6,
+                 "Lower West Side":3.1, "Near West Side":1.9, "West Town":1.5 } },
+      { name:"City-Owned Vacant Parcels", color:"var(--navy-light)",
+        values:{ "East Garfield Park":4.8, "West Garfield Park":4.7, "North Lawndale":4.5,
+                 "Humboldt Park":1.9, "Austin":1.1, "South Lawndale":0.2, "City of Chicago":0.8,
+                 "Lower West Side":0.1, "Near West Side":0.2, "West Town":0.0 } },
+    ]
+  },
+  {
+    id:"priceindex", type:"dots", format:"pct", deckPage:14,
+    headline:"North Lawndale has seen volatile long-term prices",
+    sub:"Indexed Change in Median Sales Price for 1 to 4 Unit Properties, 2005 to 1H 2025",
+    source:IHS_DC + " · Data points digitized from the deck's vector geometry (±0.5 pp)",
+    series:[
+      { name:"Austin", color:"#1f2f47",
+        points:[[2005,0],[2006,13.6],[2007,5.2],[2008,-37.7],[2009,-77.3],[2010,-73.3],[2011,-75.0],
+                [2012,-75.3],[2013,-69.2],[2014,-63.2],[2015,-53.1],[2016,-51.8],[2017,-35.4],
+                [2018,-28.0],[2019,-20.6],[2020,0.2],[2021,18.0],[2022,11.3],[2023,13.3],[2024,23.7],[2025,26.0]] },
+      { name:"East Garfield Park", color:"#547bb6",
+        points:[[2005,0],[2006,18.0],[2007,13.6],[2008,-60.5],[2009,-81.0],[2010,-85.0],[2011,-82.3],
+                [2012,-84.7],[2013,-81.3],[2014,-78.3],[2015,-62.9],[2016,-55.2],[2017,-42.4],
+                [2018,-37.4],[2019,-26.0],[2020,-9.5],[2021,10.3],[2022,7.6],[2023,17.3],[2024,-1.5],[2025,41.1]] },
+      { name:"West Garfield Park", color:"#304970",
+        points:[[2005,0],[2006,15.3],[2007,0.9],[2008,-66.6],[2009,-87.7],[2010,-87.0],[2011,-86.7],
+                [2012,-86.7],[2013,-85.4],[2014,-84.7],[2015,-84.7],[2016,-79.0],[2017,-77.0],
+                [2018,-65.2],[2019,-56.8],[2020,-28.6],[2021,-6.5],[2022,-2.1],[2023,-23.9],[2024,-0.8],[2025,10.6]] },
+      { name:"City of Chicago", color:"#8f9193",
+        points:[[2005,0],[2006,5.9],[2007,6.9],[2008,-18.6],[2009,-50.1],[2010,-47.4],[2011,-47.1],
+                [2012,-44.8],[2013,-36.7],[2014,-27.6],[2015,-20.6],[2016,-14.6],[2017,-10.2],
+                [2018,-9.5],[2019,-2.5],[2020,13.6],[2021,26.4],[2022,26.4],[2023,22.4],[2024,34.4],[2025,42.8]] },
+      { name:"North Lawndale", color:"var(--red)", focus:true,
+        points:[[2005,0],[2006,28.4],[2007,13.0],[2008,-37.0],[2009,-81.7],[2010,-83.0],[2011,-82.0],
+                [2012,-83.3],[2013,-79.0],[2014,-75.6],[2015,-72.6],[2016,-69.6],[2017,-60.5],
+                [2018,-44.8],[2019,-26.3],[2020,-9.5],[2021,21.0],[2022,26.0],[2023,15.6],[2024,36.8],[2025,65.6]] },
+    ]
+  },
+  {
+    id:"salesprice", half:true, type:"dumbbell", format:"usd", deckPage:16,
+    headline:"Substantial COVID-era price growth in area",
+    sub:"Median Sales Price for 1 to 4 Unit Properties, 2012, 2019, 2024",
+    source:IHS_DC,
+    categories:["Austin","East Garfield Park","North Lawndale","West Garfield Park","City of Chicago"],
+    series:[
+      { name:"2012", color:"var(--navy-light)",
+        values:{ "Austin":55500, "East Garfield Park":39250, "North Lawndale":31750,
+                 "West Garfield Park":30500, "City of Chicago":136000 } },
+      { name:"2019", color:"var(--navy-mid)",
+        values:{ "Austin":178000, "East Garfield Park":189000, "North Lawndale":140000,
+                 "West Garfield Park":99000, "City of Chicago":239000 } },
+      { name:"2024", color:"var(--navy)",
+        values:{ "Austin":277500, "East Garfield Park":252000, "North Lawndale":260000,
+                 "West Garfield Park":227500, "City of Chicago":330000 } },
+    ]
+  },
+  {
+    id:"pricechange", half:true, type:"ranked", format:"pct", deckPage:17, keepOrder:true,
+    headline:"Substantial COVID-era price growth in area",
+    sub:"Change in Median Sales Price for 1 to 4 Unit Properties, 2019 to 2024",
+    source:IHS_DC,
+    values:{ "Austin":55.9, "East Garfield Park":33.3, "North Lawndale":85.7,
+             "West Garfield Park":129.8, "City of Chicago":38.1 }
+  },
+  {
+    id:"investor", type:"ranked", format:"pct", deckPage:18,
+    headline:"Investor activity in North Lawndale is elevated",
+    sub:"Share of 1 to 4 Unit Sales Bought by Businesses, 2024",
+    source:IHS_DC,
+    values:{ "North Lawndale":32.3, "Lower West Side":28.2, "West Garfield Park":27.0,
+             "East Garfield Park":26.7, "West Town":22.6, "Humboldt Park":22.0,
+             "City of Chicago":21.3, "Near West Side":19.6, "Austin":18.5, "South Lawndale":15.4 }
+  },
+  {
+    id:"race", half:true, type:"dumbbell", format:"pct", deckPage:19,
+    headline:"Homebuyers in North Lawndale are primarily Black and Hispanic",
+    sub:"Distribution of Homebuyers by Race/Ethnicity in North Lawndale, 2019 and 2023–2024",
+    source:HMDA,
+    categories:["White","African American","Hispanic","Asian","Others","N/A"],
+    series:[
+      { name:"2019", color:"var(--navy-light)",
+        values:{ "White":9.7, "African American":43.5, "Hispanic":38.7, "Asian":0.8, "Others":0.8, "N/A":6.5 } },
+      { name:"2023–2024", color:"var(--navy)",
+        values:{ "White":6.2, "African American":43.3, "Hispanic":43.3, "Asian":0.8, "Others":0.0, "N/A":6.2 } },
+    ]
+  },
+  {
+    id:"buyerincome_geo", half:true, type:"stacked", format:"pct", deckPage:20,
+    headline:"Homebuyers in North Lawndale are modest income",
+    sub:"Distribution of Homebuyers by Income Level, 2023–2024",
+    source:HMDA,
+    categories:["Austin","East Garfield Park","North Lawndale","West Garfield Park","City of Chicago"],
+    series:[
+      { name:"LMI", color:"var(--navy)",
+        values:{ "Austin":49.4, "East Garfield Park":39.9, "North Lawndale":51.7,
+                 "West Garfield Park":56.8, "City of Chicago":30.2 } },
+      { name:"Middle Income", color:"var(--navy-mid)",
+        values:{ "Austin":35.4, "East Garfield Park":33.5, "North Lawndale":33.3,
+                 "West Garfield Park":30.4, "City of Chicago":25.3 } },
+      { name:"Upper Income", color:"var(--navy-light)",
+        values:{ "Austin":15.2, "East Garfield Park":26.6, "North Lawndale":15.0,
+                 "West Garfield Park":12.8, "City of Chicago":44.6 } },
+    ]
+  },
+  {
+    id:"buyerincome_nl", half:true, type:"dumbbell", format:"pct", deckPage:21,
+    headline:"Homebuyer incomes in North Lawndale are increasing",
+    sub:"Distribution of Homebuyers by Income Level in North Lawndale, 2019 and 2023–2024",
+    source:HMDA,
+    categories:["LMI","Middle Income","Upper Income"],
+    series:[
+      { name:"2019", color:"var(--navy-light)",
+        values:{ "LMI":60.5, "Middle Income":32.3, "Upper Income":7.3 } },
+      { name:"2023–2024", color:"var(--navy)",
+        values:{ "LMI":51.7, "Middle Income":33.3, "Upper Income":15.0 } },
+    ]
+  },
+  {
+    id:"buyerincome_med", half:true, type:"dumbbell", format:"usd", deckPage:22,
+    headline:"Homebuyer incomes in North Lawndale are increasing",
+    sub:"Median Homebuyer Incomes, 2019, 2021, 2024",
+    source:HMDA + " · 2021 series is unlabeled in the deck; values digitized from vector geometry (±$250)",
+    categories:["Austin","East Garfield Park","North Lawndale","West Garfield Park","City of Chicago"],
+    series:[
+      { name:"2019", color:"var(--navy-light)",
+        values:{ "Austin":62000, "East Garfield Park":69500, "North Lawndale":61000,
+                 "West Garfield Park":57000, "City of Chicago":97000 } },
+      { name:"2021", color:"var(--navy-mid)",
+        values:{ "Austin":68000, "East Garfield Park":76800, "North Lawndale":70300,
+                 "West Garfield Park":63800, "City of Chicago":100900 } },
+      { name:"2024", color:"var(--navy)",
+        values:{ "Austin":88000, "East Garfield Park":100000, "North Lawndale":90000,
+                 "West Garfield Park":84000, "City of Chicago":125000 } },
+    ]
+  },
+];
+
+/* ================= HELPERS ================= */
+const tooltip = d3.select("#tooltip");
+function showTip(event, html) {
+  tooltip.html(html).style("opacity", 1)
+    .style("left", (event.pageX + 14) + "px")
+    .style("top", (event.pageY - 12) + "px");
+}
+function hideTip() { tooltip.style("opacity", 0); }
+
+function fmt(v, format) {
+  if (v == null) return "–";
+  if (format === "usd") return "$" + d3.format(",")(Math.round(v));
+  return v.toFixed(1) + "%";
+}
+function fmtAxis(format) {
+  return format === "usd" ? v => "$" + d3.format("~s")(v) : v => v + "%";
+}
+function shortName(cat) {
+  return (GEO_META[cat] && GEO_META[cat].short) || cat.toUpperCase();
+}
+function role(cat) { return (GEO_META[cat] && GEO_META[cat].role) || null; }
+
+/* Animate only when visible; hidden tabs pause rAF and freeze transitions. */
+function grow(sel) {
+  return document.hidden ? sel : sel.transition().duration(620).ease(d3.easeCubicOut);
+}
+
+/* Subtle vertical gradients for bar fills. Gradient defs are created per-svg
+   (unique ids) so tab panels hidden with display:none cannot break references. */
+const VAR_HEX = { "var(--navy)":"#33518A", "var(--navy-mid)":"#5578AE", "var(--navy-light)":"#91AAD4",
+                  "var(--gray-bar)":"#C4C6D0", "var(--red)":"#BA1A1A" };
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  const t = f > 0 ? 255 : 0, a = Math.abs(f);
+  r = Math.round(r + (t - r) * a); g = Math.round(g + (t - g) * a); b = Math.round(b + (t - b) * a);
+  return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
+}
+let svgSeq = 0;
+function fillFor(svg, color) {
+  const hex = (VAR_HEX[color] || color).toLowerCase();
+  if (!/^#[0-9a-f]{6}$/.test(hex)) return color;
+  if (!svg.attr("data-gid")) svg.attr("data-gid", "s" + (++svgSeq));
+  const key = svg.attr("data-gid") + "-" + hex.slice(1);
+  let defs = svg.select("defs");
+  if (defs.empty()) defs = svg.append("defs");
+  if (defs.select("[id='" + key + "']").empty()) {
+    /* 3-stop gradient with a wide value range — bright top, base mid, deeply
+       darkened bottom — for the lit, tactile depth of the MD3 reference art. */
+    const gr = defs.append("linearGradient").attr("id", key)
+      .attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
+    gr.append("stop").attr("offset", "0%").attr("stop-color", shade(hex, 0.28));
+    gr.append("stop").attr("offset", "40%").attr("stop-color", shade(hex, 0.02));
+    gr.append("stop").attr("offset", "100%").attr("stop-color", shade(hex, -0.42));
+  }
+  return "url(#" + key + ")";
+}
+
+/* Corner radius for bars. */
+const BAR_RX = 4;
+
+/* Film-grain texture (MD3 reference look): dense fractal noise desaturated to
+   grey, contrast-tamed, then soft-light-blended over the gradient fill so it
+   both darkens and lightens the surface for tactile depth. Clipped to the mark.
+   One filter per svg (unique id) so hidden panels can't break the reference. */
+function ditherFilter(svg) {
+  if (!svg.attr("data-gid")) svg.attr("data-gid", "s" + (++svgSeq));
+  const id = svg.attr("data-gid") + "-grain";
+  let defs = svg.select("defs");
+  if (defs.empty()) defs = svg.append("defs");
+  if (defs.select("[id='" + id + "']").empty()) {
+    const f = defs.append("filter").attr("id", id)
+      .attr("x", "0%").attr("y", "0%").attr("width", "100%").attr("height", "100%");
+    f.append("feTurbulence").attr("type", "fractalNoise")
+      .attr("baseFrequency", "0.9").attr("numOctaves", "2")
+      .attr("stitchTiles", "stitch").attr("seed", "11").attr("result", "noise");
+    /* desaturate the noise to opaque grey */
+    f.append("feColorMatrix").attr("in", "noise").attr("type", "matrix")
+      .attr("values", "0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 0 1")
+      .attr("result", "grey");
+    /* squeeze the grey toward mid so soft-light stays a texture, not a wash */
+    const ct = f.append("feComponentTransfer").attr("in", "grey").attr("result", "grain");
+    ["R", "G", "B"].forEach(ch => ct.append("feFunc" + ch)
+      .attr("type", "linear").attr("slope", "0.7").attr("intercept", "0.15"));
+    /* soft-light grain over the gradient bar -> depth, then clip to the mark */
+    f.append("feBlend").attr("in", "grain").attr("in2", "SourceGraphic")
+      .attr("mode", "soft-light").attr("result", "blended");
+    f.append("feComposite").attr("in", "blended").attr("in2", "SourceGraphic")
+      .attr("operator", "in");
+  }
+  return "url(#" + id + ")";
+}
+
+function xAxisLabels(g) {
+  g.selectAll(".tick text").each(function(d) {
+    const lines = shortName(d).split("\n");
+    const t = d3.select(this).text(null);
+    lines.forEach((line, i) => {
+      t.append("tspan").attr("x", 0).attr("dy", i === 0 ? "1em" : "1.15em").text(line);
+    });
+  });
+}
+
+/* ================= RENDER ================= */
+const W = 980, H = 560;
+const margin = { top: 46, right: 20, bottom: 84, left: 70 };
+
+function chartWidth(c) { return c.half ? 620 : W; }
+function renderInto(card) {
+  const c = CHARTS.find(ch => ch.id === card.attr("data-chart"));
+  const legend = card.select(".legend");
+  const holder = card.select(".chart-holder");
+  holder.selectAll("*").remove();
+  const svg = holder.append("svg").attr("viewBox", `0 0 ${chartWidth(c)} ${H}`);
+  if (c.type === "ranked") renderRanked(svg, c, legend);
+  else if (c.type === "grouped") renderGrouped(svg, c, legend);
+  else if (c.type === "divergingH") renderDivergingH(svg, c, legend);
+  else if (c.type === "dumbbell") renderDumbbell(svg, c, legend);
+  else if (c.type === "dots") renderDots(svg, c, legend);
+  else renderStacked(svg, c, legend);
+}
+
+/* --- Ranked single-series bars (deck style) --- */
+function renderRanked(svg, c, legend) {
+  const CW = chartWidth(c); let data = Object.entries(c.values).map(([cat, v]) => ({ cat, v }));
+  if (!c.keepOrder) data.sort((a, b) => d3.descending(a.v, b.v));
+
+  const x = d3.scaleBand().domain(data.map(d => d.cat))
+    .range([margin.left, CW - margin.right]).padding(0.32);
+  const [lo, hi] = d3.extent(data, d => d.v);
+  const pad = Math.max((hi - lo) * 0.16, 2);
+  const y = d3.scaleLinear()
+    .domain([Math.min(0, lo - (lo < 0 ? pad : 0)), Math.max(0, hi + pad)]).nice()
+    .range([H - margin.bottom, margin.top]);
+
+  svg.append("g").attr("class", "axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(7).tickFormat(fmtAxis(c.format)).tickSize(0).tickPadding(10))
+    .call(g => g.select(".domain").remove());
+
+  svg.append("line").attr("class", "zero-line")
+    .attr("x1", margin.left).attr("x2", CW - margin.right)
+    .attr("y1", y(0)).attr("y2", y(0));
+
+  svg.selectAll("rect.bar").data(data).join("rect")
+    .attr("class", "bar")
+    .attr("x", d => x(d.cat))
+    .attr("width", x.bandwidth())
+    .attr("rx", BAR_RX).attr("ry", BAR_RX)
+    .attr("fill", d => fillFor(svg, role(d.cat) === "benchmark" ? "var(--gray-bar)" : "var(--navy)"))
+    .attr("filter", ditherFilter(svg))
+    .on("mousemove", (event, d) => showTip(event, `<strong>${d.cat}</strong><br>${fmt(d.v, c.format)}`))
+    .on("mouseleave", hideTip)
+    .attr("y", y(0)).attr("height", 0)
+    .call(s => grow(s)
+      .attr("y", d => d.v >= 0 ? y(d.v) : y(0))
+      .attr("height", d => Math.abs(y(d.v) - y(0))));
+
+  const focus = data.find(d => role(d.cat) === "focus");
+  if (focus) {
+    svg.append("rect")
+      .attr("x", x(focus.cat) - 4)
+      .attr("width", x.bandwidth() + 8)
+      .attr("rx", BAR_RX + 2).attr("ry", BAR_RX + 2)
+      .attr("fill", "none").attr("stroke", "var(--red)").attr("stroke-width", 3)
+      .attr("y", focus.v >= 0 ? y(0) - 8 : y(0)).attr("height", 8)
+      .call(s => grow(s)
+        .attr("y", (focus.v >= 0 ? y(focus.v) : y(0)) - 4)
+        .attr("height", Math.abs(y(focus.v) - y(0)) + 8));
+  }
+
+  svg.selectAll("text.bar-label").data(data).join("text")
+    .attr("class", "bar-label")
+    .attr("text-anchor", "middle")
+    .attr("x", d => x(d.cat) + x.bandwidth() / 2)
+    .text(d => fmt(d.v, c.format))
+    .attr("y", d => d.v >= 0 ? y(0) - 12 : y(0) + 22)
+    .call(s => grow(s).attr("y", d => d.v >= 0 ? y(d.v) - 12 : y(d.v) + 22));
+
+  svg.append("g").attr("class", "axis axis-x")
+    .attr("transform", `translate(0,${H - margin.bottom + 8})`)
+    .call(d3.axisBottom(x).tickSize(0))
+    .call(g => g.select(".domain").remove())
+    .call(g => xAxisLabels(g));
+
+  legend.html(
+    `<span><span class="swatch" style="background:var(--navy)"></span>West Side communities</span>` +
+    `<span><span class="swatch" style="background:var(--gray-bar)"></span>City of Chicago benchmark</span>` +
+    `<span><span class="swatch" style="border:3px solid var(--red); width:9px; height:9px;"></span>North Lawndale (focus area)</span>`
+  );
+}
+
+/* --- Grouped multi-series bars --- */
+function renderGrouped(svg, c, legend) {
+  const CW = chartWidth(c); const seriesNames = c.series.map(s => s.name);
+
+  const x0 = d3.scaleBand().domain(c.categories)
+    .range([margin.left, CW - margin.right]).paddingInner(0.28).paddingOuter(0.12);
+  const x1 = d3.scaleBand().domain(seriesNames).range([0, x0.bandwidth()]).padding(0.1);
+  const maxV = d3.max(c.series, s => d3.max(c.categories, cat => s.values[cat]));
+  const y = d3.scaleLinear().domain([0, maxV * 1.14]).nice()
+    .range([H - margin.bottom, margin.top]);
+
+  svg.append("g").attr("class", "axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(7).tickFormat(fmtAxis(c.format)).tickSize(0).tickPadding(10))
+    .call(g => g.select(".domain").remove());
+
+  svg.append("line").attr("class", "zero-line")
+    .attr("x1", margin.left).attr("x2", CW - margin.right)
+    .attr("y1", y(0)).attr("y2", y(0));
+
+  const cells = c.categories.flatMap(cat => c.series.map(s => ({ cat, s, v: s.values[cat] })));
+
+  svg.selectAll("rect.bar").data(cells).join("rect")
+    .attr("class", "bar")
+    .attr("x", d => x0(d.cat) + x1(d.s.name))
+    .attr("width", x1.bandwidth())
+    .attr("rx", BAR_RX).attr("ry", BAR_RX)
+    .attr("fill", d => fillFor(svg, d.s.color))
+    .attr("filter", ditherFilter(svg))
+    .on("mousemove", (event, d) => showTip(event, `<strong>${d.cat}</strong><br>${d.s.name}: <strong>${fmt(d.v, c.format)}</strong>`))
+    .on("mouseleave", hideTip)
+    .attr("y", y(0)).attr("height", 0)
+    .call(s => grow(s).attr("y", d => y(d.v)).attr("height", d => y(0) - y(d.v)));
+
+  /* value labels above bars when few enough to stay legible */
+  if (cells.length <= 18) {
+    svg.selectAll("text.bar-label").data(cells).join("text")
+      .attr("class", "bar-label sm")
+      .attr("text-anchor", "middle")
+      .attr("x", d => x0(d.cat) + x1(d.s.name) + x1.bandwidth() / 2)
+      .text(d => c.format === "usd" ? "$" + d3.format("~s")(d.v).replace("k"," K") : fmt(d.v, c.format))
+      .attr("y", y(0) - 8)
+      .call(s => grow(s).attr("y", d => y(d.v) - 8));
+  }
+
+  /* focus underline for North Lawndale when present */
+  if (c.categories.includes("North Lawndale")) {
+    svg.append("line")
+      .attr("x1", x0("North Lawndale") - 3).attr("x2", x0("North Lawndale") + x0.bandwidth() + 3)
+      .attr("y1", H - margin.bottom + 3).attr("y2", H - margin.bottom + 3)
+      .attr("stroke", "var(--red)").attr("stroke-width", 3.5);
+  }
+
+  svg.append("g").attr("class", "axis axis-x")
+    .attr("transform", `translate(0,${H - margin.bottom + 10})`)
+    .call(d3.axisBottom(x0).tickSize(0))
+    .call(g => g.select(".domain").remove())
+    .call(g => xAxisLabels(g));
+
+  legend.html(
+    c.series.map(s => `<span><span class="swatch" style="background:${s.color}"></span>${s.name}</span>`).join("") +
+    (c.categories.includes("North Lawndale")
+      ? `<span style="border-bottom:3px solid var(--red); padding-bottom:2px;">North Lawndale (focus area)</span>` : "")
+  );
+}
+
+/* --- Horizontal diverging stacked bars with total markers (deck pp. 10-11) --- */
+function renderDivergingH(svg, c, legend) {
+  const CW = chartWidth(c); const HH = 620;
+  svg.attr("viewBox", `0 0 ${CW} ${HH}`);
+  const m = { top: 30, right: 30, bottom: 46, left: 160 };
+
+  /* stacked extents per category */
+  const stacks = c.categories.map(cat => {
+    let pos = 0, neg = 0;
+    const segs = c.series.map(s => {
+      const v = s.values[cat];
+      let x0;
+      if (v >= 0) { x0 = pos; pos += v; } else { neg += v; x0 = neg; }
+      return { cat, s, v, x0, x1: v >= 0 ? x0 + v : x0 - v + v, lo: v >= 0 ? x0 : neg, hi: v >= 0 ? pos : neg - v };
+    });
+    return { cat, segs, pos, neg, total: c.total.values[cat] };
+  });
+  const lo = d3.min(stacks, d => Math.min(d.neg, d.total));
+  const hi = d3.max(stacks, d => Math.max(d.pos, d.total));
+  const x = d3.scaleLinear().domain([lo * 1.05, hi * 1.05]).nice()
+    .range([m.left, CW - m.right]);
+  const y = d3.scaleBand().domain(c.categories).range([m.top, HH - m.bottom]).padding(0.3);
+
+  svg.append("g").attr("class", "axis")
+    .attr("transform", `translate(0,${HH - m.bottom})`)
+    .call(d3.axisBottom(x).ticks(8).tickFormat(d3.format(",")).tickSize(0).tickPadding(10))
+    .call(g => g.select(".domain").remove());
+
+  svg.append("line").attr("class", "zero-line")
+    .attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.top - 6).attr("y2", HH - m.bottom);
+
+  /* category labels */
+  svg.append("g").attr("class", "axis")
+    .call(g => g.selectAll("text").data(c.categories).join("text")
+      .attr("x", m.left - 10).attr("y", d => y(d) + y.bandwidth() / 2 + 4)
+      .attr("text-anchor", "end")
+      .attr("font-size", "11.5px").attr("font-weight", d => role(d) === "focus" ? 800 : 600)
+      .style("fill", d => role(d) === "focus" ? "var(--red)" : "var(--gray-sub)")
+      .text(d => d.toUpperCase()));
+
+  /* segments */
+  const allSegs = stacks.flatMap(d => d.segs).filter(d => d.v !== 0);
+  svg.selectAll("rect.bar").data(allSegs).join("rect")
+    .attr("class", "bar")
+    .attr("y", d => y(d.cat))
+    .attr("height", y.bandwidth())
+    .attr("fill", d => fillFor(svg, d.s.color))
+    .attr("filter", ditherFilter(svg))
+    .on("mousemove", (event, d) => showTip(event, `<strong>${d.cat}</strong><br>${d.s.name}: <strong>${d3.format("+,")(d.v)}</strong> units`))
+    .on("mouseleave", hideTip)
+    .attr("x", x(0)).attr("width", 0)
+    .call(sel => grow(sel)
+      .attr("x", d => x(Math.min(d.lo, d.hi)))
+      .attr("width", d => Math.abs(x(d.hi) - x(d.lo))));
+
+  /* red total outline (deck style) */
+  svg.selectAll("rect.total").data(stacks).join("rect")
+    .attr("class", "total")
+    .attr("y", d => y(d.cat) - 2)
+    .attr("height", y.bandwidth() + 4)
+    .attr("fill", "none").attr("stroke", "var(--red)").attr("stroke-width", 2.5)
+    .on("mousemove", (event, d) => showTip(event, `<strong>${d.cat}</strong><br>${c.total.name}: <strong>${d3.format("+,")(d.total)}</strong> units`))
+    .on("mouseleave", hideTip)
+    .attr("x", x(0)).attr("width", 0)
+    .call(sel => grow(sel)
+      .attr("x", d => x(Math.min(0, d.total)))
+      .attr("width", d => Math.abs(x(d.total) - x(0))));
+
+  legend.html(
+    c.series.map(s => `<span><span class="swatch" style="background:${s.color}"></span>${s.name}</span>`).join("") +
+    `<span><span class="swatch" style="border:2.5px solid var(--red); width:10px; height:10px;"></span>${c.total.name}</span>`
+  );
+}
+
+/* --- Data-point (dot) chart for the indexed price series (deck p. 14) --- */
+function renderDots(svg, c, legend) {
+  const CW = chartWidth(c); const m = { top: 30, right: 24, bottom: 56, left: 64 };
+  const allPts = c.series.flatMap(s => s.points.map(([yr, v]) => ({ s, yr, v })));
+
+  const x = d3.scaleLinear().domain(d3.extent(allPts, d => d.yr))
+    .range([m.left, CW - m.right]);
+  const [lo, hi] = d3.extent(allPts, d => d.v);
+  const y = d3.scaleLinear().domain([lo - 6, hi + 6]).nice()
+    .range([H - margin.bottom, m.top]);
+
+  svg.append("g").attr("class", "axis")
+    .attr("transform", `translate(${m.left},0)`)
+    .call(d3.axisLeft(y).ticks(9).tickFormat(v => v + "%").tickSize(0).tickPadding(10))
+    .call(g => g.select(".domain").remove());
+
+  svg.append("g").attr("class", "axis axis-x")
+    .attr("transform", `translate(0,${H - margin.bottom + 8})`)
+    .call(d3.axisBottom(x).ticks(21).tickFormat(d3.format("d")).tickSize(0).tickPadding(6))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.selectAll("text").attr("transform", "rotate(-45)").attr("text-anchor", "end"));
+
+  svg.append("line").attr("class", "zero-line")
+    .attr("x1", m.left).attr("x2", CW - m.right)
+    .attr("y1", y(0)).attr("y2", y(0));
+
+  svg.selectAll("circle.pt").data(allPts).join("circle")
+    .attr("class", "pt")
+    .attr("cx", d => x(d.yr))
+    .attr("fill", d => d.s.color)
+    .attr("r", d => d.s.focus ? 5.5 : 4)
+    .attr("opacity", d => d.s.focus ? 1 : 0.85)
+    .on("mousemove", (event, d) => showTip(event, `<strong>${d.s.name}</strong><br>${d.yr}${d.yr === 2025 ? " (1H)" : ""}: <strong>${d.v.toFixed(1)}%</strong> vs 2005`))
+    .on("mouseleave", hideTip)
+    .attr("cy", y(0))
+    .call(sel => grow(sel).attr("cy", d => y(d.v)));
+
+  legend.html(
+    c.series.slice().reverse().map(s =>
+      `<span><span class="swatch" style="background:${s.color}; border-radius:50%;"></span>${s.name}${s.focus ? " (focus area)" : ""}</span>`
+    ).join("")
+  );
+}
+
+/* --- Horizontal dumbbell chart: one row per category, a dot per period --- */
+function renderDumbbell(svg, c, legend) {
+  const CW = chartWidth(c); const cats = c.categories;
+  const HH = Math.max(400, cats.length * 64 + 120);
+  svg.attr("viewBox", `0 0 ${CW} ${HH}`);
+  const m = { top: 36, right: 96, bottom: 48, left: 158 };
+
+  const allVals = cats.flatMap(cat => c.series.map(s => s.values[cat]));
+  const x = d3.scaleLinear().domain([0, d3.max(allVals) * 1.08]).nice()
+    .range([m.left, CW - m.right]);
+  const y = d3.scaleBand().domain(cats).range([m.top, HH - m.bottom]).padding(0.4);
+  const cy = cat => y(cat) + y.bandwidth() / 2;
+
+  svg.append("g").attr("class", "axis")
+    .attr("transform", `translate(0,${HH - m.bottom})`)
+    .call(d3.axisBottom(x).ticks(8).tickFormat(fmtAxis(c.format)).tickSize(-(HH - m.top - m.bottom)).tickPadding(10))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.selectAll(".tick line").attr("stroke", "#eef0f1"));
+
+  /* category labels — focus in red */
+  svg.append("g")
+    .call(g => g.selectAll("text").data(cats).join("text")
+      .attr("x", m.left - 12).attr("y", d => cy(d) + 4)
+      .attr("text-anchor", "end")
+      .attr("font-size", "11.5px")
+      .attr("font-weight", d => role(d) === "focus" ? 800 : 600)
+      .style("fill", d => role(d) === "focus" ? "var(--red)" : "var(--gray-sub)")
+      .text(d => d.toUpperCase()));
+
+  /* rows: dots sorted by value; connector spans min..max */
+  const rows = cats.map(cat => {
+    const dots = c.series.map(s => ({ cat, s, v: s.values[cat] }));
+    const sorted = dots.slice().sort((a, b) => a.v - b.v);
+    return { cat, dots, min: sorted[0], max: sorted[sorted.length - 1], sorted };
+  });
+
+  svg.selectAll("line.connector").data(rows).join("line")
+    .attr("class", "connector")
+    .attr("y1", d => cy(d.cat)).attr("y2", d => cy(d.cat))
+    .attr("stroke", "#c9cbcd").attr("stroke-width", 2.5)
+    .attr("x1", d => x(d.min.v)).attr("x2", d => x(d.min.v))
+    .call(sel => grow(sel).attr("x2", d => x(d.max.v)));
+
+  const allDots = rows.flatMap(r => r.dots);
+  svg.selectAll("circle.db").data(allDots).join("circle")
+    .attr("class", "db")
+    .attr("cy", d => cy(d.cat))
+    .attr("r", 7)
+    .attr("fill", d => d.s.color)
+    .attr("stroke", "#fff").attr("stroke-width", 1.5)
+    .on("mousemove", (event, d) => showTip(event, `<strong>${d.cat}</strong><br>${d.s.name}: <strong>${fmt(d.v, c.format)}</strong>`))
+    .on("mouseleave", hideTip)
+    .attr("cx", x(0))
+    .call(sel => grow(sel).attr("cx", d => x(d.v)));
+
+  /* endpoint labels: min to the left, max to the right, middles above.
+     If min and max coincide (no change), show a single label. */
+  const labels = [];
+  const fmtLbl = v => c.format === "usd" ? "$" + d3.format("~s")(v).replace("k", "K") : v.toFixed(1) + "%";
+  rows.forEach(r => {
+    if (Math.abs(r.max.v - r.min.v) < 1e-9) {
+      labels.push({ ...r.max, anchor: "start", dx: 13, dy: 4 });
+      return;
+    }
+    r.sorted.forEach((d, i) => {
+      if (i === 0) {
+        /* a left-side label too close to the axis collides with the category name */
+        if (x(d.v) - 13 < m.left + 40) labels.push({ ...d, anchor: "middle", dx: 0, dy: -13 });
+        else labels.push({ ...d, anchor: "end", dx: -13, dy: 4 });
+      }
+      else if (i === r.sorted.length - 1) labels.push({ ...d, anchor: "start", dx: 13, dy: 4 });
+      else labels.push({ ...d, anchor: "middle", dx: 0, dy: -13 });
+    });
+  });
+  svg.selectAll("text.db-label").data(labels).join("text")
+    .attr("class", "bar-label sm")
+    .attr("text-anchor", d => d.anchor)
+    .attr("y", d => cy(d.cat) + d.dy)
+    .text(d => fmtLbl(d.v))
+    .attr("x", x(0))
+    .call(sel => grow(sel).attr("x", d => x(d.v) + d.dx));
+
+  legend.html(
+    c.series.map(s => `<span><span class="swatch" style="background:${s.color}; border-radius:50%;"></span>${s.name}</span>`).join("") +
+    (cats.some(cat => role(cat) === "focus")
+      ? `<span style="color:var(--red);">North Lawndale (focus area)</span>` : "")
+  );
+}
+
+/* --- 100% stacked bars --- */
+function renderStacked(svg, c, legend) {
+  const CW = chartWidth(c); const x = d3.scaleBand().domain(c.categories)
+    .range([margin.left, CW - margin.right]).padding(0.35);
+  const y = d3.scaleLinear().domain([0, 100]).range([H - margin.bottom, margin.top]);
+
+  svg.append("g").attr("class", "axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(6).tickFormat(v => v + "%").tickSize(0).tickPadding(10))
+    .call(g => g.select(".domain").remove());
+
+  const segs = [];
+  c.categories.forEach(cat => {
+    let acc = 0;
+    c.series.forEach(s => {
+      const v = s.values[cat];
+      segs.push({ cat, s, v, y0: acc, y1: acc + v });
+      acc += v;
+    });
+  });
+
+  svg.selectAll("rect.seg").data(segs).join("rect")
+    .attr("class", "seg")
+    .attr("x", d => x(d.cat))
+    .attr("width", x.bandwidth())
+    .attr("fill", d => fillFor(svg, d.s.color))
+    .attr("filter", ditherFilter(svg))
+    .on("mousemove", (event, d) => showTip(event, `<strong>${d.cat}</strong><br>${d.s.name}: <strong>${fmt(d.v, c.format)}</strong>`))
+    .on("mouseleave", hideTip)
+    .attr("y", y(0)).attr("height", 0)
+    .call(s => grow(s).attr("y", d => y(d.y1)).attr("height", d => y(d.y0) - y(d.y1)));
+
+  svg.selectAll("text.seg-label").data(segs.filter(d => d.v >= 6)).join("text")
+    .attr("class", "seg-label")
+    .attr("text-anchor", "middle")
+    .attr("x", d => x(d.cat) + x.bandwidth() / 2)
+    .text(d => fmt(d.v, c.format))
+    .attr("y", y(0))
+    .call(s => grow(s).attr("y", d => (y(d.y0) + y(d.y1)) / 2 + 4));
+
+  if (c.categories.includes("North Lawndale")) {
+    svg.append("rect")
+      .attr("x", x("North Lawndale") - 4)
+      .attr("width", x.bandwidth() + 8)
+      .attr("y", y(100) - 4)
+      .attr("height", (y(0) - y(100)) + 8)
+      .attr("fill", "none").attr("stroke", "var(--red)").attr("stroke-width", 3);
+  }
+
+  svg.append("g").attr("class", "axis axis-x")
+    .attr("transform", `translate(0,${H - margin.bottom + 10})`)
+    .call(d3.axisBottom(x).tickSize(0))
+    .call(g => g.select(".domain").remove())
+    .call(g => xAxisLabels(g));
+
+  legend.html(
+    c.series.map(s => `<span><span class="swatch" style="background:${s.color}"></span>${s.name}</span>`).join("") +
+    (c.categories.includes("North Lawndale")
+      ? `<span><span class="swatch" style="border:3px solid var(--red); width:9px; height:9px;"></span>North Lawndale (focus area)</span>` : "")
+  );
+}
+
+/* ================= DASHBOARD BUILD: KPIs + TABS + PANELS ================= */
+const TABS = [
+  { id:"demo", label:"Demographics", num:1,
+    charts:["occ","race","buyerincome_geo","buyerincome_nl","buyerincome_med"] },
+  { id:"property", label:"Property & Parcels", num:2,
+    charts:["units","netchange","buildingtype","foreclosure","vacantland","priceindex","salesprice","pricechange","investor"] },
+  { id:"appendix", label:"Data Appendix" },
+];
+
+/* Headline indicators for North Lawndale, pulled from the chart data above. */
+const KPIS = [
+  { label:"Occupied units, 2010\u201324", value:"+10.6%", delta:"City +12.3%", dir:"neg" },
+  { label:"Total housing units, 2010\u201324", value:"\u22121.0%", delta:"City +6.6%", dir:"neg" },
+  { label:"Median sale price, 2024", value:"$260K", delta:"+85.7% since 2019", dir:"pos" },
+  { label:"Sales bought by businesses, 2024", value:"32.3%", delta:"City 21.3%", dir:"neg" },
+  { label:"Parcels w/ foreclosure filing since 2005", value:"46.9%", delta:"City 22.2%", dir:"neg" },
+  { label:"Median homebuyer income, 2024", value:"$90K", delta:"$61K in 2019", dir:"pos" },
+];
+d3.select("#kpis").selectAll("div").data(KPIS).join("div").attr("class", "kpi").html(d =>
+  `<p class="kpi-label">${d.label}</p><p class="kpi-value">${d.value}</p><p class="kpi-delta ${d.dir}">${d.delta}</p>`);
+
+const chartNumbers = {};
+TABS.filter(t => t.charts).forEach(t => t.charts.forEach((id, i) => { chartNumbers[id] = t.num + "." + (i + 1); }));
+
+/* ---------------- Appendix table generator ---------------- */
+const SIGNED = { occ:1, units:1, pricechange:1, netchange:1, buildingtype:1, priceindex:1 };
+function tdVal(v, format, signed) {
+  if (v == null) return '<td class="num">\u2013</td>';
+  let txt;
+  if (format === "usd") txt = "$" + d3.format(",")(Math.round(v));
+  else if (format === "count") txt = d3.format(signed ? "+," : ",")(v);
+  else txt = (signed && v > 0 ? "+" : "") + v.toFixed(1) + "%";
+  let cls = "num";
+  if (signed && v > 0) cls += " pos";
+  if (signed && v < 0) cls += " neg";
+  return `<td class="${cls}">${txt}</td>`;
+}
+function appendixTable(c) {
+  const signed = !!SIGNED[c.id];
+  let cols, rows;
+  if (c.type === "ranked") {
+    cols = ["Community", c.format === "pct" ? (signed ? "Percent change" : "Share") : "Value"];
+    rows = Object.entries(c.values).map(([k, v]) => `<tr><td>${k}</td>${tdVal(v, c.format, true)}</tr>`);
+  } else if (c.type === "dots") {
+    cols = ["Year", ...c.series.map(s => s.name)];
+    const years = c.series[0].points.map(p => p[0]);
+    rows = years.map((yr, i) => `<tr><td>${yr === 2025 ? "1H 2025" : yr}</td>` +
+      c.series.map(s => tdVal(s.points[i][1], "pct", true)).join("") + "</tr>");
+  } else if (c.type === "divergingH") {
+    cols = ["Community", ...c.series.map(s => s.name), c.total.name];
+    rows = c.categories.map(cat => `<tr><td>${cat}</td>` +
+      c.series.map(s => tdVal(s.values[cat], "count", true)).join("") +
+      tdVal(c.total.values[cat], "count", true) + "</tr>");
+  } else {
+    cols = ["Category", ...c.series.map(s => s.name)];
+    rows = c.categories.map(cat => `<tr><td>${cat}</td>` +
+      c.series.map(s => tdVal(s.values[cat], c.format, false)).join("") + "</tr>");
+  }
+  return `<table class="data"><thead><tr>${cols.map((h, i) => `<th${i ? ' class="num"' : ''}>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>`;
+}
+
+/* ---------------- Build tabs + panels ---------------- */
+const tabsEl = d3.select("#tabs");
+const panels = d3.select("#panels");
+TABS.forEach((t, i) => {
+  const tabBtn = tabsEl.append("md-primary-tab")
+    .attr("data-tab", t.id)
+    .attr("id", "tab-" + t.id)
+    .attr("aria-controls", "panel-" + t.id)
+    .text(t.label);
+  if (i === 0) tabBtn.attr("active", "");
+  /* explicit activation: never depend solely on the component's internals */
+  tabBtn.on("click", () => {
+    const el = document.getElementById("tabs");
+    if (typeof el.activeTabIndex === "number") el.activeTabIndex = i;
+    /* keep the active attribute in sync for the un-upgraded fallback styling */
+    el.querySelectorAll("md-primary-tab").forEach(tb => tb.removeAttribute("active"));
+    document.getElementById("tab-" + t.id).setAttribute("active", "");
+    activate(t.id);
+  });
+  const panel = panels.append("div").attr("class", "panel" + (i === 0 ? " active" : "")).attr("id", "panel-" + t.id);
+  const grid = panel.append("div").attr("class", "grid");
+  if (t.charts) {
+    t.charts.forEach(id => {
+      const c = CHARTS.find(ch => ch.id === id);
+      const card = grid.append("div").attr("class", "card" + (c.half ? "" : " wide")).attr("data-chart", id);
+      card.append("span").attr("class", "chip").text("Chart " + chartNumbers[id]);
+      card.append("h3").text(c.sub);
+      card.append("div").attr("class", "legend");
+      card.append("div").attr("class", "chart-holder");
+      card.append("p").attr("class", "source").text("Source: " + c.source);
+    });
+  } else {
+    panel.insert("p", ".grid").attr("class", "appendix-intro")
+      .text("Underlying data for every chart in this dashboard, transcribed from the May 21, 2026 IHS presentation. Values noted as digitized were measured from the presentation's vector geometry; precision is stated in each source line.");
+    let tnum = 0;
+    TABS.filter(x => x.charts).forEach(x => x.charts.forEach(id => {
+      const c = CHARTS.find(ch => ch.id === id);
+      tnum += 1;
+      const card = grid.append("div").attr("class", "card" + ((c.half || c.type === "ranked") ? "" : " wide"));
+      card.append("span").attr("class", "chip").text("Table A." + tnum + " \u00b7 Chart " + chartNumbers[id]);
+      card.append("h3").text(c.sub);
+      card.append("div").html(appendixTable(c));
+      card.append("p").attr("class", "source").text("Source: " + c.source);
+    }));
+  }
+});
+
+document.getElementById("tabs").addEventListener("change", e => {
+  const t = TABS[e.target.activeTabIndex];
+  if (t) activate(t.id);
+});
+
+function activate(id) {
+  d3.selectAll(".panel").classed("active", function() { return this.id === "panel-" + id; });
+  /* render charts the first time their tab is shown, so entry animations play */
+  d3.selectAll("#panel-" + id + " .card[data-chart]").each(function() {
+    if (!this.dataset.rendered) { this.dataset.rendered = "1"; renderInto(d3.select(this)); }
+  });
+}
+activate(TABS[0].id);
+</script>
+</body>
+</html>

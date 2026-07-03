@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 144" font-family="Roboto, Arial, sans-serif">
+<defs><filter id="e1" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.3"/></filter></defs>
+<rect width="640" height="144" fill="#FFFFFF"/>
+
+<rect x="24" y="20" width="200" height="104" rx="12" fill="#F3F3FA" filter="url(#e1)"/>
+<text x="40" y="46" font-size="11" font-weight="500" fill="#44474E" letter-spacing="0.6">OCCUPIED UNITS, 2010–24</text>
+<text x="40" y="84" font-size="30" fill="#191C20">+10.6%</text>
+<text x="40" y="106" font-size="12" font-weight="500" fill="#A63B00">City +12.3%</text>
+<g font-size="10" fill="#74777F">
+  <text x="250" y="40">container: surface-container-low #F3F3FA</text>
+  <text x="250" y="56">shape: 12px radius · elevation: level 1</text>
+  <text x="250" y="72">label: Roboto 500/11 uppercase · on-surface-variant</text>
+  <text x="250" y="88">value: Roboto 400/30 · on-surface</text>
+  <text x="250" y="104">delta: pos #146C2E / neg #A63B00</text>
+</g>
+</svg>

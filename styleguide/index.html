@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Material Design Style Guide | North Lawndale Housing Dashboard</title>
+<link rel="stylesheet" href="../vendor/fonts.css">
+<style>
+  :root {
+    --primary: #415F91;
+    --on-surface: #191C20;
+    --on-surface-variant: #44474E;
+    --outline-variant: #C4C6D0;
+    --surface: #F9F9FF;
+    --surface-container: #EDEDF4;
+    --surface-container-low: #F3F3FA;
+    --secondary-container: #DAE2F9;
+    --on-secondary-container: #131C2B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 400 14px/1.5 'Roboto', system-ui, sans-serif;
+    color: var(--on-surface);
+    background: var(--surface);
+  }
+  .appbar {
+    background: var(--surface-container);
+    padding: 0 28px; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .appbar .t { font: 500 13px/1 'Roboto'; color: var(--on-surface-variant); letter-spacing: .1px; }
+  .appbar a { font: 500 12px/1 'Roboto'; color: var(--primary); text-decoration: none; }
+  .hero { max-width: 1120px; margin: 0 auto; padding: 30px 28px 6px; }
+  .hero h1 { margin: 0 0 6px; font: 400 34px/1.15 'Roboto'; }
+  .hero p { margin: 0; font-size: 15px; color: var(--on-surface-variant); max-width: 760px; }
+  nav.toc {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--surface);
+    border-bottom: 1px solid var(--outline-variant);
+    padding: 12px 0;
+  }
+  nav.toc .inner { max-width: 1120px; margin: 0 auto; padding: 0 28px; display: flex; flex-wrap: wrap; gap: 8px; }
+  nav.toc a {
+    font: 500 12px/1 'Roboto'; letter-spacing: .04em;
+    color: var(--on-surface-variant); text-decoration: none;
+    padding: 8px 12px; border: 1px solid var(--outline-variant); border-radius: 999px;
+  }
+  nav.toc a:hover { color: var(--primary); border-color: var(--primary); }
+  main { max-width: 1120px; margin: 0 auto; padding: 8px 28px 60px; }
+  section { padding-top: 34px; scroll-margin-top: 60px; }
+  h2 {
+    font: 500 20px/1.2 'Roboto'; margin: 0 0 4px;
+    border-bottom: 2px solid var(--outline-variant); padding-bottom: 8px;
+  }
+  section > p.note { margin: 8px 0 16px; color: var(--on-surface-variant); max-width: 780px; }
+  .assets { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  .asset {
+    background: #fff; border: 1px solid var(--outline-variant); border-radius: 12px;
+    overflow: hidden;
+  }
+  .asset .cap {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 11px 16px; border-bottom: 1px solid var(--outline-variant);
+    background: var(--surface-container-low);
+  }
+  .asset .cap h3 { margin: 0; font: 500 14px/1.3 'Roboto'; }
+  .asset .cap .file {
+    font: 500 11px/1 'Roboto', monospace; color: var(--on-secondary-container);
+    background: var(--secondary-container); padding: 5px 9px; border-radius: 7px;
+    text-decoration: none;
+  }
+  .asset .frame {
+    padding: 16px;
+    background:
+      linear-gradient(45deg, #f4f5fa 25%, transparent 25%, transparent 75%, #f4f5fa 75%),
+      linear-gradient(45deg, #f4f5fa 25%, #fff 25%, #fff 75%, #f4f5fa 75%);
+    background-size: 16px 16px; background-position: 0 0, 8px 8px;
+  }
+  .asset .frame img { display: block; width: 100%; height: auto; background: #fff; border-radius: 4px; }
+  footer { max-width: 1120px; margin: 0 auto; padding: 30px 28px 50px; color: var(--on-surface-variant); font-size: 12.5px; }
+  footer code { background: var(--surface-container); padding: 2px 6px; border-radius: 4px; }
+  @media (min-width: 720px) { .assets.two { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<header class="appbar">
+  <span class="t">Institute for Housing Studies at DePaul University &middot; Design System</span>
+  <a href="../index.html">&larr; Back to dashboard</a>
+</header>
+<div class="hero">
+  <h1>Material Design Style Guide</h1>
+  <p>A visual library of every design token and component used in the North Lawndale Housing Dashboard, exported as standalone SVG files. Regenerate after any change with <code>python3 generate.py</code>. Each card links to its raw <code>.svg</code> so you can open, compare, or drop it into Figma.</p>
+</div>
+<nav class="toc"><div class="inner">
+  <a href="#color">Color</a>
+  <a href="#type">Typography</a>
+  <a href="#shape">Shape &amp; Elevation</a>
+  <a href="#texture">Bar texture</a>
+  <a href="#components">Components</a>
+  <a href="#charts">Chart specimens</a>
+</div></nav>
+<main>
+  <section id="color">
+    <h2>Color</h2>
+    <p class="note">M3 system tokens (light scheme, navy-blue seed) and the chart data-mark palette mapped onto the primary tonal range. Bar fills use a subtle top-lit gradient.</p>
+    <div class="assets">
+      <div class="asset"><div class="cap"><h3>System color tokens</h3><a class="file" href="assets/colors-system.svg" target="_blank">colors-system.svg</a></div><div class="frame"><img src="assets/colors-system.svg" alt="System color tokens"></div></div>
+      <div class="asset"><div class="cap"><h3>Chart &amp; series palette</h3><a class="file" href="assets/colors-chart.svg" target="_blank">colors-chart.svg</a></div><div class="frame"><img src="assets/colors-chart.svg" alt="Chart palette"></div></div>
+      <div class="asset"><div class="cap"><h3>Bar fill gradients</h3><a class="file" href="assets/colors-gradients.svg" target="_blank">colors-gradients.svg</a></div><div class="frame"><img src="assets/colors-gradients.svg" alt="Bar gradients"></div></div>
+    </div>
+  </section>
+  <section id="type">
+    <h2>Typography</h2>
+    <p class="note">Roboto type scale — from the display headline down to source captions.</p>
+    <div class="assets">
+      <div class="asset"><div class="cap"><h3>Type scale</h3><a class="file" href="assets/typography.svg" target="_blank">typography.svg</a></div><div class="frame"><img src="assets/typography.svg" alt="Typography scale"></div></div>
+    </div>
+  </section>
+  <section id="shape">
+    <h2>Shape &amp; Elevation</h2>
+    <p class="note">Corner-radius and elevation conventions used across cards, chips, and tooltips.</p>
+    <div class="assets">
+      <div class="asset"><div class="cap"><h3>Shape &amp; elevation scale</h3><a class="file" href="assets/shape-elevation.svg" target="_blank">shape-elevation.svg</a></div><div class="frame"><img src="assets/shape-elevation.svg" alt="Shape and elevation"></div></div>
+    </div>
+  </section>
+  <section id="texture">
+    <h2>Bar texture &amp; shape</h2>
+    <p class="note">Standalone bars use a 4px corner radius and a dither stipple (SVG <code>feTurbulence</code> clipped to the mark) layered over the gradient fill, for a matte, tactile surface. Stacked and diverging segments keep square ends so they abut cleanly; dots and dumbbells stay crisp.</p>
+    <div class="assets">
+      <div class="asset"><div class="cap"><h3>Bar treatment progression</h3><a class="file" href="assets/bar-texture.svg" target="_blank">bar-texture.svg</a></div><div class="frame"><img src="assets/bar-texture.svg" alt="Bar texture and shape"></div></div>
+    </div>
+  </section>
+  <section id="components">
+    <h2>Components</h2>
+    <p class="note">The building blocks of the dashboard, each annotated with its tokens.</p>
+    <div class="assets two">
+      <div class="asset"><div class="cap"><h3>KPI card</h3><a class="file" href="assets/component-kpi-card.svg" target="_blank">component-kpi-card.svg</a></div><div class="frame"><img src="assets/component-kpi-card.svg" alt="KPI card"></div></div>
+      <div class="asset"><div class="cap"><h3>Chart card &amp; chip</h3><a class="file" href="assets/component-chart-card.svg" target="_blank">component-chart-card.svg</a></div><div class="frame"><img src="assets/component-chart-card.svg" alt="Chart card"></div></div>
+      <div class="asset"><div class="cap"><h3>Tabs</h3><a class="file" href="assets/component-tabs.svg" target="_blank">component-tabs.svg</a></div><div class="frame"><img src="assets/component-tabs.svg" alt="Tabs"></div></div>
+      <div class="asset"><div class="cap"><h3>Data table</h3><a class="file" href="assets/component-table.svg" target="_blank">component-table.svg</a></div><div class="frame"><img src="assets/component-table.svg" alt="Data table"></div></div>
+      <div class="asset"><div class="cap"><h3>Tooltip</h3><a class="file" href="assets/component-tooltip.svg" target="_blank">component-tooltip.svg</a></div><div class="frame"><img src="assets/component-tooltip.svg" alt="Tooltip"></div></div>
+    </div>
+  </section>
+  <section id="charts">
+    <h2>Chart specimens</h2>
+    <p class="note">Each chart type in the dashboard, drawn with the real palette and encoding rules so you can compare treatments side by side.</p>
+    <div class="assets two">
+      <div class="asset"><div class="cap"><h3>Ranked bars</h3><a class="file" href="assets/chart-ranked.svg" target="_blank">chart-ranked.svg</a></div><div class="frame"><img src="assets/chart-ranked.svg" alt="Ranked bar chart"></div></div>
+      <div class="asset"><div class="cap"><h3>Dumbbell</h3><a class="file" href="assets/chart-dumbbell.svg" target="_blank">chart-dumbbell.svg</a></div><div class="frame"><img src="assets/chart-dumbbell.svg" alt="Dumbbell chart"></div></div>
+      <div class="asset"><div class="cap"><h3>Diverging stacked</h3><a class="file" href="assets/chart-diverging.svg" target="_blank">chart-diverging.svg</a></div><div class="frame"><img src="assets/chart-diverging.svg" alt="Diverging stacked bars"></div></div>
+      <div class="asset"><div class="cap"><h3>100% stacked</h3><a class="file" href="assets/chart-stacked.svg" target="_blank">chart-stacked.svg</a></div><div class="frame"><img src="assets/chart-stacked.svg" alt="Stacked bars"></div></div>
+      <div class="asset"><div class="cap"><h3>Index dots</h3><a class="file" href="assets/chart-dots.svg" target="_blank">chart-dots.svg</a></div><div class="frame"><img src="assets/chart-dots.svg" alt="Dot chart"></div></div>
+    </div>
+  </section>
+</main>
+<footer>
+  All assets generated from <code>styleguide/generate.py</code>, whose <code>TOKENS</code> dict mirrors the CSS variables in <code>index.html</code>. Edit the tokens, rerun the script, and every SVG updates. Fully offline — fonts load from <code>../vendor/</code>.
+</footer>
+</body>
+</html>

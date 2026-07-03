@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 132" font-family="Roboto, Arial, sans-serif">
+<defs></defs>
+<rect width="640" height="132" fill="#FFFFFF"/>
+
+<rect x="0" y="20" width="640" height="49" fill="#F9F9FF"/>
+<line x1="0" y1="68.5" x2="640" y2="68.5" stroke="#C4C6D0"/>
+<text x="90" y="50" font-size="14" font-weight="500" fill="#415F91" text-anchor="middle">Demographics</text>
+<rect x="40" y="65" width="100" height="3" rx="1.5" fill="#415F91"/>
+<text x="230" y="50" font-size="14" font-weight="500" fill="#44474E" text-anchor="middle">Property &amp; Parcels</text>
+<text x="390" y="50" font-size="14" font-weight="500" fill="#44474E" text-anchor="middle">Data Appendix</text>
+<g font-size="10" fill="#74777F">
+  <text x="40" y="100">md-tabs / md-primary-tab (material-web, bundled at vendor/material-tabs.min.js)</text>
+  <text x="40" y="116">active: primary #415F91 text + 3px indicator · inactive: on-surface-variant #44474E</text>
+</g>
+</svg>

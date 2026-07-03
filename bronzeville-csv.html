@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bronzeville Trail — Baseline Data Explorer</title>
+<script src="vendor/d3.v7.min.js"></script>
+<style>
+  :root {
+    --navy: #16283f;
+    --navy-light: #24405f;
+    --gray-bar: #bcbec0;
+    --gray-text: #58595b;
+    --gray-sub: #808285;
+    --red: #e1251b;
+    --bg: #ffffff;
+    --rule: #e6e7e8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: #f4f5f6;
+    color: var(--gray-text);
+  }
+  .app {
+    max-width: 1060px;
+    margin: 24px auto 48px;
+    background: var(--bg);
+    padding: 36px 44px 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.12);
+  }
+  .kicker {
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--gray-sub);
+    margin: 0 0 6px;
+    font-weight: 700;
+  }
+  h1.headline {
+    font-size: 30px;
+    line-height: 1.15;
+    margin: 0 0 8px;
+    color: var(--gray-text);
+    font-weight: 700;
+  }
+  p.deck-sub {
+    font-size: 17px;
+    margin: 0 0 22px;
+    color: var(--gray-sub);
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+    padding: 14px 0 18px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 10px;
+  }
+  .control { display: flex; flex-direction: column; gap: 4px; }
+  .control label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    font-weight: 700;
+    color: var(--gray-sub);
+  }
+  select {
+    font: 14px/1.3 inherit;
+    color: var(--gray-text);
+    padding: 7px 10px;
+    border: 1px solid #c9cbcd;
+    border-radius: 3px;
+    background: #fff;
+    max-width: 340px;
+  }
+  .view-toggle { display: flex; border: 1px solid #c9cbcd; border-radius: 3px; overflow: hidden; }
+  .view-toggle button {
+    font: 700 12px/1 inherit;
+    letter-spacing: .04em;
+    padding: 9px 14px;
+    border: none;
+    background: #fff;
+    color: var(--gray-sub);
+    cursor: pointer;
+  }
+  .view-toggle button.active { background: var(--navy); color: #fff; }
+  #chart { width: 100%; }
+  svg { display: block; width: 100%; height: auto; }
+  .bar-label {
+    font-size: 15px;
+    font-weight: 700;
+    fill: var(--gray-sub);
+  }
+  .axis text { font-size: 12.5px; fill: var(--gray-sub); font-weight: 600; }
+  .axis-x text { font-size: 11px; letter-spacing: .04em; }
+  .axis path, .axis line { stroke: #d9dadb; }
+  .zero-line { stroke: #a7a9ac; stroke-width: 1.2; }
+  .legend { display: flex; gap: 22px; margin: 4px 0 2px; font-size: 12.5px; font-weight: 600; }
+  .legend .swatch { display: inline-block; width: 13px; height: 13px; margin-right: 6px; vertical-align: -2px; }
+  .footnote {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--gray-sub);
+    font-weight: 700;
+    margin-top: 18px;
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--navy);
+    color: #fff;
+    font-size: 12.5px;
+    line-height: 1.45;
+    padding: 8px 11px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity .12s;
+    max-width: 240px;
+    z-index: 10;
+  }
+  .tooltip strong { font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <p class="kicker">Baseline Data Collection · Interactive Explorer</p>
+  <h1 class="headline" id="headline"></h1>
+  <p class="deck-sub" id="subline"></p>
+
+  <div class="controls">
+    <div class="control">
+      <label for="indicator">Indicator</label>
+      <select id="indicator"></select>
+    </div>
+    <div class="control">
+      <label for="metric">Measure</label>
+      <select id="metric"></select>
+    </div>
+    <div class="control">
+      <label>View</label>
+      <div class="view-toggle" id="viewToggle">
+        <button data-view="change" class="active">Change 2010–2023</button>
+        <button data-view="levels">2010 vs 2023</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+  <div id="chart"></div>
+  <p class="footnote" id="source"></p>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ============ DATA — transcribed from IHS_MUSE_Dashboard_02252026(A.csv ============ */
+/* Geographies. Order matters only as a default; charts sort themselves. */
+const GEOS = [
+  { id:"bt",  name:"Bronzeville Trail",  short:"BRONZEVILLE\nTRAIL",  role:"focus" },
+  { id:"gb",  name:"Grand Boulevard",    short:"GRAND\nBOULEVARD" },
+  { id:"kw",  name:"Kenwood",            short:"KENWOOD" },
+  { id:"ok",  name:"Oakland",            short:"OAKLAND" },
+  { id:"dg",  name:"Douglas",            short:"DOUGLAS" },
+  { id:"bca", name:"Bronzeville (4 Community Areas)", short:"BRONZEVILLE\nCOMM. AREAS" },
+  { id:"chi", name:"City of Chicago",    short:"CITY OF\nCHICAGO", role:"benchmark" },
+];
+
+/* Each metric: values = {geo:[2010, 2023]}; format: count | pct | usd  */
+const INDICATORS = [
+  {
+    id:"age", title:"Head of Households by Age",
+    metrics:[
+      { id:"total",  name:"Total Households", format:"count",
+        values:{ bt:[14240,18356], gb:[9552,12200], kw:[9322,9945], ok:[2445,3423], dg:[9097,10517], bca:[30416,36085], chi:[1032701,1146111] } },
+      { id:"a1524", name:"Households Headed by Age 15–24", format:"count",
+        values:{ bt:[464,464], gb:[271,289], kw:[545,523], ok:[16,79], dg:[632,711], bca:[1464,1602], chi:[54599,50289] } },
+      { id:"s1524", name:"Share of Households Age 15–24", format:"pct",
+        values:{ bt:[3.3,2.5], gb:[2.8,2.4], kw:[5.8,5.3], ok:[0.7,2.3], dg:[6.9,6.8], bca:[4.8,4.4], chi:[5.3,4.4] } },
+      { id:"a2544", name:"Households Headed by Age 25–44", format:"count",
+        values:{ bt:[5567,6752], gb:[4025,4264], kw:[3301,3719], ok:[1121,1351], dg:[3439,4456], bca:[11886,13790], chi:[447972,485123] } },
+      { id:"s2544", name:"Share of Households Age 25–44", format:"pct",
+        values:{ bt:[39.1,36.8], gb:[42.1,35.0], kw:[35.4,37.4], ok:[45.8,39.5], dg:[37.8,42.4], bca:[39.1,38.2], chi:[43.4,42.3] } },
+      { id:"a4564", name:"Households Headed by Age 45–64", format:"count",
+        values:{ bt:[4862,6201], gb:[2860,4426], kw:[3700,2990], ok:[915,1232], dg:[3007,2695], bca:[10482,11343], chi:[348002,365188] } },
+      { id:"s4564", name:"Share of Households Age 45–64", format:"pct",
+        values:{ bt:[34.1,33.8], gb:[29.9,36.3], kw:[39.7,30.1], ok:[37.4,36.0], dg:[33.1,25.6], bca:[34.5,31.4], chi:[33.7,31.9] } },
+      { id:"a65",   name:"Households Headed by Age 65+", format:"count",
+        values:{ bt:[3347,4939], gb:[2396,3221], kw:[1776,2713], ok:[393,761], dg:[2019,2655], bca:[6584,9350], chi:[182128,245511] } },
+      { id:"s65",   name:"Share of Households Age 65+", format:"pct",
+        values:{ bt:[23.5,26.9], gb:[25.1,26.4], kw:[19.1,27.3], ok:[16.1,22.2], dg:[22.2,25.2], bca:[21.6,25.9], chi:[17.6,21.4] } },
+    ]
+  },
+  {
+    id:"size", title:"Households by Number of Persons",
+    metrics:[
+      { id:"p1",  name:"1-Person Households", format:"count",
+        values:{ bt:[6364,9106], gb:[4383,5800], kw:[4802,5453], ok:[920,1632], dg:[4995,5994], bca:[15100,18879], chi:[367521,449510] } },
+      { id:"sp1", name:"Share: 1-Person Households", format:"pct",
+        values:{ bt:[44.7,49.6], gb:[45.9,47.5], kw:[51.5,54.8], ok:[37.6,47.7], dg:[54.9,57.0], bca:[49.6,52.3], chi:[35.6,39.2] } },
+      { id:"p2",  name:"2-Person Households", format:"count",
+        values:{ bt:[3270,4257], gb:[2205,2848], kw:[2375,2506], ok:[574,962], dg:[2269,2409], bca:[7423,8725], chi:[284431,337439] } },
+      { id:"sp2", name:"Share: 2-Person Households", format:"pct",
+        values:{ bt:[23.0,23.2], gb:[23.1,23.3], kw:[25.5,25.2], ok:[23.5,28.1], dg:[24.9,22.9], bca:[24.4,24.2], chi:[27.5,29.4] } },
+      { id:"p3",  name:"3-Person Households", format:"count",
+        values:{ bt:[2480,2421], gb:[1344,1652], kw:[1301,1268], ok:[561,415], dg:[1126,1144], bca:[4332,4479], chi:[149654,149640] } },
+      { id:"sp3", name:"Share: 3-Person Households", format:"pct",
+        values:{ bt:[17.4,13.2], gb:[14.1,13.5], kw:[14.0,12.8], ok:[22.9,12.1], dg:[12.4,10.9], bca:[14.2,12.4], chi:[14.5,13.1] } },
+      { id:"p4",  name:"4-or-More-Person Households", format:"count",
+        values:{ bt:[2126,2572], gb:[1620,1900], kw:[844,718], ok:[390,414], dg:[707,970], bca:[3561,4002], chi:[231095,209522] } },
+      { id:"sp4", name:"Share: 4-or-More-Person Households", format:"pct",
+        values:{ bt:[14.9,14.0], gb:[17.0,15.6], kw:[9.1,7.2], ok:[16.0,12.1], dg:[7.8,9.2], bca:[11.7,11.1], chi:[22.4,18.3] } },
+    ]
+  },
+  {
+    id:"children", title:"Households with Children",
+    metrics:[
+      { id:"hhc",  name:"Households with Children", format:"count",
+        values:{ bt:[4577,4812], gb:[3058,3063], kw:[2140,2074], ok:[1001,1019], dg:[1933,1714], bca:[8132,7870], chi:[313391,271770] } },
+      { id:"shhc", name:"Share of Households with Children", format:"pct",
+        values:{ bt:[32.1,26.2], gb:[32.0,25.1], kw:[23.0,20.9], ok:[40.9,29.8], dg:[21.2,16.3], bca:[26.7,21.8], chi:[30.3,23.7] } },
+    ]
+  },
+  {
+    id:"income_comp", title:"Composition of Households by Income",
+    metrics:[
+      { id:"lt25", name:"Share Earning Less Than $25,000", format:"pct",
+        values:{ bt:[52.3,39.4], gb:[46.9,34.2], kw:[37.7,27.2], ok:[55.8,44.6], dg:[40.8,33.6], bca:[43.0,33.1], chi:[29.1,19.3] } },
+      { id:"i2550", name:"Share Earning $25,000–$49,999", format:"pct",
+        values:{ bt:[17.4,15.7], gb:[19.1,16.3], kw:[19.0,17.6], ok:[17.4,16.0], dg:[22.7,18.1], bca:[20.0,17.1], chi:[23.3,16.7] } },
+      { id:"i50100", name:"Share Earning $50,000–$99,999", format:"pct",
+        values:{ bt:[18.2,21.3], gb:[22.8,21.9], kw:[23.7,21.5], ok:[12.4,18.9], dg:[25.7,26.2], bca:[23.1,22.8], chi:[28.2,25.7] } },
+      { id:"gt100", name:"Share Earning $100,000 or More", format:"pct",
+        values:{ bt:[12.1,23.6], gb:[11.2,27.6], kw:[19.6,33.7], ok:[14.4,20.5], dg:[10.8,22.1], bca:[13.9,27.0], chi:[19.4,38.4] } },
+    ]
+  },
+  {
+    id:"income", title:"Median Household Income (Nominal)",
+    metrics:[
+      { id:"mhi", name:"Median Household Income", format:"usd",
+        values:{ bt:[28393,48887], gb:[35395,55397], kw:[43679,66813], ok:[20200,27734], dg:[33012,56266], bca:[35049,56126], chi:[47700,77789] } },
+      { id:"mohi", name:"Median Owner Household Income", format:"usd",
+        values:{ bt:[85022,127043], gb:[87220,113379], kw:[94459,158402], ok:[92949,167322], dg:[79315,103163], bca:[87977,126399], chi:[73507,117049] } },
+      { id:"mrhi", name:"Median Renter Household Income", format:"usd",
+        values:{ bt:[18640,28823], gb:[21707,31493], kw:[24757,38638], ok:[15866,22681], dg:[26424,51339], bca:[23252,37572], chi:[32826,57722] } },
+    ]
+  },
+  {
+    id:"income_adj", title:"Median Household Income (Inflation-Adjusted)", note:"2010 data adjusted to 2023 dollars using CPI.",
+    metrics:[
+      { id:"amhi", name:"Median Household Income", format:"usd",
+        values:{ bt:[37673,48887], gb:[46965,55397], kw:[57956,66813], ok:[26802,27734], dg:[43802,56266], bca:[46505,56126], chi:[63292,77789] } },
+      { id:"amohi", name:"Median Owner Household Income", format:"usd",
+        values:{ bt:[112812,127043], gb:[115730,113379], kw:[125334,158402], ok:[123331,167322], dg:[105240,103163], bca:[116733,126399], chi:[97533,117049] } },
+      { id:"amrhi", name:"Median Renter Household Income", format:"usd",
+        values:{ bt:[24733,28823], gb:[28802,31493], kw:[32849,38638], ok:[21052,22681], dg:[35062,51339], bca:[30853,37572], chi:[43556,57722] } },
+    ]
+  },
+  {
+    id:"tenure", title:"Households by Tenure",
+    metrics:[
+      { id:"own",  name:"Owner Households", format:"count",
+        values:{ bt:[3751,5239], gb:[2736,3935], kw:[3436,3711], ok:[549,890], dg:[1886,2018], bca:[8607,10554], chi:[493605,521946] } },
+      { id:"sown", name:"Share: Owner Households", format:"pct",
+        values:{ bt:[26.3,28.5], gb:[28.6,32.3], kw:[36.9,37.3], ok:[22.5,26.0], dg:[20.7,19.2], bca:[28.3,29.2], chi:[47.8,45.5] } },
+      { id:"rent", name:"Renter Households", format:"count",
+        values:{ bt:[10489,13117], gb:[6816,8265], kw:[5886,6234], ok:[1896,2533], dg:[7211,8499], bca:[21809,25531], chi:[539096,624165] } },
+      { id:"srent", name:"Share: Renter Households", format:"pct",
+        values:{ bt:[73.7,71.5], gb:[71.4,67.7], kw:[63.1,62.7], ok:[77.5,74.0], dg:[79.3,80.8], bca:[71.7,70.8], chi:[52.2,54.5] } },
+    ]
+  },
+  {
+    id:"occupancy", title:"Housing Units by Occupancy Type",
+    metrics:[
+      { id:"units", name:"Total Housing Units", format:"count",
+        values:{ bt:[17143,19918], gb:[11989,13432], kw:[10761,11113], ok:[2722,3624], dg:[11247,11382], bca:[36719,39551], chi:[1197420,1267735] } },
+      { id:"occ",  name:"Occupied Housing Units", format:"count",
+        values:{ bt:[14240,18356], gb:[9552,12200], kw:[9322,9945], ok:[2445,3423], dg:[9097,10517], bca:[30416,36085], chi:[1032701,1146111] } },
+      { id:"socc", name:"Share of Units Occupied", format:"pct",
+        values:{ bt:[83.1,92.2], gb:[79.7,90.8], kw:[86.6,89.5], ok:[89.8,94.5], dg:[80.9,92.4], bca:[82.8,91.2], chi:[86.2,90.4] } },
+      { id:"vac",  name:"Vacant Housing Units", format:"count",
+        values:{ bt:[2903,1562], gb:[2437,1232], kw:[1439,1168], ok:[277,201], dg:[2150,865], bca:[6303,3466], chi:[164719,121624] } },
+      { id:"svac", name:"Share of Units Vacant", format:"pct",
+        values:{ bt:[16.9,7.8], gb:[20.3,9.2], kw:[13.4,10.5], ok:[10.2,5.5], dg:[19.1,7.6], bca:[17.2,8.8], chi:[13.8,9.6] } },
+    ]
+  },
+  {
+    id:"rents", title:"Lower-Cost Rents (Gross Rent Under $900)",
+    metrics:[
+      { id:"cash", name:"Renter Households with Cash Rent", format:"count",
+        values:{ bt:[10266,12787], gb:[6675,7994], kw:[5775,6188], ok:[1868,2457], dg:[7102,8424], bca:[21420,25063], chi:[525498,606297] } },
+      { id:"lc",   name:"Units with Gross Rent Less Than $900", format:"count",
+        values:{ bt:[7545,6671], gb:[4276,3135], kw:[3247,1649], ok:[1307,1349], dg:[3813,2660], bca:[12643,8793], chi:[272735,113682] } },
+      { id:"slc",  name:"Share of Rentals Under $900", format:"pct",
+        values:{ bt:[73.5,52.2], gb:[64.1,39.2], kw:[56.2,26.6], ok:[70.0,54.9], dg:[53.7,31.6], bca:[59.0,35.1], chi:[51.9,18.8] } },
+    ]
+  },
+  {
+    id:"subsidy", title:"Subsidized Rental Housing (2023)", single:true,
+    metrics:[
+      { id:"ph",  name:"Share of Rentals: Public Housing", format:"pct",
+        values:{ bt:[null,13.9], gb:[null,9.7], kw:[null,2.8], ok:[null,25.2], dg:[null,10.7], bca:[null,9.9], chi:[null,2.3] } },
+      { id:"s8",  name:"Share of Rentals: Project-Based Section 8", format:"pct",
+        values:{ bt:[null,21.8], gb:[null,14.0], kw:[null,14.2], ok:[null,13.6], dg:[null,16.4], bca:[null,14.8], chi:[null,4.3] } },
+      { id:"hcv", name:"Share of Rentals: Housing Choice Vouchers", format:"pct",
+        values:{ bt:[null,23.1], gb:[null,24.2], kw:[null,26.0], ok:[null,23.5], dg:[null,11.2], bca:[null,20.2], chi:[null,9.6] } },
+    ]
+  },
+];
+
+/* ============ STATE + CONTROLS ============ */
+const state = { indicator: INDICATORS[0], metric: INDICATORS[0].metrics[0], view: "change" };
+
+const indSel = d3.select("#indicator");
+indSel.selectAll("option").data(INDICATORS).join("option")
+  .attr("value", d => d.id).text(d => d.title);
+indSel.on("change", function() {
+  state.indicator = INDICATORS.find(i => i.id === this.value);
+  state.metric = state.indicator.metrics[0];
+  if (state.indicator.single) state.view = "change";
+  populateMetrics(); syncToggle(); render();
+});
+
+const metSel = d3.select("#metric");
+function populateMetrics() {
+  metSel.selectAll("option").data(state.indicator.metrics, d => d.id).join("option")
+    .attr("value", d => d.id).text(d => d.name);
+  metSel.property("value", state.metric.id);
+}
+metSel.on("change", function() {
+  state.metric = state.indicator.metrics.find(m => m.id === this.value);
+  render();
+});
+
+d3.select("#viewToggle").selectAll("button").on("click", function() {
+  state.view = this.dataset.view;
+  syncToggle(); render();
+});
+function syncToggle() {
+  const single = !!state.indicator.single;
+  d3.select("#viewToggle").selectAll("button")
+    .classed("active", function() { return this.dataset.view === state.view; })
+    .attr("disabled", function() { return (single && this.dataset.view === "levels") ? true : null; })
+    .style("opacity", function() { return (single && this.dataset.view === "levels") ? 0.35 : 1; });
+  d3.select("#viewToggle").select('[data-view="change"]')
+    .text(single ? "2023 Level" : "Change 2010–2023");
+}
+
+/* ============ FORMATTERS ============ */
+const fmtCount = d3.format(",");
+const fmtUsd = v => "$" + d3.format(",")(Math.round(v));
+function fmtLevel(v, format) {
+  if (v == null) return "–";
+  if (format === "pct") return v.toFixed(1) + "%";
+  if (format === "usd") return fmtUsd(v);
+  return fmtCount(v);
+}
+/* change: % change for counts/dollars, percentage-point diff for shares */
+function changeValue(m, geo) {
+  const [a, b] = m.values[geo.id];
+  if (state.indicator.single) return b;                 // 2023 level
+  if (m.format === "pct") return +(b - a).toFixed(1);   // pp
+  if (a === 0) return null;
+  return +(((b - a) / a) * 100).toFixed(1);
+}
+function fmtChange(v, m) {
+  if (v == null) return "n/a";
+  if (state.indicator.single) return v.toFixed(1) + "%";
+  const sign = v > 0 ? "" : "";
+  if (m.format === "pct") return sign + v.toFixed(1) + " pp";
+  return sign + v.toFixed(1) + "%";
+}
+function changeLabel(m) {
+  if (state.indicator.single) return "Share in 2023";
+  return m.format === "pct" ? "Percentage-Point Change, 2010 to 2023" : "Percent Change, 2010 to 2023";
+}
+
+/* ============ HEADLINE ============ */
+function updateText() {
+  const m = state.metric;
+  const focus = changeValue(m, GEOS[0]);
+  const city = changeValue(m, GEOS[6]);
+  let headline;
+  if (state.indicator.single) {
+    headline = `Bronzeville Trail: ${m.name.replace("Share of Rentals: ", "")} covers ${focus?.toFixed(1)}% of rentals vs ${city?.toFixed(1)}% citywide`;
+  } else if (focus != null && city != null) {
+    const dir = focus > city ? "faster" : (focus < city ? "slower" : "similar");
+    const unit = m.format === "pct" ? "pp" : "%";
+    headline = `Bronzeville Trail changed ${dir} than the city: ${fmtChange(focus, m)} vs ${fmtChange(city, m)}`;
+    if (dir === "similar") headline = `Bronzeville Trail tracked the city: ${fmtChange(focus, m)} vs ${fmtChange(city, m)}`;
+  }
+  d3.select("#headline").text(headline || state.indicator.title);
+  const yrs = state.indicator.single ? "2023" : "2010 to 2023";
+  d3.select("#subline").text(`${m.name} — ${state.indicator.title}, Bronzeville Trail neighborhoods vs City of Chicago, ${yrs}`);
+  d3.select("#source").text("Source: IHS MUSE Dashboard export (Feb 2026) · US Census 5-Year American Community Survey, 2010 and 2023" +
+    (state.indicator.note ? " · " + state.indicator.note : "") +
+    (state.indicator.id === "subsidy" ? " · Subsidy data: US Dept. of Housing and Urban Development" : ""));
+}
+
+/* ============ CHART ============ */
+const W = 980, H = 560;
+const margin = { top: 46, right: 20, bottom: 78, left: 64 };
+const tooltip = d3.select("#tooltip");
+
+function render() {
+  updateText();
+  d3.select("#chart").selectAll("*").remove();
+  const svg = d3.select("#chart").append("svg").attr("viewBox", `0 0 ${W} ${H}`);
+  if (state.view === "levels" && !state.indicator.single) renderLevels(svg);
+  else renderChange(svg);
+}
+
+function geoColor(g) {
+  return g.role === "benchmark" ? "var(--gray-bar)" : "var(--navy)";
+}
+
+/* Animate only when the page is visible; hidden tabs pause rAF and would
+   freeze d3 transitions at their start state. */
+function grow(sel) {
+  return document.hidden ? sel : sel.transition().duration(620).ease(d3.easeCubicOut);
+}
+
+function showTip(event, html) {
+  tooltip.html(html).style("opacity", 1)
+    .style("left", (event.pageX + 14) + "px")
+    .style("top", (event.pageY - 12) + "px");
+}
+function hideTip() { tooltip.style("opacity", 0); }
+
+function xAxisLabels(g, x) {
+  g.selectAll(".tick text").each(function(d) {
+    const geo = GEOS.find(gg => gg.id === d);
+    const lines = geo.short.split("\n");
+    const t = d3.select(this).text(null);
+    lines.forEach((line, i) => {
+      t.append("tspan").attr("x", 0).attr("dy", i === 0 ? "1em" : "1.15em").text(line);
+    });
+  });
+}
+
+/* --- Ranked change view (deck style) --- */
+function renderChange(svg) {
+  const m = state.metric;
+  const data = GEOS.map(g => ({ geo: g, v: changeValue(m, g) })).filter(d => d.v != null)
+    .sort((a, b) => d3.descending(a.v, b.v));
+
+  const x = d3.scaleBand().domain(data.map(d => d.geo.id))
+    .range([margin.left, W - margin.right]).padding(0.32);
+  const [lo, hi] = d3.extent(data, d => d.v);
+  const pad = Math.max((hi - lo) * 0.18, 2);
+  const y = d3.scaleLinear()
+    .domain([Math.min(0, lo - (lo < 0 ? pad : 0)), Math.max(0, hi + pad)]).nice()
+    .range([H - margin.bottom, margin.top]);
+
+  // y axis
+  const unit = (state.indicator.single || m.format !== "pct" || state.indicator.single) ? "%" : "pp";
+  const yUnit = state.indicator.single ? "%" : (m.format === "pct" ? " pp" : "%");
+  svg.append("g").attr("class", "axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(7).tickFormat(v => v + yUnit).tickSize(0).tickPadding(10))
+    .call(g => g.select(".domain").remove());
+
+  // zero line
+  svg.append("line").attr("class", "zero-line")
+    .attr("x1", margin.left).attr("x2", W - margin.right)
+    .attr("y1", y(0)).attr("y2", y(0));
+
+  // bars
+  svg.selectAll("rect.bar").data(data).join("rect")
+    .attr("class", "bar")
+    .attr("x", d => x(d.geo.id))
+    .attr("width", x.bandwidth())
+    .attr("fill", d => geoColor(d.geo))
+    .attr("y", y(0)).attr("height", 0)
+    .on("mousemove", (event, d) => {
+      const [v10, v23] = m.values[d.geo.id];
+      showTip(event, `<strong>${d.geo.name}</strong><br>${m.name}<br>` +
+        (state.indicator.single
+          ? `2023: <strong>${fmtLevel(v23, m.format)}</strong>`
+          : `2010: ${fmtLevel(v10, m.format)}<br>2023: ${fmtLevel(v23, m.format)}<br>Change: <strong>${fmtChange(d.v, m)}</strong>`));
+    })
+    .on("mouseleave", hideTip);
+  grow(svg.selectAll("rect.bar"))
+    .attr("y", d => d.v >= 0 ? y(d.v) : y(0))
+    .attr("height", d => Math.abs(y(d.v) - y(0)));
+
+  // focus highlight box (red outline, like the deck) — grows with the bar
+  const focus = data.find(d => d.geo.role === "focus");
+  if (focus) {
+    svg.append("rect")
+      .attr("x", x(focus.geo.id) - 4)
+      .attr("width", x.bandwidth() + 8)
+      .attr("fill", "none").attr("stroke", "var(--red)").attr("stroke-width", 3)
+      .attr("y", y(0) - 4).attr("height", 8)
+      .call(s => grow(s)
+        .attr("y", (focus.v >= 0 ? y(focus.v) : y(0)) - 4)
+        .attr("height", Math.abs(y(focus.v) - y(0)) + 8));
+  }
+
+  // value labels — ride the top of the growing bars
+  svg.selectAll("text.bar-label").data(data).join("text")
+    .attr("class", "bar-label")
+    .attr("text-anchor", "middle")
+    .attr("x", d => x(d.geo.id) + x.bandwidth() / 2)
+    .text(d => fmtChange(d.v, m))
+    .attr("y", d => d.v >= 0 ? y(0) - 12 : y(0) + 22)
+    .call(s => grow(s).attr("y", d => d.v >= 0 ? y(d.v) - 12 : y(d.v) + 22));
+
+  // x axis
+  svg.append("g").attr("class", "axis axis-x")
+    .attr("transform", `translate(0,${H - margin.bottom + 6})`)
+    .call(d3.axisBottom(x).tickSize(0))
+    .call(g => g.select(".domain").remove())
+    .call(g => xAxisLabels(g, x));
+
+  d3.select("#legend").html(
+    `<span><span class="swatch" style="background:var(--navy)"></span>${changeLabel(m)}</span>` +
+    `<span><span class="swatch" style="background:var(--gray-bar)"></span>City of Chicago benchmark</span>` +
+    `<span><span class="swatch" style="border:3px solid var(--red); width:9px; height:9px;"></span>Bronzeville Trail (focus area)</span>`
+  );
+}
+
+/* --- Grouped 2010 vs 2023 view --- */
+function renderLevels(svg) {
+  const m = state.metric;
+  const years = ["2010", "2023"];
+  /* Absolute counts for the whole city dwarf neighborhood bars into invisibility;
+     the city benchmark only reads at comparable scales (shares, dollars). */
+  const geos = m.format === "count" ? GEOS.filter(g => g.role !== "benchmark") : GEOS;
+  const data = geos.map(g => ({ geo: g, v10: m.values[g.id][0], v23: m.values[g.id][1] }));
+
+  const x0 = d3.scaleBand().domain(geos.map(g => g.id))
+    .range([margin.left, W - margin.right]).paddingInner(0.3).paddingOuter(0.15);
+  const x1 = d3.scaleBand().domain(years).range([0, x0.bandwidth()]).padding(0.12);
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(data, d => Math.max(d.v10, d.v23)) * 1.12]).nice()
+    .range([H - margin.bottom, margin.top]);
+
+  const yFmt = m.format === "pct" ? v => v + "%" : (m.format === "usd" ? v => "$" + d3.format("~s")(v) : v => d3.format("~s")(v));
+  svg.append("g").attr("class", "axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(7).tickFormat(yFmt).tickSize(0).tickPadding(10))
+    .call(g => g.select(".domain").remove());
+
+  svg.append("line").attr("class", "zero-line")
+    .attr("x1", margin.left).attr("x2", W - margin.right)
+    .attr("y1", y(0)).attr("y2", y(0));
+
+  const groups = svg.selectAll("g.geo").data(data).join("g")
+    .attr("class", "geo").attr("transform", d => `translate(${x0(d.geo.id)},0)`);
+
+  groups.selectAll("rect").data(d => years.map(yr => ({
+      geo: d.geo, yr, v: yr === "2010" ? d.v10 : d.v23
+    }))).join("rect")
+    .attr("x", d => x1(d.yr)).attr("width", x1.bandwidth())
+    .attr("fill", d => {
+      if (d.geo.role === "benchmark") return d.yr === "2010" ? "#d7d8d9" : "var(--gray-bar)";
+      return d.yr === "2010" ? "#8fa3bd" : "var(--navy)";
+    })
+    .on("mousemove", (event, d) => {
+      showTip(event, `<strong>${d.geo.name}</strong><br>${m.name}, ${d.yr}: <strong>${fmtLevel(d.v, m.format)}</strong>`);
+    })
+    .on("mouseleave", hideTip)
+    .attr("y", y(0)).attr("height", 0)
+    .call(s => grow(s).attr("y", d => y(d.v)).attr("height", d => y(0) - y(d.v)));
+
+  // focus underline
+  const focusX = x0(GEOS[0].id);
+  svg.append("line")
+    .attr("x1", focusX - 3).attr("x2", focusX + x0.bandwidth() + 3)
+    .attr("y1", H - margin.bottom + 2).attr("y2", H - margin.bottom + 2)
+    .attr("stroke", "var(--red)").attr("stroke-width", 3.5);
+
+  svg.append("g").attr("class", "axis axis-x")
+    .attr("transform", `translate(0,${H - margin.bottom + 6})`)
+    .call(d3.axisBottom(x0).tickSize(0))
+    .call(g => g.select(".domain").remove())
+    .call(g => xAxisLabels(g, x0));
+
+  d3.select("#legend").html(
+    `<span><span class="swatch" style="background:#8fa3bd"></span>2010</span>` +
+    `<span><span class="swatch" style="background:var(--navy)"></span>2023</span>` +
+    (m.format === "count"
+      ? `<span style="color:var(--gray-sub); font-weight:400;">City of Chicago omitted — citywide counts are not scale-comparable</span>`
+      : `<span><span class="swatch" style="background:var(--gray-bar)"></span>City of Chicago benchmark</span>`) +
+    `<span style="border-bottom:3px solid var(--red); padding-bottom:2px;">Bronzeville Trail (focus area)</span>`
+  );
+}
+
+populateMetrics();
+syncToggle();
+render();
+</script>
+</body>
+</html>

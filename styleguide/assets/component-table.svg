@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" font-family="Roboto, Arial, sans-serif">
+<defs></defs>
+<rect width="640" height="160" fill="#FFFFFF"/>
+
+<rect x="24" y="24" width="322" height="28" fill="#EDEDF4"/>
+<text x="40" y="43" font-size="12.5" font-weight="500" fill="#44474E">Community</text>
+<text x="330" y="43" font-size="12.5" font-weight="500" fill="#44474E" text-anchor="end">Percent change</text>
+<text x="40" y="70" font-size="13" fill="#191C20">Near West Side</text><text x="330" y="70" font-size="13" fill="#146C2E" text-anchor="end">+53.9%</text><line x1="24" y1="79" x2="346" y2="79" stroke="#C4C6D0"/><text x="40" y="98" font-size="13" fill="#191C20">City of Chicago</text><text x="330" y="98" font-size="13" fill="#146C2E" text-anchor="end">+12.3%</text><line x1="24" y1="107" x2="346" y2="107" stroke="#C4C6D0"/><text x="40" y="126" font-size="13" fill="#191C20">West Garfield Park</text><text x="330" y="126" font-size="13" fill="#A63B00" text-anchor="end">−2.6%</text><line x1="24" y1="135" x2="346" y2="135" stroke="#C4C6D0"/>
+<g font-size="10" fill="#74777F">
+  <text x="380" y="44">header: surface-container #EDEDF4</text>
+  <text x="380" y="60">header text: Roboto 500/12.5 on-surface-variant</text>
+  <text x="380" y="76">rules: outline-variant #C4C6D0</text>
+  <text x="380" y="92">numerals: tabular-nums, right-aligned</text>
+  <text x="380" y="108">pos #146C2E · neg #A63B00</text>
+</g>
+</svg>

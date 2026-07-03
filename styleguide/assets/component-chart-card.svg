@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 190" font-family="Roboto, Arial, sans-serif">
+<defs></defs>
+<rect width="640" height="190" fill="#FFFFFF"/>
+
+<rect x="24" y="20" width="330" height="150" rx="12" fill="#FFFFFF" stroke="#C4C6D0"/>
+<rect x="44" y="38" width="74" height="22" rx="8" fill="#DAE2F9"/>
+<text x="55" y="53" font-size="11" font-weight="500" fill="#131C2B">Chart 1.1</text>
+<text x="44" y="86" font-size="16" font-weight="500" fill="#191C20">Card title, Roboto 500/16</text>
+<rect x="44" y="100" width="180" height="8" rx="4" fill="#E7E8EE"/>
+<rect x="44" y="114" width="140" height="8" rx="4" fill="#E7E8EE"/>
+<text x="44" y="150" font-size="12" fill="#44474E">Source: … (on-surface-variant, 12px)</text>
+<g font-size="10" fill="#74777F">
+  <text x="380" y="40">outlined card: surface-container-lowest #FFFFFF</text>
+  <text x="380" y="56">border: outline-variant #C4C6D0 · radius 12</text>
+  <text x="380" y="72">chip: secondary-container #DAE2F9</text>
+  <text x="380" y="88">chip text: on-secondary-container #131C2B</text>
+  <text x="380" y="104">chip shape: 8px radius · Roboto 500/11</text>
+</g>
+</svg>

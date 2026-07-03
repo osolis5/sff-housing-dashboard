@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 106" font-family="Roboto, Arial, sans-serif">
+<defs><filter id="e2" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.25"/></filter></defs>
+<rect width="640" height="106" fill="#FFFFFF"/>
+
+<rect x="24" y="24" width="190" height="58" rx="8" fill="#2E3036" filter="url(#e2)"/>
+<text x="38" y="47" font-size="13" font-weight="500" fill="#F0F0F7">North Lawndale</text>
+<text x="38" y="66" font-size="12.5" fill="#F0F0F7">2024: 10.6%</text>
+<g font-size="10" fill="#74777F">
+  <text x="240" y="40">container: inverse-surface #2E3036</text>
+  <text x="240" y="56">text: inverse-on-surface #F0F0F7</text>
+  <text x="240" y="72">shape: 8px · elevation level 2 · Roboto 12.5</text>
+</g>
+</svg>
