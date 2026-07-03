@@ -1101,8 +1101,6 @@ TABS.forEach((t, i) => {
         .on("click", event => { event.preventDefault(); jumpTo("appendix", "tableA-" + tableNumbers[id]); });
     });
   } else {
-    panel.insert("p", ".grid").attr("class", "appendix-intro")
-      .text("Underlying data for every chart in this dashboard. Every value shown is printed in the May 21, 2026 IHS presentation; charts whose values the deck does not label are not included.");
     TABS.filter(x => x.charts).forEach(x => x.charts.forEach(id => {
       const c = CHARTS.find(ch => ch.id === id);
       const tnum = tableNumbers[id];
