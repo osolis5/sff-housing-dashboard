@@ -32,10 +32,10 @@ CHART = {
     "red (focus / error)": "#BA1A1A", "pos (increase)": "#146C2E",
     "neg (decrease)": "#A63B00",
 }
-SERIES_EXTRA = {  # price-index line/dot series + diverging grays
+SERIES_EXTRA = {  # price-index dot series + the 5-step stacked-series ramp
     "Austin": "#1F2F47", "East Garfield Park": "#547BB6",
     "West Garfield Park": "#304970", "City of Chicago": "#8F9193",
-    "diverging gray": "#999B9E", "stack gray 1": "#C5C6C8", "stack gray 2": "#E2E3E4",
+    "ramp step 1 (darkest)": "#1F3A66", "ramp step 5 (palest)": "#C3D2EA",
 }
 def t(k):
     return TOKENS[k]
@@ -282,7 +282,7 @@ parts.append('<text x="420" y="60" font-size="10" fill="#74777F">dumbbell · dot
 parts.append('<text x="420" y="76" font-size="10" fill="#74777F">min label left · max right · middle above</text>')
 svg("chart-dumbbell.svg", 640, 140, "".join(parts))
 
-defs = grad("dv1", "#5578AE") + grad("dv2", "#999B9E") + dither("dth2")
+defs = grad("dv1", "#33518A") + grad("dv2", "#91AAD4") + dither("dth2")
 parts = [f'<line x1="210" y1="24" x2="210" y2="140" stroke="#74777F"/>']
 for i, (occ_w, vac_w, tot) in enumerate([(150, 40, 116), (60, 70, -6), (30, 90, -56)]):
     y = 34 + i * 38
