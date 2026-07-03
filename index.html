@@ -127,14 +127,30 @@
     padding: 8px 12px;
     white-space: nowrap;
   }
-  .hero h1 {
-    margin: 0 0 8px;
-    font: 400 36px/1.15 'Roboto';
-    letter-spacing: 0;
-    color: #FFFFFF;
-    text-shadow: 0 1px 12px rgba(10, 20, 45, 0.35);
+  .hero-kicker {
+    margin: 0 0 14px;
+    font: 700 13px/1 'Roboto';
+    letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.82);
+    text-shadow: 0 1px 8px rgba(10, 20, 45, 0.3);
   }
-  .hero p { margin: 0; font: 400 16px/1.5 'Roboto'; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 10px rgba(10, 20, 45, 0.3); }
+  .hero h1 {
+    margin: 0 0 12px;
+    /* M3 display scale; clamps down gracefully on small screens */
+    font: 500 clamp(34px, 4.4vw, 54px)/1.08 'Roboto';
+    letter-spacing: -0.01em;
+    color: #FFFFFF;
+    text-shadow: 0 2px 18px rgba(10, 20, 45, 0.4);
+    max-width: 20ch;
+  }
+  .hero p {
+    margin: 0;
+    font: 300 clamp(16px, 1.6vw, 19px)/1.5 'Roboto';
+    letter-spacing: .01em;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 1px 10px rgba(10, 20, 45, 0.3);
+    max-width: 56ch;
+  }
   /* --- tabs (md-tabs component) --- */
   .tabs-sticky {
     position: sticky; top: 0; z-index: 6;
@@ -312,6 +328,7 @@
     <div class="hero-top">
       <span class="hero-date">Baseline Data &middot; May 21, 2026</span>
     </div>
+    <p class="hero-kicker">Steans Family Foundation</p>
     <h1>North Lawndale Housing Dashboard</h1>
     <p>Housing affordability and trends in North Lawndale and West Side communities</p>
   </div>
