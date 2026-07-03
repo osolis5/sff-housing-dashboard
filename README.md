@@ -1,6 +1,6 @@
-# SFF + Dashboard — Prototype
+# Housing Dashboard — Prototype
 
-SFF + Dashboard is the Steans Family Foundation's interactive housing data
+The Housing Dashboard is the Steans Family Foundation's interactive housing data
 dashboard for North Lawndale and West Side communities. Everything in this
 folder is self-contained — **no internet connection is required.**
 
