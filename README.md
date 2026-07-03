@@ -1,8 +1,8 @@
-# North Lawndale Housing Dashboard — Prototype
+# SFF + Dashboard — Prototype
 
-An interactive recreation of the IHS baseline data presentation (May 21, 2026)
-for the Steans Family Foundation. Everything in this folder is self-contained —
-**no internet connection is required.**
+SFF + Dashboard is the Steans Family Foundation's interactive housing data
+dashboard for North Lawndale and West Side communities. Everything in this
+folder is self-contained — **no internet connection is required.**
 
 ## How to open it
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>North Lawndale Housing Dashboard | Institute for Housing Studies - DePaul University</title>
+<title>SFF + Dashboard | Steans Family Foundation</title>
 <script src="vendor/d3.v7.min.js"></script>
 <link rel="stylesheet" href="vendor/fonts.css">
 <script type="module" src="vendor/material-tabs.min.js"></script>
@@ -266,7 +266,18 @@
     align-items: start;
   }
   @media (max-width: 860px) { .site-footer-inner { grid-template-columns: 1fr; gap: 32px; } }
-  .sf-brand img { width: 260px; max-width: 100%; height: auto; display: block; }
+  .sf-logo {
+    margin: 0 0 6px;
+    font: 500 26px/1.1 'Roboto';
+    letter-spacing: -0.01em;
+    color: #FFFFFF;
+  }
+  .sf-tag {
+    margin: 0;
+    font: 500 12px/1.4 'Roboto';
+    letter-spacing: .14em; text-transform: uppercase;
+    color: #9a9a9a;
+  }
   .sf-info {
     display: flex; gap: 44px; flex-wrap: wrap;
     font: 300 15px/1.7 'Roboto';
@@ -281,9 +292,6 @@
     letter-spacing: .08em; text-transform: uppercase;
     color: #FFFFFF;
   }
-  .sf-social { display: flex; gap: 14px; margin-bottom: 6px; }
-  .sf-social a { color: #cfcfcf; }
-  .sf-social a:hover { color: #FFFFFF; }
   .sf-links ul { list-style: none; margin: 0; padding: 0; }
   .sf-links li { border-bottom: 1px solid #3a3a3a; }
   .sf-links li a {
@@ -329,7 +337,7 @@
       <span class="hero-date">Baseline Data &middot; May 21, 2026</span>
     </div>
     <p class="hero-kicker">Steans Family Foundation</p>
-    <h1>North Lawndale Housing Dashboard</h1>
+    <h1>SFF + Dashboard</h1>
     <p>Housing affordability and trends in North Lawndale and West Side communities</p>
   </div>
 </div>
@@ -341,22 +349,14 @@
 <footer class="site-footer">
   <div class="site-footer-inner">
     <div class="sf-brand">
-      <a href="https://www.depaul.edu/"><img src="vendor/depaul-driehaus-white.png" alt="DePaul University — Driehaus College of Business"></a>
+      <p class="sf-logo">SFF + Dashboard</p>
+      <p class="sf-tag">Steans Family Foundation</p>
     </div>
     <div class="sf-info">
-      <address>
-        1 E. Jackson, Suite 5400<br>
-        Chicago IL 60604<br>
-        <a href="tel:+1-312-362-7074">312-362-7074</a>
-      </address>
-      <p class="sf-copy">&copy; 2026 Real Estate Center's<br>Institute for Housing Studies</p>
+      <p class="sf-copy">&copy; 2026 Steans Family Foundation</p>
     </div>
     <div class="sf-links">
       <h4>Related Links</h4>
-      <div class="sf-social">
-        <a href="https://twitter.com/HousingStudies" aria-label="Twitter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M23 4.9c-.8.4-1.7.6-2.6.8a4.5 4.5 0 0 0 2-2.5c-.9.5-1.9.9-2.9 1.1a4.5 4.5 0 0 0-7.7 4.1A12.8 12.8 0 0 1 2.5 3.7a4.5 4.5 0 0 0 1.4 6 4.4 4.4 0 0 1-2-.5v0a4.5 4.5 0 0 0 3.6 4.4 4.5 4.5 0 0 1-2 .1 4.5 4.5 0 0 0 4.2 3.1A9 9 0 0 1 1 18.6a12.7 12.7 0 0 0 6.9 2c8.3 0 12.8-6.9 12.8-12.8v-.6c.9-.6 1.6-1.4 2.2-2.3z"/></svg></a>
-        <a href="https://www.linkedin.com/company/institute-for-housing-studies/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.4 20.4h-3.6v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9v5.7H9.2V9h3.4v1.6h.1a3.8 3.8 0 0 1 3.4-1.9c3.6 0 4.3 2.4 4.3 5.5v6.2zM5.2 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2zM7 20.4H3.4V9H7v11.4z"/></svg></a>
-      </div>
       <ul>
         <li><a href="https://www.housingstudies.org/">Institute for Housing Studies</a></li>
         <li><a href="https://spark.depaul.edu/">The SPARK Center</a></li>
