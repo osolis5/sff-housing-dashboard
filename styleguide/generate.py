@@ -32,11 +32,6 @@ CHART = {
     "red (focus / error)": "#BA1A1A", "pos (increase)": "#146C2E",
     "neg (decrease)": "#A63B00",
 }
-SERIES_EXTRA = {  # price-index dot series + the 5-step stacked-series ramp
-    "Austin": "#1F2F47", "East Garfield Park": "#547BB6",
-    "West Garfield Park": "#304970", "City of Chicago": "#8F9193",
-    "ramp step 1 (darkest)": "#1F3A66", "ramp step 5 (palest)": "#C3D2EA",
-}
 def t(k):
     return TOKENS[k]
 
@@ -126,7 +121,7 @@ body, h = swatch_grid(items, 720, 4)
 svg("colors-system.svg", 720, h, body)
 
 # -------------------------------------------------- 2. chart palette --------
-items = [(k, v) for k, v in CHART.items()] + [(k, v) for k, v in SERIES_EXTRA.items()]
+items = [(k, v) for k, v in CHART.items()]
 body, h = swatch_grid(items, 720, 4)
 svg("colors-chart.svg", 720, h, body)
 
@@ -282,19 +277,6 @@ parts.append('<text x="420" y="60" font-size="10" fill="#74777F">dumbbell · dot
 parts.append('<text x="420" y="76" font-size="10" fill="#74777F">min label left · max right · middle above</text>')
 svg("chart-dumbbell.svg", 640, 140, "".join(parts))
 
-defs = grad("dv1", "#33518A") + grad("dv2", "#91AAD4") + dither("dth2")
-parts = [f'<line x1="210" y1="24" x2="210" y2="140" stroke="#74777F"/>']
-for i, (occ_w, vac_w, tot) in enumerate([(150, 40, 116), (60, 70, -6), (30, 90, -56)]):
-    y = 34 + i * 38
-    parts.append(f'<rect x="210" y="{y}" width="{occ_w}" height="24" fill="url(#dv1)" filter="url(#dth2)"/>')
-    parts.append(f'<rect x="{210-vac_w}" y="{y}" width="{vac_w}" height="24" fill="url(#dv2)" filter="url(#dth2)"/>')
-    x0, x1 = (210, 210 + tot) if tot >= 0 else (210 + tot, 210)
-    parts.append(f'<rect x="{x0}" y="{y-2}" width="{abs(tot)}" height="28" fill="none" stroke="#BA1A1A" stroke-width="2.5"/>')
-parts.append('<text x="420" y="56" font-size="10" fill="#74777F">diverging stacked · occupied right / vacant left</text>')
-parts.append('<text x="420" y="72" font-size="10" fill="#74777F">film grain · square ends (segments abut)</text>')
-parts.append('<text x="420" y="88" font-size="10" fill="#74777F">red hollow rect = net total marker</text>')
-svg("chart-diverging.svg", 640, 160, "".join(parts), defs)
-
 defs = grad("s1", "#33518A") + grad("s2", "#5578AE") + grad("s3", "#91AAD4") + dither("dth3")
 parts = []
 for i, segs in enumerate([[(52, "s1", "51.7%"), (33, "s2", "33.3%"), (15, "s3", "15.0%")],
@@ -311,20 +293,6 @@ parts.append('<text x="330" y="56" font-size="10" fill="#74777F">100% stacked ·
 parts.append('<text x="330" y="72" font-size="10" fill="#74777F">white segment labels (≥6% only)</text>')
 parts.append('<text x="330" y="88" font-size="10" fill="#74777F">red outline = focus geography</text>')
 svg("chart-stacked.svg", 640, 190, "".join(parts), defs)
-
-import math
-parts = ['<line x1="30" y1="90" x2="400" y2="90" stroke="#A7A9AC"/>']
-series = [("#BA1A1A", 6.5, [0, 20, -35, -62, -60, -40, -10, 30, 55]),
-          ("#8F9193", 4, [0, 8, -18, -38, -30, -12, 8, 22, 34]),
-          ("#1F2F47", 4, [0, 12, -28, -55, -48, -30, -5, 15, 22])]
-for color, r, vals in series:
-    for i, v in enumerate(vals):
-        x = 40 + i * 44
-        y = 90 - v * 0.7
-        parts.append(f'<circle cx="{x}" cy="{y:.0f}" r="{r}" fill="{color}" opacity="{1 if r>5 else .85}"/>')
-parts.append('<text x="420" y="60" font-size="10" fill="#74777F">index dots · data points only, no lines</text>')
-parts.append('<text x="420" y="76" font-size="10" fill="#74777F">focus series red, r 5.5 · others r 4 @ 85%</text>')
-svg("chart-dots.svg", 640, 165, "".join(parts))
 
 # -------------------------------------------------- 11. shape + elevation ---
 defs = ('<filter id="s_e1" x="-20%" y="-20%" width="140%" height="160%">'

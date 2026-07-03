@@ -331,62 +331,6 @@ const CHARTS = [
              "East Garfield Park":-1.3, "Austin":-1.9, "West Garfield Park":-10.5 }
   },
   {
-    id:"netchange", type:"divergingH", format:"count", deckPage:10,
-    headline:"Product of increased occupied units and loss of vacant units",
-    sub:"Net Change in Total, Occupied, Vacant Housing Units in Select West Side Communities, 2010 to 2024",
-    source:ACS + " · Values digitized from the deck's vector geometry (±20 units)",
-    categories:["Near West Side","West Town","South Lawndale","Lower West Side","Humboldt Park",
-                "East Garfield Park","North Lawndale","Austin","West Garfield Park"],
-    series:[
-      { name:"Change in Occupied Housing Units", color:"var(--navy)",
-        values:{ "Near West Side":12730, "West Town":6320, "South Lawndale":4980, "Lower West Side":2840,
-                 "Humboldt Park":2160, "East Garfield Park":1090, "North Lawndale":1170,
-                 "Austin":2420, "West Garfield Park":-160 } },
-      { name:"Change in Vacant Housing Units", color:"var(--navy-light)",
-        values:{ "Near West Side":-730, "West Town":-2450, "South Lawndale":-2970, "Lower West Side":-1190,
-                 "Humboldt Park":-1740, "East Garfield Park":-1230, "North Lawndale":-1350,
-                 "Austin":-3210, "West Garfield Park":-710 } },
-    ],
-    total:{ name:"Change in Total Housing Units",
-      values:{ "Near West Side":12010, "West Town":3860, "South Lawndale":2010, "Lower West Side":1660,
-               "Humboldt Park":440, "East Garfield Park":-130, "North Lawndale":-160,
-               "Austin":-780, "West Garfield Park":-880 } }
-  },
-  {
-    id:"buildingtype", type:"divergingH", format:"count", deckPage:11,
-    headline:"Supply shifts vary by property type and community",
-    sub:"Net Change in Housing Units by Building Type in Select West Side Communities, 2010 to 2024",
-    source:ACS + " · Values digitized from the deck's vector geometry (±20 units)",
-    categories:["Near West Side","West Town","South Lawndale","Lower West Side","Humboldt Park",
-                "East Garfield Park","North Lawndale","Austin","West Garfield Park"],
-    series:[
-      { name:"1-Unit", color:"#1F3A66",
-        values:{ "Near West Side":-240, "West Town":-110, "South Lawndale":2160, "Lower West Side":800,
-                 "Humboldt Park":390, "East Garfield Park":-20, "North Lawndale":-180,
-                 "Austin":840, "West Garfield Park":20 } },
-      { name:"2 to 4 Units", color:"var(--navy)",
-        values:{ "Near West Side":680, "West Town":-1170, "South Lawndale":-860, "Lower West Side":-340,
-                 "Humboldt Park":-620, "East Garfield Park":-290, "North Lawndale":-180,
-                 "Austin":-1790, "West Garfield Park":-230 } },
-      { name:"5 to 49 Units", color:"var(--navy-mid)",
-        values:{ "Near West Side":1070, "West Town":4290, "South Lawndale":320, "Lower West Side":830,
-                 "Humboldt Park":620, "East Garfield Park":-260, "North Lawndale":-150,
-                 "Austin":-210, "West Garfield Park":-620 } },
-      { name:"50+ Units", color:"var(--navy-light)",
-        values:{ "Near West Side":10540, "West Town":960, "South Lawndale":30, "Lower West Side":320,
-                 "Humboldt Park":30, "East Garfield Park":410, "North Lawndale":360,
-                 "Austin":390, "West Garfield Park":-20 } },
-      { name:"Other", color:"#C3D2EA",
-        values:{ "Near West Side":-30, "West Town":-100, "South Lawndale":340, "Lower West Side":50,
-                 "Humboldt Park":20, "East Garfield Park":30, "North Lawndale":-30,
-                 "Austin":-30, "West Garfield Park":-20 } },
-    ],
-    total:{ name:"Total",
-      values:{ "Near West Side":12010, "West Town":3860, "South Lawndale":2010, "Lower West Side":1660,
-               "Humboldt Park":440, "East Garfield Park":-130, "North Lawndale":-160,
-               "Austin":-780, "West Garfield Park":-880 } }
-  },
-  {
     id:"foreclosure", type:"ranked", format:"pct", deckPage:12,
     headline:"Many West Side communities heavily impacted by foreclosure",
     sub:"Share of Residential Parcels with at Least One Foreclosure Filing Since 2005, 2024",
@@ -411,34 +355,6 @@ const CHARTS = [
         values:{ "East Garfield Park":4.8, "West Garfield Park":4.7, "North Lawndale":4.5,
                  "Humboldt Park":1.9, "Austin":1.1, "South Lawndale":0.2, "City of Chicago":0.8,
                  "Lower West Side":0.1, "Near West Side":0.2, "West Town":0.0 } },
-    ]
-  },
-  {
-    id:"priceindex", type:"dots", format:"pct", deckPage:14,
-    headline:"North Lawndale has seen volatile long-term prices",
-    sub:"Indexed Change in Median Sales Price for 1 to 4 Unit Properties, 2005 to 1H 2025",
-    source:IHS_DC + " · Data points digitized from the deck's vector geometry (±0.5 pp)",
-    series:[
-      { name:"Austin", color:"#1f2f47",
-        points:[[2005,0],[2006,13.6],[2007,5.2],[2008,-37.7],[2009,-77.3],[2010,-73.3],[2011,-75.0],
-                [2012,-75.3],[2013,-69.2],[2014,-63.2],[2015,-53.1],[2016,-51.8],[2017,-35.4],
-                [2018,-28.0],[2019,-20.6],[2020,0.2],[2021,18.0],[2022,11.3],[2023,13.3],[2024,23.7],[2025,26.0]] },
-      { name:"East Garfield Park", color:"#547bb6",
-        points:[[2005,0],[2006,18.0],[2007,13.6],[2008,-60.5],[2009,-81.0],[2010,-85.0],[2011,-82.3],
-                [2012,-84.7],[2013,-81.3],[2014,-78.3],[2015,-62.9],[2016,-55.2],[2017,-42.4],
-                [2018,-37.4],[2019,-26.0],[2020,-9.5],[2021,10.3],[2022,7.6],[2023,17.3],[2024,-1.5],[2025,41.1]] },
-      { name:"West Garfield Park", color:"#304970",
-        points:[[2005,0],[2006,15.3],[2007,0.9],[2008,-66.6],[2009,-87.7],[2010,-87.0],[2011,-86.7],
-                [2012,-86.7],[2013,-85.4],[2014,-84.7],[2015,-84.7],[2016,-79.0],[2017,-77.0],
-                [2018,-65.2],[2019,-56.8],[2020,-28.6],[2021,-6.5],[2022,-2.1],[2023,-23.9],[2024,-0.8],[2025,10.6]] },
-      { name:"City of Chicago", color:"#8f9193",
-        points:[[2005,0],[2006,5.9],[2007,6.9],[2008,-18.6],[2009,-50.1],[2010,-47.4],[2011,-47.1],
-                [2012,-44.8],[2013,-36.7],[2014,-27.6],[2015,-20.6],[2016,-14.6],[2017,-10.2],
-                [2018,-9.5],[2019,-2.5],[2020,13.6],[2021,26.4],[2022,26.4],[2023,22.4],[2024,34.4],[2025,42.8]] },
-      { name:"North Lawndale", color:"var(--red)", focus:true,
-        points:[[2005,0],[2006,28.4],[2007,13.0],[2008,-37.0],[2009,-81.7],[2010,-83.0],[2011,-82.0],
-                [2012,-83.3],[2013,-79.0],[2014,-75.6],[2015,-72.6],[2016,-69.6],[2017,-60.5],
-                [2018,-44.8],[2019,-26.3],[2020,-9.5],[2021,21.0],[2022,26.0],[2023,15.6],[2024,36.8],[2025,65.6]] },
     ]
   },
   {
@@ -523,16 +439,13 @@ const CHARTS = [
   {
     id:"buyerincome_med", half:true, type:"dumbbell", format:"usd", deckPage:22,
     headline:"Homebuyer incomes in North Lawndale are increasing",
-    sub:"Median Homebuyer Incomes, 2019, 2021, 2024",
-    source:HMDA + " · 2021 series is unlabeled in the deck; values digitized from vector geometry (±$250)",
+    sub:"Median Homebuyer Incomes, 2019 and 2024",
+    source:HMDA + " · The deck's 2021 series is unlabeled and therefore omitted",
     categories:["Austin","East Garfield Park","North Lawndale","West Garfield Park","City of Chicago"],
     series:[
       { name:"2019", color:"var(--navy-light)",
         values:{ "Austin":62000, "East Garfield Park":69500, "North Lawndale":61000,
                  "West Garfield Park":57000, "City of Chicago":97000 } },
-      { name:"2021", color:"var(--navy-mid)",
-        values:{ "Austin":68000, "East Garfield Park":76800, "North Lawndale":70300,
-                 "West Garfield Park":63800, "City of Chicago":100900 } },
       { name:"2024", color:"var(--navy)",
         values:{ "Austin":88000, "East Garfield Park":100000, "North Lawndale":90000,
                  "West Garfield Park":84000, "City of Chicago":125000 } },
@@ -1072,7 +985,7 @@ const TABS = [
   { id:"demo", label:"Demographics", num:1,
     charts:["occ","race","buyerincome_geo","buyerincome_nl","buyerincome_med"] },
   { id:"property", label:"Property & Parcels", num:2,
-    charts:["units","netchange","buildingtype","foreclosure","vacantland","priceindex","salesprice","pricechange","investor"] },
+    charts:["units","foreclosure","vacantland","salesprice","pricechange","investor"] },
   { id:"appendix", label:"Data Appendix" },
 ];
 
@@ -1092,7 +1005,7 @@ const chartNumbers = {};
 TABS.filter(t => t.charts).forEach(t => t.charts.forEach((id, i) => { chartNumbers[id] = t.num + "." + (i + 1); }));
 
 /* ---------------- Appendix table generator ---------------- */
-const SIGNED = { occ:1, units:1, pricechange:1, netchange:1, buildingtype:1, priceindex:1 };
+const SIGNED = { occ:1, units:1, pricechange:1 };
 function tdVal(v, format, signed) {
   if (v == null) return '<td class="num">\u2013</td>';
   let txt;
@@ -1161,7 +1074,7 @@ TABS.forEach((t, i) => {
     });
   } else {
     panel.insert("p", ".grid").attr("class", "appendix-intro")
-      .text("Underlying data for every chart in this dashboard, transcribed from the May 21, 2026 IHS presentation. Values noted as digitized were measured from the presentation's vector geometry; precision is stated in each source line.");
+      .text("Underlying data for every chart in this dashboard. Every value shown is printed in the May 21, 2026 IHS presentation; charts whose values the deck does not label are not included.");
     let tnum = 0;
     TABS.filter(x => x.charts).forEach(x => x.charts.forEach(id => {
       const c = CHARTS.find(ch => ch.id === id);

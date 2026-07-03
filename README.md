@@ -35,9 +35,9 @@ launcher simply opens `index.html` directly instead, which is also fine.
 ## Notes
 
 - Data was transcribed from `IHS_NLawndale_Dashboard_Presentation_05182026.pdf`
-  (Institute for Housing Studies at DePaul University). Values that the deck
-  did not label were digitized from the presentation's vector geometry; each
-  chart's source line states its precision.
+  (Institute for Housing Studies at DePaul University). Only values printed
+  in the presentation are shown; charts whose values the deck does not label
+  are not included.
 - Hover any chart mark for exact values. The **Data Appendix** tab contains
   the full data table behind every chart.
 - Works in any modern browser (Chrome, Edge, Safari, Firefox).
