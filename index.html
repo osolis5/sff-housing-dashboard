@@ -59,23 +59,6 @@
     color: var(--md-sys-color-on-surface);
     background: var(--md-sys-color-surface);
   }
-  /* --- top app bar (black banner, white text) --- */
-  .appbar {
-    background: #000000;
-    color: #FFFFFF;
-    padding: 0 24px;
-    height: 64px;
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  }
-  .appbar-title { font: 500 14px/1 'Roboto'; letter-spacing: .1px; color: #FFFFFF; }
-  .appbar-date {
-    font: 500 12px/1 'Roboto';
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-radius: 8px;
-    padding: 8px 12px;
-  }
   /* --- hero: animated liquid-blue gradient landing band (offline, pure CSS) --- */
   .hero {
     position: relative;
@@ -130,7 +113,26 @@
     .hero::before { animation: none; }
     .hero-video { display: none; }
   }
-  .hero-inner { position: relative; z-index: 3; max-width: 1200px; margin: 0 auto; padding: 46px 24px 40px; }
+  .hero-inner { position: relative; z-index: 3; max-width: 1200px; margin: 0 auto; padding: 26px 24px 40px; }
+  .hero-top {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .hero-eyebrow {
+    margin: 0;
+    font: 500 12px/1.4 'Roboto';
+    letter-spacing: .06em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .hero-date {
+    font: 500 12px/1 'Roboto';
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
   .hero h1 {
     margin: 0 0 8px;
     font: 400 36px/1.15 'Roboto';
@@ -239,8 +241,56 @@
   table.data th.num, table.data td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .pos { color: var(--pos); }
   .neg { color: var(--neg); }
-  footer { font: 400 12.5px/1.5 'Roboto'; color: var(--md-sys-color-on-surface-variant); margin-top: 34px; }
-  footer a { color: var(--md-sys-color-primary); text-decoration: none; }
+  /* --- site footer (black, modeled on housingstudies.org) --- */
+  .site-footer {
+    background: #000000;
+    color: #FFFFFF;
+    margin-top: 44px;
+    padding: 56px 24px 28px;
+  }
+  .site-footer-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 1.3fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 860px) { .site-footer-inner { grid-template-columns: 1fr; gap: 32px; } }
+  .sf-brand img { width: 260px; max-width: 100%; height: auto; display: block; }
+  .sf-info {
+    display: flex; gap: 44px; flex-wrap: wrap;
+    font: 300 15px/1.7 'Roboto';
+    color: #9a9a9a;
+  }
+  .sf-info address { font-style: normal; }
+  .sf-info a { color: #9a9a9a; text-decoration: underline; }
+  .sf-copy { margin: 0; }
+  .sf-links h4 {
+    margin: 0 0 14px;
+    font: 700 14px/1 'Roboto';
+    letter-spacing: .08em; text-transform: uppercase;
+    color: #FFFFFF;
+  }
+  .sf-social { display: flex; gap: 14px; margin-bottom: 6px; }
+  .sf-social a { color: #cfcfcf; }
+  .sf-social a:hover { color: #FFFFFF; }
+  .sf-links ul { list-style: none; margin: 0; padding: 0; }
+  .sf-links li { border-bottom: 1px solid #3a3a3a; }
+  .sf-links li a {
+    display: block;
+    padding: 12px 0;
+    font: 700 12px/1.2 'Roboto';
+    letter-spacing: .08em; text-transform: uppercase;
+    color: #bdbdbd; text-decoration: none;
+  }
+  .sf-links li a:hover { color: #FFFFFF; }
+  .sf-meta {
+    max-width: 1200px; margin: 40px auto 0;
+    font: 400 12px/1.5 'Roboto';
+    color: #8a8a8a;
+  }
+  .sf-meta a { color: #bdbdbd; text-decoration: none; }
+  .sf-meta a:hover { color: #fff; }
   /* --- tooltip (M3 inverse surface, like rich tooltips) --- */
   .tooltip {
     position: absolute;
@@ -260,15 +310,15 @@
 </style>
 </head>
 <body>
-<header class="appbar">
-  <span class="appbar-title">Institute for Housing Studies at DePaul University &middot; Steans Family Foundation</span>
-  <span class="appbar-date">Baseline Data &middot; May 21, 2026</span>
-</header>
 <div class="hero">
   <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
     <source src="vendor/hero.mp4" type="video/mp4">
   </video>
   <div class="hero-inner">
+    <div class="hero-top">
+      <p class="hero-eyebrow">Institute for Housing Studies at DePaul University &middot; Steans Family Foundation</p>
+      <span class="hero-date">Baseline Data &middot; May 21, 2026</span>
+    </div>
     <h1>North Lawndale Housing Dashboard</h1>
     <p>Housing affordability and trends in North Lawndale and West Side communities</p>
   </div>
@@ -277,8 +327,39 @@
 <main class="wrap">
   <section class="kpis" id="kpis"></section>
   <div id="panels"></div>
-  <footer>&copy; 2026 <a href="https://www.housingstudies.org/">Institute for Housing Studies at DePaul University</a> | Interactive companion to the May 21, 2026 baseline data presentation &middot; <a href="v1-report.html">Report version</a> &middot; <a href="v2-gradient.html">Gradient version</a></footer>
 </main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="sf-brand">
+      <a href="https://www.depaul.edu/"><img src="vendor/depaul-driehaus-white.png" alt="DePaul University — Driehaus College of Business"></a>
+    </div>
+    <div class="sf-info">
+      <address>
+        1 E. Jackson, Suite 5400<br>
+        Chicago IL 60604<br>
+        <a href="tel:+1-312-362-7074">312-362-7074</a>
+      </address>
+      <p class="sf-copy">&copy; 2026 Real Estate Center's<br>Institute for Housing Studies</p>
+    </div>
+    <div class="sf-links">
+      <h4>Related Links</h4>
+      <div class="sf-social">
+        <a href="https://twitter.com/HousingStudies" aria-label="Twitter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M23 4.9c-.8.4-1.7.6-2.6.8a4.5 4.5 0 0 0 2-2.5c-.9.5-1.9.9-2.9 1.1a4.5 4.5 0 0 0-7.7 4.1A12.8 12.8 0 0 1 2.5 3.7a4.5 4.5 0 0 0 1.4 6 4.4 4.4 0 0 1-2-.5v0a4.5 4.5 0 0 0 3.6 4.4 4.5 4.5 0 0 1-2 .1 4.5 4.5 0 0 0 4.2 3.1A9 9 0 0 1 1 18.6a12.7 12.7 0 0 0 6.9 2c8.3 0 12.8-6.9 12.8-12.8v-.6c.9-.6 1.6-1.4 2.2-2.3z"/></svg></a>
+        <a href="https://www.linkedin.com/company/institute-for-housing-studies/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.4 20.4h-3.6v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9v5.7H9.2V9h3.4v1.6h.1a3.8 3.8 0 0 1 3.4-1.9c3.6 0 4.3 2.4 4.3 5.5v6.2zM5.2 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2zM7 20.4H3.4V9H7v11.4z"/></svg></a>
+      </div>
+      <ul>
+        <li><a href="https://www.housingstudies.org/">Institute for Housing Studies</a></li>
+        <li><a href="https://spark.depaul.edu/">The SPARK Center</a></li>
+        <li><a href="https://www.depaul.edu/">DePaul University</a></li>
+        <li><a href="https://business.depaul.edu/">Driehaus College of Business</a></li>
+        <li><a href="https://business.depaul.edu/about/centers-institutes/real-estate-center/Pages/default.aspx">Real Estate Center</a></li>
+        <li><a href="https://www.housingstudies.org/disclaimer/">Disclaimer</a></li>
+        <li><a href="https://www.housingstudies.org/data-protection-and-privacy/">Data Protection &amp; Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="sf-meta">Interactive companion to the May 21, 2026 baseline data presentation &middot; <a href="v1-report.html">Report version</a> &middot; <a href="v2-gradient.html">Gradient version</a> &middot; <a href="styleguide/index.html">Style guide</a></p>
+</footer>
 <div class="tooltip" id="tooltip"></div>
 
 <script>
