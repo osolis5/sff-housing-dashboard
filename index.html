@@ -266,18 +266,7 @@
     align-items: start;
   }
   @media (max-width: 860px) { .site-footer-inner { grid-template-columns: 1fr; gap: 32px; } }
-  .sf-logo {
-    margin: 0 0 6px;
-    font: 500 26px/1.1 'Roboto';
-    letter-spacing: -0.01em;
-    color: #FFFFFF;
-  }
-  .sf-tag {
-    margin: 0;
-    font: 500 12px/1.4 'Roboto';
-    letter-spacing: .14em; text-transform: uppercase;
-    color: #9a9a9a;
-  }
+  .sf-brand img { width: 300px; max-width: 100%; height: auto; display: block; }
   .sf-info {
     display: flex; gap: 44px; flex-wrap: wrap;
     font: 300 15px/1.7 'Roboto';
@@ -349,8 +338,7 @@
 <footer class="site-footer">
   <div class="site-footer-inner">
     <div class="sf-brand">
-      <p class="sf-logo">SFF + Dashboard</p>
-      <p class="sf-tag">Steans Family Foundation</p>
+      <a href="https://www.depaul.edu/"><img src="vendor/depaul-white.png" alt="DePaul University"></a>
     </div>
     <div class="sf-info">
       <p class="sf-copy">&copy; 2026 Steans Family Foundation</p>
@@ -360,15 +348,13 @@
       <ul>
         <li><a href="https://www.housingstudies.org/">Institute for Housing Studies</a></li>
         <li><a href="https://spark.depaul.edu/">The SPARK Center</a></li>
-        <li><a href="https://www.depaul.edu/">DePaul University</a></li>
-        <li><a href="https://business.depaul.edu/">Driehaus College of Business</a></li>
-        <li><a href="https://business.depaul.edu/about/centers-institutes/real-estate-center/Pages/default.aspx">Real Estate Center</a></li>
+        <li><a href="http://facweb.cs.depaul.edu/research/vc/">Visual Informatics and Data Analytics</a></li>
         <li><a href="https://www.housingstudies.org/disclaimer/">Disclaimer</a></li>
         <li><a href="https://www.housingstudies.org/data-protection-and-privacy/">Data Protection &amp; Privacy</a></li>
       </ul>
     </div>
   </div>
-  <p class="sf-meta">Interactive companion to the May 21, 2026 baseline data presentation &middot; <a href="v1-report.html">Report version</a> &middot; <a href="v2-gradient.html">Gradient version</a> &middot; <a href="styleguide/index.html">Style guide</a></p>
+  <p class="sf-meta">Interactive companion to the May 21, 2026 baseline data presentation &middot; <a href="styleguide/index.html">Style guide</a></p>
 </footer>
 <div class="tooltip" id="tooltip"></div>
 
