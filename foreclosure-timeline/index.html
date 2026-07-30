@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foreclosure Timeline — SFF Housing Dashboard</title>
+<link rel="stylesheet" href="vendor/fonts.css">
+<!-- D3 provides the global used for the ordinal color scale (already vendored) -->
+<script src="vendor/d3.v7.min.js"></script>
+<!-- self-contained UMD build of the timelines chart; needs no network -->
+<script src="vendor/timelines-chart.min.js?v=2"></script>
+<style>
+  /* Material Design 3 tokens — copied from index.html so this POC matches the
+     production dashboard's light navy scheme and Roboto type scale. */
+  :root {
+    --md-sys-color-primary: #415F91;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #D6E3FF;
+    --md-sys-color-on-primary-container: #001B3E;
+    --md-sys-color-surface: #FFFFFF;
+    --md-sys-color-surface-container-low: #F3F3FA;
+    --md-sys-color-surface-container: #EDEDF4;
+    --md-sys-color-surface-container-high: #E7E8EE;
+    --md-sys-color-on-surface: #191C20;
+    --md-sys-color-on-surface-variant: #44474E;
+    --md-sys-color-outline: #74777F;
+    --md-sys-color-outline-variant: #C4C6D0;
+    --md-sys-color-error: #BA1A1A;
+
+    /* foreclosure-severity ramp: near-white dithered low tier escalating to M3
+       error red. Ordinal, five tiers, matched to the dashboard's palette. */
+    --tier-1: #FBFBFB;  /* rendered as a dither pattern (see #dither-1) */
+    --tier-2: #F6D6A8;
+    --tier-3: #F0A860;
+    --tier-4: #D9633B;
+    --tier-5: #BA1A1A;
+
+    --elev-1: 0 1px 2px rgba(0,0,0,.30), 0 1px 3px 1px rgba(0,0,0,.15);
+    --elev-2: 0 1px 2px rgba(0,0,0,.30), 0 2px 6px 2px rgba(0,0,0,.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 400 14px/1.5 'Roboto', system-ui, sans-serif;
+    letter-spacing: .015em;
+    color: var(--md-sys-color-on-surface);
+    background: #FFFFFF;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 12px; font-weight: 500; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--md-sys-color-primary);
+    margin: 0 0 6px;
+  }
+  h1 {
+    font-size: 28px; line-height: 1.2; font-weight: 500; margin: 0 0 10px;
+    color: var(--md-sys-color-on-surface);
+  }
+  .lede {
+    max-width: 720px; margin: 0 0 28px; font-size: 15px;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+  /* M3 outlined card, same treatment as the dashboard chart cards */
+  .card {
+    background: var(--md-sys-color-surface);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: 16px;
+    box-shadow: var(--elev-1);
+    padding: 24px 24px 20px;
+  }
+  .card h2 { font-size: 18px; font-weight: 500; margin: 0 0 4px; }
+  .card .sub { font-size: 13px; color: var(--md-sys-color-on-surface-variant); margin: 0 0 18px; }
+  #chart { width: 100%; overflow-x: auto; }
+
+  /* legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 18px 2px 4px; }
+  .legend .title { font-size: 12px; font-weight: 500; color: var(--md-sys-color-on-surface-variant); }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; }
+  .legend .swatch { width: 16px; height: 12px; border-radius: 3px; display: inline-block; }
+  .source { font-size: 11.5px; color: var(--md-sys-color-outline); margin: 22px 2px 0; }
+
+  /* data (segment) tooltip: white rectangle, black border, black text */
+  .chart-tooltip.segment-tooltip {
+    font-family: 'Roboto', system-ui, sans-serif !important;
+    font-size: 12.5px !important;
+    background: #FFFFFF !important; color: #000000 !important;
+    border: 1px solid #000000 !important; border-radius: 0 !important;
+    padding: 8px 10px !important; box-shadow: none !important;
+  }
+  /* disable the redundant group-label and neighborhood (row-label) tooltips */
+  .chart-tooltip.group-tooltip,
+  .chart-tooltip.line-tooltip { display: none !important; }
+  .timelines-chart text { font-family: 'Roboto', system-ui, sans-serif !important; }
+  .reset-zoom-btn { font-family: 'Roboto', system-ui, sans-serif !important; }
+
+  /* --- time slider: white track (inactive) with a grey, dithered active window;
+         the handle rectangles are transparent with a stroked outline --- */
+  #chart svg.brusher .grid-background { fill: #FFFFFF; }
+  /* the brushed window = what's active / visualized -> grey dither */
+  #chart svg.brusher .selection { fill: url(#dither-2); fill-opacity: 1; stroke: #757575; stroke-width: 1; shape-rendering: crispEdges; }
+  /* fit the handle boxes to the track height so each is a complete, unclipped
+     rectangle (bordered on all 4 sides) rather than a clipped vertical bar */
+  #chart svg.brusher .handle { fill: none; stroke: #616161; stroke-width: 1.5; pointer-events: all; y: 0px; height: 20px; }
+  #chart svg.brusher .x.grid .domain { stroke: #9E9E9E; }
+  #chart svg.brusher .x.grid .tick line { stroke: #9E9E9E; }
+  #chart svg.brusher .x.grid .tick text { fill: #616161; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h2>Residential foreclosure filings, 2005&ndash;2025</h2>
+    <p class="sub">9 West Side community areas · color tier = filing intensity that year</p>
+    <div id="chart"></div>
+    <p class="source">
+      Source: Chicago Community Areas 2026 SFF Indicators (04/02/2026) &mdash;
+      sheet D. Foreclosures, &ldquo;Foreclosure Activity for Residential Properties.&rdquo;
+    </p>
+  </div>
+</div>
+
+<script>
+/* ---- real data (embedded verbatim from the SFF indicators workbook) ---- */
+const FORECLOSURE = {
+ years: [2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
+ areas: [
+  {name:"Austin", vals:[564,711,963,1090,913,870,741,873,491,379,389,359,337,327,266,91,87,246,159,194,110]},
+  {name:"East Garfield Park", vals:[81,141,237,281,259,226,157,149,96,73,50,60,52,52,30,11,14,33,30,24,20]},
+  {name:"Humboldt Park", vals:[265,318,495,714,615,562,453,403,266,150,153,112,137,106,88,35,17,73,51,82,49]},
+  {name:"Lower West Side", vals:[34,52,71,124,141,153,142,118,76,47,35,32,39,19,18,9,9,3,13,10,14]},
+  {name:"Near West Side", vals:[84,111,198,271,327,463,388,347,175,90,68,45,53,50,57,15,13,49,33,38,27]},
+  {name:"North Lawndale", vals:[178,249,368,415,357,317,260,291,160,112,111,98,89,111,94,33,26,63,50,62,37]},
+  {name:"South Lawndale", vals:[98,123,207,320,382,380,300,328,169,114,99,71,58,43,48,20,11,41,28,28,18]},
+  {name:"West Garfield Park", vals:[119,191,262,231,204,182,112,156,94,79,66,58,41,47,49,22,13,31,38,33,23]},
+  {name:"West Town", vals:[130,146,263,441,584,479,412,319,182,96,75,55,66,59,60,28,19,66,43,46,36]}
+ ]
+};
+
+/* five ordinal severity tiers, mapped to real filing-count thresholds.
+   The lowest tier renders as a near-white ordered-dither pattern (#dither-1);
+   the rest are solid warm colors escalating to M3 error red. */
+const TIERS = ["0–49","50–149","150–299","300–599","600+"];
+const TIER_COLORS = ["url(#dither-1)","#F6D6A8","#F0A860","#D9633B","#BA1A1A"];
+
+/* Ordered-dither tiles injected into the relevant <defs>. #dither-1 (near-white)
+   is the 0–49 tier fill in the main chart; #dither-2 (grey) is the active slider
+   window. Defs persist across the library's re-renders, so this runs once. */
+const SVGNS = "http://www.w3.org/2000/svg";
+function ditherPattern(id, base, speck) {
+  const p = document.createElementNS(SVGNS,'pattern');
+  p.setAttribute('id', id);
+  p.setAttribute('width','4'); p.setAttribute('height','4');
+  p.setAttribute('patternUnits','userSpaceOnUse');
+  p.innerHTML =
+    `<rect width="4" height="4" fill="${base}"/>` +
+    `<rect x="0" y="0" width="1" height="1" fill="${speck}"/>` +
+    `<rect x="2" y="0" width="1" height="1" fill="${speck}"/>` +
+    `<rect x="0" y="2" width="1" height="1" fill="${speck}"/>` +
+    `<rect x="2" y="2" width="1" height="1" fill="${speck}"/>`;
+  return p;
+}
+function ensureDefs(svg, id, base, speck) {
+  if (!svg) return;
+  let defs = svg.querySelector('defs');
+  if (!defs) { defs = document.createElementNS(SVGNS,'defs'); svg.insertBefore(defs, svg.firstChild); }
+  if (!defs.querySelector('#' + id)) defs.appendChild(ditherPattern(id, base, speck));
+}
+function ensureDither() {
+  ensureDefs(document.querySelector('#chart svg:not(.brusher)'), 'dither-1', '#FBFBFB', '#CFCFCF'); // 0–49 tier
+  ensureDefs(document.querySelector('#chart svg.brusher'),        'dither-2', '#A6A6A6', '#7D7D7D'); // active slider window
+}
+
+/* The library middle-truncates the group label to fit the left margin
+   ("West Side...areas"). Rewrap it onto multiple lines so the full name shows. */
+function wrapGroupLabel() {
+  const svg = document.querySelector('#chart svg:not(.brusher)');
+  if (!svg) return;
+  const t = svg.querySelector('.grp-axis .tick text');
+  if (!t || t.querySelector('tspan')) return;              // absent or already wrapped
+  const full = (data[0] && data[0].group) || t.textContent;
+  // greedy word-wrap at ~16 chars/line
+  const words = full.split(' '); const lines = []; let cur = '';
+  words.forEach(w => {
+    if (cur && (cur + ' ' + w).length > 16) { lines.push(cur); cur = w; }
+    else cur = cur ? cur + ' ' + w : w;
+  });
+  if (cur) lines.push(cur);
+  const x = t.getAttribute('x') || '-3';
+  const lh = 1.15;                                          // line height, em
+  const start = -((lines.length - 1) / 2) * lh + 0.32;     // vertically centered
+  t.removeAttribute('dy'); t.textContent = '';
+  lines.forEach((ln, i) => {
+    const ts = document.createElementNS(SVGNS, 'tspan');
+    ts.setAttribute('x', x);
+    ts.setAttribute('dy', (i === 0 ? start : lh) + 'em');
+    ts.textContent = ln;
+    t.appendChild(ts);
+  });
+}
+function tierOf(v){
+  if (v == null) return null;
+  if (v < 50)  return TIERS[0];
+  if (v < 150) return TIERS[1];
+  if (v < 300) return TIERS[2];
+  if (v < 600) return TIERS[3];
+  return TIERS[4];
+}
+
+/* reshape into the timelines-chart format: [{group, data:[{label, data:[{timeRange,val,count}]}]}] */
+const rawByAreaYear = {};
+const data = [{
+  group: "West Side community areas",
+  data: FORECLOSURE.areas.map(area => {
+    const segs = [];
+    area.vals.forEach((v, i) => {
+      if (v == null) return;
+      const y = FORECLOSURE.years[i];
+      rawByAreaYear[area.name + "|" + y] = v;
+      segs.push({
+        timeRange: [new Date(y, 0, 1), new Date(y + 1, 0, 1)],
+        val: tierOf(v),
+        count: v,
+        year: y,
+        area: area.name
+      });
+    });
+    return { label: area.name, data: segs };
+  })
+}];
+
+const colorScale = d3.scaleOrdinal().domain(TIERS).range(TIER_COLORS);
+
+const chart = TimelinesChart()(document.getElementById('chart'))
+  .data(data)
+  .width(Math.min(1032, document.getElementById('chart').clientWidth || 1032))
+  .maxLineHeight(26)
+  .zQualitative(true)
+  .zColorScale(colorScale)
+  .useUtc(true)
+  .timeFormat('%Y')
+  .zScaleLabel('Filings per year')
+  .enableAnimations(true)
+  .rightMargin(150)
+  .leftMargin(140)
+  .segmentTooltipContent(d => `
+    <strong>${d.data.area}</strong><br>
+    ${d.data.year}: <strong>${d.data.count.toLocaleString()}</strong> foreclosure filings<br>
+    <span style="opacity:.75">Tier: ${d.val}</span>
+  `);
+
+/* dress the chart once it has drawn: dither patterns + wrapped group label */
+ensureDither();
+wrapGroupLabel();
+/* re-wrap if the library redraws the group axis */
+new MutationObserver(() => wrapGroupLabel())
+  .observe(document.querySelector('#chart svg:not(.brusher) .grp-axis'), { childList: true, subtree: true });
+
+/* Force the full 2005–2025 range on load. The chart's first render is async, and
+   depending on load timing it can initialize zoomed to ~80%. Fire the library's
+   own "resetZoom" once, after the first render, so it always opens full-range.
+   One-shot — it never runs again, so it won't fight the user's own zooming. */
+(function openFullRange() {
+  let done = false;
+  const iv = setInterval(() => {
+    if (done) return;
+    const svg = document.querySelector('#chart svg:not(.brusher)');
+    if (svg && svg.querySelector('rect.series-segment')) {
+      svg.dispatchEvent(new Event('resetZoom'));
+      done = true; clearInterval(iv);
+    }
+  }, 60);
+  setTimeout(() => clearInterval(iv), 3000);
+})();
+
+/* keep the chart responsive to the card width */
+addEventListener('resize', () => {
+  chart.width(Math.min(1032, document.getElementById('chart').clientWidth || 1032));
+  ensureDither();
+  wrapGroupLabel();
+});
+</script>
+</body>
+</html>

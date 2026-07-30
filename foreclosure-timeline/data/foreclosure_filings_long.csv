@@ -1,0 +1,190 @@
+community_area,year,foreclosure_filings,tier
+Austin,2005,564,300-599
+Austin,2006,711,600+
+Austin,2007,963,600+
+Austin,2008,1090,600+
+Austin,2009,913,600+
+Austin,2010,870,600+
+Austin,2011,741,600+
+Austin,2012,873,600+
+Austin,2013,491,300-599
+Austin,2014,379,300-599
+Austin,2015,389,300-599
+Austin,2016,359,300-599
+Austin,2017,337,300-599
+Austin,2018,327,300-599
+Austin,2019,266,150-299
+Austin,2020,91,50-149
+Austin,2021,87,50-149
+Austin,2022,246,150-299
+Austin,2023,159,150-299
+Austin,2024,194,150-299
+Austin,2025,110,50-149
+East Garfield Park,2005,81,50-149
+East Garfield Park,2006,141,50-149
+East Garfield Park,2007,237,150-299
+East Garfield Park,2008,281,150-299
+East Garfield Park,2009,259,150-299
+East Garfield Park,2010,226,150-299
+East Garfield Park,2011,157,150-299
+East Garfield Park,2012,149,50-149
+East Garfield Park,2013,96,50-149
+East Garfield Park,2014,73,50-149
+East Garfield Park,2015,50,50-149
+East Garfield Park,2016,60,50-149
+East Garfield Park,2017,52,50-149
+East Garfield Park,2018,52,50-149
+East Garfield Park,2019,30,0-49
+East Garfield Park,2020,11,0-49
+East Garfield Park,2021,14,0-49
+East Garfield Park,2022,33,0-49
+East Garfield Park,2023,30,0-49
+East Garfield Park,2024,24,0-49
+East Garfield Park,2025,20,0-49
+Humboldt Park,2005,265,150-299
+Humboldt Park,2006,318,300-599
+Humboldt Park,2007,495,300-599
+Humboldt Park,2008,714,600+
+Humboldt Park,2009,615,600+
+Humboldt Park,2010,562,300-599
+Humboldt Park,2011,453,300-599
+Humboldt Park,2012,403,300-599
+Humboldt Park,2013,266,150-299
+Humboldt Park,2014,150,150-299
+Humboldt Park,2015,153,150-299
+Humboldt Park,2016,112,50-149
+Humboldt Park,2017,137,50-149
+Humboldt Park,2018,106,50-149
+Humboldt Park,2019,88,50-149
+Humboldt Park,2020,35,0-49
+Humboldt Park,2021,17,0-49
+Humboldt Park,2022,73,50-149
+Humboldt Park,2023,51,50-149
+Humboldt Park,2024,82,50-149
+Humboldt Park,2025,49,0-49
+Lower West Side,2005,34,0-49
+Lower West Side,2006,52,50-149
+Lower West Side,2007,71,50-149
+Lower West Side,2008,124,50-149
+Lower West Side,2009,141,50-149
+Lower West Side,2010,153,150-299
+Lower West Side,2011,142,50-149
+Lower West Side,2012,118,50-149
+Lower West Side,2013,76,50-149
+Lower West Side,2014,47,0-49
+Lower West Side,2015,35,0-49
+Lower West Side,2016,32,0-49
+Lower West Side,2017,39,0-49
+Lower West Side,2018,19,0-49
+Lower West Side,2019,18,0-49
+Lower West Side,2020,9,0-49
+Lower West Side,2021,9,0-49
+Lower West Side,2022,3,0-49
+Lower West Side,2023,13,0-49
+Lower West Side,2024,10,0-49
+Lower West Side,2025,14,0-49
+Near West Side,2005,84,50-149
+Near West Side,2006,111,50-149
+Near West Side,2007,198,150-299
+Near West Side,2008,271,150-299
+Near West Side,2009,327,300-599
+Near West Side,2010,463,300-599
+Near West Side,2011,388,300-599
+Near West Side,2012,347,300-599
+Near West Side,2013,175,150-299
+Near West Side,2014,90,50-149
+Near West Side,2015,68,50-149
+Near West Side,2016,45,0-49
+Near West Side,2017,53,50-149
+Near West Side,2018,50,50-149
+Near West Side,2019,57,50-149
+Near West Side,2020,15,0-49
+Near West Side,2021,13,0-49
+Near West Side,2022,49,0-49
+Near West Side,2023,33,0-49
+Near West Side,2024,38,0-49
+Near West Side,2025,27,0-49
+North Lawndale,2005,178,150-299
+North Lawndale,2006,249,150-299
+North Lawndale,2007,368,300-599
+North Lawndale,2008,415,300-599
+North Lawndale,2009,357,300-599
+North Lawndale,2010,317,300-599
+North Lawndale,2011,260,150-299
+North Lawndale,2012,291,150-299
+North Lawndale,2013,160,150-299
+North Lawndale,2014,112,50-149
+North Lawndale,2015,111,50-149
+North Lawndale,2016,98,50-149
+North Lawndale,2017,89,50-149
+North Lawndale,2018,111,50-149
+North Lawndale,2019,94,50-149
+North Lawndale,2020,33,0-49
+North Lawndale,2021,26,0-49
+North Lawndale,2022,63,50-149
+North Lawndale,2023,50,50-149
+North Lawndale,2024,62,50-149
+North Lawndale,2025,37,0-49
+South Lawndale,2005,98,50-149
+South Lawndale,2006,123,50-149
+South Lawndale,2007,207,150-299
+South Lawndale,2008,320,300-599
+South Lawndale,2009,382,300-599
+South Lawndale,2010,380,300-599
+South Lawndale,2011,300,300-599
+South Lawndale,2012,328,300-599
+South Lawndale,2013,169,150-299
+South Lawndale,2014,114,50-149
+South Lawndale,2015,99,50-149
+South Lawndale,2016,71,50-149
+South Lawndale,2017,58,50-149
+South Lawndale,2018,43,0-49
+South Lawndale,2019,48,0-49
+South Lawndale,2020,20,0-49
+South Lawndale,2021,11,0-49
+South Lawndale,2022,41,0-49
+South Lawndale,2023,28,0-49
+South Lawndale,2024,28,0-49
+South Lawndale,2025,18,0-49
+West Garfield Park,2005,119,50-149
+West Garfield Park,2006,191,150-299
+West Garfield Park,2007,262,150-299
+West Garfield Park,2008,231,150-299
+West Garfield Park,2009,204,150-299
+West Garfield Park,2010,182,150-299
+West Garfield Park,2011,112,50-149
+West Garfield Park,2012,156,150-299
+West Garfield Park,2013,94,50-149
+West Garfield Park,2014,79,50-149
+West Garfield Park,2015,66,50-149
+West Garfield Park,2016,58,50-149
+West Garfield Park,2017,41,0-49
+West Garfield Park,2018,47,0-49
+West Garfield Park,2019,49,0-49
+West Garfield Park,2020,22,0-49
+West Garfield Park,2021,13,0-49
+West Garfield Park,2022,31,0-49
+West Garfield Park,2023,38,0-49
+West Garfield Park,2024,33,0-49
+West Garfield Park,2025,23,0-49
+West Town,2005,130,50-149
+West Town,2006,146,50-149
+West Town,2007,263,150-299
+West Town,2008,441,300-599
+West Town,2009,584,300-599
+West Town,2010,479,300-599
+West Town,2011,412,300-599
+West Town,2012,319,300-599
+West Town,2013,182,150-299
+West Town,2014,96,50-149
+West Town,2015,75,50-149
+West Town,2016,55,50-149
+West Town,2017,66,50-149
+West Town,2018,59,50-149
+West Town,2019,60,50-149
+West Town,2020,28,0-49
+West Town,2021,19,0-49
+West Town,2022,66,50-149
+West Town,2023,43,0-49
+West Town,2024,46,0-49
+West Town,2025,36,0-49
