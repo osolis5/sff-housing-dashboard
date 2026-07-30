@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foreclosure Unit Grid — SFF Community Areas</title>
+<link rel="stylesheet" href="vendor/fonts.css">
+<script src="vendor/d3.v7.min.js"></script>
+<style>
+  :root {
+    --navy: #33518A;
+    --navy-mid: #5578AE;
+    --navy-light: #91AAD4;
+    --gray-bar: #C4C6D0;
+    --red: #BA1A1A;
+    --on-surface: #191C20;
+    --on-surface-variant: #44474E;
+    --outline: #74777F;
+    --outline-variant: #C4C6D0;
+    --secondary-container: #DAE2F9;
+    --on-secondary-container: #131C2B;
+    --surface-container-lowest: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #FFFFFF;
+    color: var(--on-surface);
+    font-family: 'Roboto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 24px 64px; }
+
+  header h1 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.2;
+    letter-spacing: -0.2px;
+  }
+  header .dek {
+    margin-top: 12px;
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--on-surface-variant);
+    max-width: 640px;
+  }
+  header .dek strong { font-weight: 500; color: var(--on-surface); }
+
+  /* stat row */
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+  .stat {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: 12px;
+    padding: 12px 18px;
+    min-width: 128px;
+  }
+  .stat .v { font-size: 24px; font-weight: 700; color: var(--navy); }
+  .stat.focus .v { color: var(--red); }
+  .stat .l { font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; color: var(--on-surface-variant); margin-top: 2px; }
+
+  /* controls */
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin-top: 32px; padding-top: 24px;
+    border-top: 1px solid var(--outline-variant);
+  }
+  .controls label.select-label { font-size: 13px; color: var(--on-surface-variant); }
+  select {
+    font-family: 'Roboto', sans-serif; font-size: 14px; color: var(--on-surface);
+    padding: 8px 12px; border: 1px solid var(--outline); border-radius: 8px;
+    background: #FFF; cursor: pointer;
+  }
+  .spacer { flex: 1; }
+  .toggle { display: inline-flex; border: 1px solid var(--outline); border-radius: 999px; overflow: hidden; }
+  .toggle button {
+    font-family: 'Roboto', sans-serif; font-size: 13px; padding: 8px 16px;
+    border: none; background: #FFF; color: var(--on-surface-variant); cursor: pointer;
+  }
+  .toggle button.on { background: var(--secondary-container); color: var(--on-secondary-container); font-weight: 500; }
+  .toggle button + button { border-left: 1px solid var(--outline-variant); }
+
+  /* type filter chips (also the legend) */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: 'Roboto', sans-serif; font-size: 13px;
+    padding: 7px 14px; border: 1px solid var(--outline); border-radius: 999px;
+    background: #FFF; color: var(--on-surface); cursor: pointer;
+    transition: opacity .15s;
+  }
+  .chip .sw { width: 11px; height: 11px; border-radius: 2px; }
+  .chip .n { color: var(--on-surface-variant); font-size: 12px; }
+  .chip.off { opacity: 0.38; }
+  .chip.off .sw { background: var(--gray-bar) !important; }
+
+  /* grid */
+  #grid-box { margin-top: 28px; position: relative; }
+  #grid { display: block; }
+  .yr-label { font-size: 12px; fill: var(--on-surface-variant); font-weight: 500; }
+  .yr-count { font-size: 12px; fill: var(--outline); font-weight: 300; }
+
+  /* tooltip */
+  #tip {
+    position: absolute; pointer-events: none; z-index: 5; display: none;
+    background: #2E3036; color: #F0F0F7;
+    font-size: 12px; line-height: 1.5; padding: 8px 12px; border-radius: 8px;
+    max-width: 230px;
+  }
+  #tip b { color: #FFF; }
+
+  footer { margin-top: 40px; border-top: 1px solid var(--outline-variant); padding-top: 16px; }
+  footer p { font-size: 12px; font-weight: 300; color: var(--outline); line-height: 1.6; max-width: 680px; }
+  footer p + p { margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">Every foreclosure, one square at a time</h1>
+    <p class="dek" id="dek"></p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="controls">
+    <label class="select-label" for="area">Community area</label>
+    <select id="area"></select>
+    <div class="spacer"></div>
+    <div class="toggle" id="view">
+      <button data-v="year" class="on">Grouped by year</button>
+      <button data-v="pool">All filings pooled</button>
+    </div>
+  </div>
+  <div class="chips" id="chips"></div>
+
+  <div id="grid-box">
+    <svg id="grid"></svg>
+    <div id="tip"></div>
+  </div>
+
+  <footer>
+    <p id="src"></p>
+    <p>* 2025 covers the first half of the year only (through June). Each square represents one
+       residential foreclosure filing recorded in the dataset. Property-type counts sum exactly to the
+       reported residential totals for every community area and year.</p>
+    <p>City of Chicago benchmark (<span id="chi-total"></span> filings over the same period) is reported
+       in the dataset but omitted from the grid for scale.</p>
+  </footer>
+</div>
+
+<script>
+const TYPES = [
+  { key: 'unit24', label: '2–4 unit',        color: '#33518A' },
+  { key: 'sf',     label: 'Single family',   color: '#5578AE' },
+  { key: 'condo',  label: 'Condominium',     color: '#91AAD4' },
+  { key: 'multi',  label: 'Multifamily (5+)',color: '#8A9297' },
+];
+const TYPE_BY_KEY = Object.fromEntries(TYPES.map(t => [t.key, t]));
+
+const SQ = 8, GAP = 2, PITCH = SQ + GAP;   // square size + gap
+const LABEL_W = 74;                        // left gutter for year labels
+const YEAR_PAD = 14;                       // vertical gap between year blocks
+const MAX_ANIMATED = 4500;                 // skip transitions above this many squares
+
+const state = { area: 'NORTH LAWNDALE', view: 'year', types: new Set(TYPES.map(t => t.key)) };
+let DATA, squares = [];                    // squares = one object per filing for current area
+
+const fmt = d3.format(',');
+const titleCase = s => s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
+d3.json('data.json').then(data => {
+  DATA = data;
+  buildControls();
+  buildSquares();
+  render(false);
+});
+
+// ---- one object per real filing for the selected area --------------------
+function buildSquares() {
+  squares = [];
+  let id = 0;
+  DATA.years.forEach((yr, yi) => {
+    TYPES.forEach(t => {
+      const n = DATA.counts[t.key][state.area][yi] || 0;
+      for (let k = 0; k < n; k++) squares.push({ id: id++, year: yr, yi, type: t.key });
+    });
+  });
+  updateChipCounts();
+}
+
+function visibleSquares() { return squares.filter(s => state.types.has(s.type)); }
+
+// ---- layout ---------------------------------------------------------------
+function layout(vis, width) {
+  const cols = Math.max(20, Math.floor((width - LABEL_W) / PITCH));
+  const labels = [];
+  let y = 0;
+
+  if (state.view === 'year') {
+    const byYear = d3.group(vis, d => d.yi);
+    DATA.years.forEach((yr, yi) => {
+      const items = byYear.get(yi) || [];
+      if (!items.length) return;
+      labels.push({ yr, y, n: items.length });
+      items.forEach((d, i) => {
+        d.x = LABEL_W + (i % cols) * PITCH;
+        d.y = y + Math.floor(i / cols) * PITCH;
+      });
+      // never advance less than the two-line label height, so labels can't overlap
+      y += Math.max(Math.ceil(items.length / cols) * PITCH, 28) + YEAR_PAD;
+    });
+  } else {
+    vis.forEach((d, i) => {
+      d.x = LABEL_W + (i % cols) * PITCH;
+      d.y = Math.floor(i / cols) * PITCH;
+    });
+    y = Math.ceil(vis.length / cols) * PITCH;
+    if (vis.length) labels.push({ yr: null, y: 0, n: vis.length });
+  }
+  return { height: Math.max(y, PITCH), labels };
+}
+
+// ---- render ----------------------------------------------------------------
+function render(animate = true) {
+  const box = document.getElementById('grid-box');
+  const width = box.clientWidth;
+  const vis = visibleSquares();
+  const { height, labels } = layout(vis, width);
+
+  const svg = d3.select('#grid').attr('width', width).attr('height', height + 4);
+  const doAnim = animate && vis.length <= MAX_ANIMATED;
+
+  const rects = svg.selectAll('rect').data(vis, d => d.id);
+  rects.exit().remove();
+  const enter = rects.enter().append('rect')
+    .attr('width', SQ).attr('height', SQ)
+    .attr('x', d => d.x).attr('y', d => d.y)
+    .attr('fill', d => TYPE_BY_KEY[d.type].color)
+    .style('opacity', 0)
+    .on('pointerenter', showTip)
+    .on('pointerleave', hideTip);
+
+  if (doAnim) {
+    enter.transition().duration(400).style('opacity', 1);
+    rects.transition().duration(500)
+      .attr('x', d => d.x).attr('y', d => d.y)
+      .style('opacity', 1);
+  } else {
+    enter.style('opacity', 1);
+    rects.attr('x', d => d.x).attr('y', d => d.y).style('opacity', 1);
+  }
+
+  // year labels
+  const lab = svg.selectAll('g.lab').data(labels, d => d.yr ?? 'pool');
+  lab.exit().remove();
+  const labEnter = lab.enter().append('g').attr('class', 'lab');
+  labEnter.append('text').attr('class', 'yr-label').attr('x', 0).attr('dy', 9);
+  labEnter.append('text').attr('class', 'yr-count').attr('x', 0).attr('dy', 23);
+  const labAll = labEnter.merge(lab);
+  (doAnim ? labAll.transition().duration(500) : labAll).attr('transform', d => `translate(0,${d.y})`);
+  labAll.select('.yr-label').text(d => d.yr === null ? '2005–25*' : (d.yr === 2025 ? '2025*' : d.yr));
+  labAll.select('.yr-count').text(d => fmt(d.n));
+
+  renderHeader(vis);
+}
+
+// ---- header / stats ---------------------------------------------------------
+function renderHeader(vis) {
+  const areaName = titleCase(state.area);
+  const total = squares.length;
+  const byYearAll = d3.rollup(squares, v => v.length, d => d.year);
+  const [peakYear, peakN] = [...byYearAll.entries()].sort((a, b) => b[1] - a[1])[0];
+  const n24 = squares.filter(s => s.type === 'unit24').length;
+  const last = byYearAll.get(2024) || 0;
+
+  document.getElementById('title').textContent =
+    `${areaName}: every foreclosure, one square at a time`;
+  document.getElementById('dek').innerHTML =
+    `Each square below is <strong>one residential foreclosure filing</strong> in ${areaName} between
+     2005 and mid-2025 — <strong>${fmt(total)}</strong> in all, colored by property type. The wave
+     crests in <strong>${peakYear}</strong> (${fmt(peakN)} filings) and recedes to
+     <strong>${fmt(last)}</strong> by 2024.`;
+
+  const stats = [
+    { v: fmt(vis.length === total ? total : vis.length), l: vis.length === total ? 'Filings 2005–1H 2025' : 'Filings shown', focus: true },
+    { v: peakYear, l: `Peak year (${fmt(peakN)})` },
+    { v: Math.round(n24 / total * 100) + '%', l: '2–4 unit share' },
+    { v: fmt(last), l: 'Filings in 2024' },
+  ];
+  d3.select('#stats').selectAll('div.stat').data(stats).join('div')
+    .attr('class', d => 'stat' + (d.focus ? ' focus' : ''))
+    .html(d => `<div class="v">${d.v}</div><div class="l">${d.l}</div>`);
+}
+
+// ---- controls -----------------------------------------------------------------
+function buildControls() {
+  d3.select('#area').selectAll('option').data(DATA.areas).join('option')
+    .attr('value', d => d).text(d => titleCase(d))
+    .property('selected', d => d === state.area);
+  d3.select('#area').on('change', function () {
+    state.area = this.value;
+    buildSquares();
+    render(false);
+  });
+
+  d3.select('#view').selectAll('button').on('click', function () {
+    state.view = this.dataset.v;
+    d3.select('#view').selectAll('button').classed('on', function () { return this.dataset.v === state.view; });
+    render(true);
+  });
+
+  const chips = d3.select('#chips').selectAll('button.chip').data(TYPES).join('button')
+    .attr('class', 'chip')
+    .html(d => `<span class="sw" style="background:${d.color}"></span>${d.label} <span class="n"></span>`)
+    .on('click', (e, d) => {
+      if (state.types.has(d.key) && state.types.size === 1) {
+        state.types = new Set(TYPES.map(t => t.key));   // re-select all
+      } else if (state.types.has(d.key)) {
+        state.types.delete(d.key);
+      } else {
+        state.types.add(d.key);
+      }
+      chips.classed('off', t => !state.types.has(t.key));
+      render(true);
+    });
+  updateChipCounts();
+
+  const chiTotal = d3.sum(DATA.counts.total['CITY OF CHICAGO']);
+  document.getElementById('chi-total').textContent = fmt(chiTotal);
+  document.getElementById('src').textContent =
+    'Source: Chicago Community Areas 2026 SFF Indicators (Institute for Housing Studies), ' +
+    'tab D. Foreclosures — Section 1 (residential totals) and Sections 4–7 (single family, ' +
+    'condominium, 2–4 unit, multifamily), 2005 to 1H 2025.';
+}
+
+function updateChipCounts() {
+  d3.select('#chips').selectAll('button.chip').select('.n')
+    .text(d => fmt(squares.filter(s => s.type === d.key).length));
+}
+
+// ---- tooltip --------------------------------------------------------------------
+function showTip(e, d) {
+  const yearN = squares.filter(s => s.year === d.year).length;
+  const tip = document.getElementById('tip');
+  tip.innerHTML = `<b>1 filing</b> · ${TYPE_BY_KEY[d.type].label}<br>` +
+    `${titleCase(state.area)}, ${d.year}${d.year === 2025 ? ' (1st half)' : ''}<br>` +
+    `One of <b>${fmt(yearN)}</b> filings that year`;
+  const box = document.getElementById('grid-box').getBoundingClientRect();
+  tip.style.display = 'block';
+  tip.style.left = Math.min(d.x + 14, box.width - 240) + 'px';
+  tip.style.top = (d.y + 16) + 'px';
+  d3.select(e.target).attr('stroke', '#BA1A1A').attr('stroke-width', 2);
+}
+function hideTip(e) {
+  document.getElementById('tip').style.display = 'none';
+  d3.select(e.target).attr('stroke', null);
+}
+
+let rTimer;
+window.addEventListener('resize', () => { clearTimeout(rTimer); rTimer = setTimeout(() => render(false), 150); });
+
+// area select changes after squares rebuilt need chip counts refreshed too
+d3.select('#area').on('change.counts', updateChipCounts);
+</script>
+</body>
+</html>
