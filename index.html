@@ -59,64 +59,14 @@
     color: var(--md-sys-color-on-surface);
     background: var(--md-sys-color-surface);
   }
-  /* --- hero: animated liquid-blue gradient landing band (offline, pure CSS) --- */
+  /* --- hero: flat primary band (gradient/video treatment removed) --- */
   .hero {
-    position: relative;
-    overflow: hidden;
-    background: #1c2c50;
-    isolation: isolate;
+    background: var(--md-sys-color-primary);
   }
-  /* morphing plasma: layered radial blues, blurred + slowly drifting */
-  .hero::before {
-    content: "";
-    position: absolute;
-    inset: -45%;
-    z-index: 0;
-    background:
-      radial-gradient(38% 38% at 20% 28%, #e2e9f7 0%, rgba(226,233,247,0) 60%),
-      radial-gradient(42% 42% at 78% 22%, #93aede 0%, rgba(147,174,222,0) 58%),
-      radial-gradient(46% 46% at 62% 72%, #1e2f74 0%, rgba(30,47,116,0) 60%),
-      radial-gradient(40% 40% at 28% 76%, #2a51b6 0%, rgba(42,81,182,0) 58%),
-      radial-gradient(70% 70% at 50% 50%, #3f61a6 0%, #23346c 100%);
-    filter: blur(34px) saturate(1.12);
-    animation: heroFlow 22s ease-in-out infinite alternate;
-    will-change: transform;
-  }
-  /* the user's custom gradient animation (vendor/hero.mp4), full-bleed behind
-     the headline; the CSS plasma below remains as an automatic fallback */
-  .hero-video {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    pointer-events: none;
-  }
-  /* fine grain over the video for texture, matching the chart treatment */
-  .hero::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    opacity: 0.5;
-    mix-blend-mode: soft-light;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
-  }
-  @keyframes heroFlow {
-    0%   { transform: translate(-3%, -2%) scale(1.10) rotate(0deg); }
-    50%  { transform: translate(3%, 3%) scale(1.26) rotate(7deg); }
-    100% { transform: translate(-2%, 2%) scale(1.14) rotate(-5deg); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero::before { animation: none; }
-    .hero-video { display: none; }
-  }
-  .hero-inner { position: relative; z-index: 3; max-width: 1200px; margin: 0 auto; padding: 30px 24px 104px; }
+  .hero-inner { max-width: 1200px; margin: 0 auto; padding: 28px 24px 64px; }
   .hero-top {
     display: flex; justify-content: flex-end; align-items: center;
-    margin-bottom: 88px;
+    margin-bottom: 48px;
   }
   .hero-date {
     font: 500 12px/1 'Roboto';
@@ -132,7 +82,6 @@
     font: 700 13px/1 'Roboto';
     letter-spacing: .18em; text-transform: uppercase;
     color: rgba(255, 255, 255, 0.82);
-    text-shadow: 0 1px 8px rgba(10, 20, 45, 0.3);
   }
   .hero h1 {
     margin: 0 0 12px;
@@ -140,7 +89,6 @@
     font: 500 clamp(34px, 4.4vw, 54px)/1.08 'Roboto';
     letter-spacing: -0.01em;
     color: #FFFFFF;
-    text-shadow: 0 2px 18px rgba(10, 20, 45, 0.4);
     max-width: 20ch;
   }
   .hero p {
@@ -148,7 +96,6 @@
     font: 300 clamp(16px, 1.6vw, 19px)/1.5 'Roboto';
     letter-spacing: .01em;
     color: rgba(255, 255, 255, 0.92);
-    text-shadow: 0 1px 10px rgba(10, 20, 45, 0.3);
     max-width: 56ch;
   }
   /* --- tabs (md-tabs component) --- */
@@ -318,9 +265,6 @@
 </head>
 <body>
 <div class="hero">
-  <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-    <source src="vendor/hero.mp4" type="video/mp4">
-  </video>
   <div class="hero-inner">
     <div class="hero-top">
       <span class="hero-date">Baseline Data &middot; May 21, 2026</span>
