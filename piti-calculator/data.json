@@ -1,0 +1,76 @@
+{
+  "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_04022026.xlsx. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
+  "geo": "NORTH LAWNDALE",
+
+  "salePrices2024": {
+    "_source": "E.Property_Sales — tables 8 (row 124), 11 (row 170), 14 (row 216): median sales prices, North Lawndale, full-year 2024 (2025 column covers only the first half)",
+    "sf": 200000,
+    "u24": 290000,
+    "condo": 100000
+  },
+  "salesCounts2024": {
+    "_source": "E.Property_Sales — tables 7 (row 109), 10 (row 155), 13 (row 201): number of sales, North Lawndale, 2024",
+    "sf": 49,
+    "u24": 180,
+    "condo": 7
+  },
+  "taxBillsTY2023": {
+    "_source": "B.Taxpayer_Characteristics — table 1 (row 18) single family, table 2 (row 33) 2-to-4 unit: median tax bill, North Lawndale, Tax Year 2023. The dataset has no condo tax-bill table.",
+    "sf": 1376,
+    "u24": 2011,
+    "condo": null
+  },
+  "taxBillsTY2012": {
+    "_source": "B.Taxpayer_Characteristics — tables 1 and 2, TY2012 column (context: NL bills FELL 27.5% / 28.7% from 2012 to 2023)",
+    "sf": 1899,
+    "u24": 2819
+  },
+  "exemptions2023": {
+    "_source": "B.Taxpayer_Characteristics — tables 3 (row 49) and 4 (row 65): share of taxpayers with exemptions, North Lawndale, TY2023",
+    "homeownerShareSF": 0.61,
+    "homeownerShareU24": 0.37,
+    "seniorShareSF": 0.19,
+    "seniorShareU24": 0.145
+  },
+
+  "incomes2024": {
+    "_source": "A.Demographic_Socioeconomic — section 5 (rows 83, 88): median household income, 2024, rounded to nearest dollar",
+    "nlMedian": 51591,
+    "nlRenter": 36023,
+    "nlOwner": 92765,
+    "chicagoMedian": 80487
+  },
+  "households2024": {
+    "_source": "A.Demographic_Socioeconomic — section 4 (row 67) income composition, section 7 (row 116) tenure, 2024",
+    "total": 12307,
+    "ownerShare": 0.266271,
+    "renterShare": 0.733729,
+    "incomeBrackets": [
+      { "label": "Under $25K", "share": 0.3368 },
+      { "label": "$25K–$50K", "share": 0.220525 },
+      { "label": "$50K–$100K", "share": 0.257658 },
+      { "label": "$100K or more", "share": 0.185017 }
+    ]
+  },
+
+  "hmda": {
+    "_source": "G.Mortgage_Lending — table 1 (row 19) loan counts + median property value; tables 4/5 (rows 67, 83) borrower income mix; tables 2/3 (rows 35, 51) borrower race/ethnicity, North Lawndale. First-lien, owner-occupied, 1-to-4 unit home purchase loans (HMDA).",
+    "loans2019": 124, "medianValue2019": 205000,
+    "loans2023": 119, "medianValue2023": 305000,
+    "loans2024": 121, "medianValue2024": 325000,
+    "incomeMix2324": [
+      { "label": "Low income", "count": 29, "share": 0.121 },
+      { "label": "Moderate income", "count": 95, "share": 0.396 },
+      { "label": "Middle income", "count": 80, "share": 0.333 },
+      { "label": "Upper income", "count": 36, "share": 0.15 }
+    ],
+    "incomeMix2019Upper": 0.073,
+    "raceMix2324": [
+      { "label": "African American", "count": 104, "share": 0.433 },
+      { "label": "Hispanic", "count": 104, "share": 0.433 },
+      { "label": "White", "count": 15, "share": 0.062 },
+      { "label": "Asian", "count": 2, "share": 0.008 },
+      { "label": "Not available", "count": 15, "share": 0.062 }
+    ]
+  }
+}

@@ -1,0 +1,145 @@
+== INLINE DATA BLOCK: PASS — PITI-Calculator/index.html matches data.json ==
+== INLINE DATA BLOCK: PASS — baseline-data-tool/index.html matches data.json ==
+== INLINE DATA BLOCK: PASS — baseline-data-tool/piti-calculator/index.html matches data.json ==
+
+== DATASET AUDIT: 50 cell checks, 50 PASS, 0 FAIL ==
+  PASS  sale median SF 2024                        E.Property_Sales!U124            xlsx=200000  json=200000
+  PASS  sale median condo 2024                     E.Property_Sales!U170            xlsx=100000  json=100000
+  PASS  sale median 2-4 2024                       E.Property_Sales!U216            xlsx=290000  json=290000
+  PASS  sales count SF 2024                        E.Property_Sales!U109            xlsx=49  json=49
+  PASS  sales count condo 2024                     E.Property_Sales!U155            xlsx=7  json=7
+  PASS  sales count 2-4 2024                       E.Property_Sales!U201            xlsx=180  json=180
+  PASS  tax bill SF TY2023                         B.Taxpayer_Characteristics!M18   xlsx=1376  json=1376
+  PASS  tax bill 2-4 TY2023                        B.Taxpayer_Characteristics!M33   xlsx=2011  json=2011
+  PASS  tax bill SF TY2012                         B.Taxpayer_Characteristics!B18   xlsx=1899  json=1899
+  PASS  tax bill 2-4 TY2012                        B.Taxpayer_Characteristics!B33   xlsx=2819  json=2819
+  PASS  homeowner exemption SF                     B.Taxpayer_Characteristics!F49   xlsx=0.61  json=0.61
+  PASS  homeowner exemption 2-4                    B.Taxpayer_Characteristics!H49   xlsx=0.37  json=0.37
+  PASS  senior exemption SF                        B.Taxpayer_Characteristics!F65   xlsx=0.19  json=0.19
+  PASS  senior exemption 2-4                       B.Taxpayer_Characteristics!H65   xlsx=0.145  json=0.145
+  PASS  NL median HH income 2024                   A.Demographic_Socioeconomic!C83  xlsx=51590.7692307692  json=51591
+  PASS  NL owner median income 2024                A.Demographic_Socioeconomic!F83  xlsx=92765.3  json=92765
+  PASS  NL renter median income 2024               A.Demographic_Socioeconomic!I83  xlsx=36022.5  json=36023
+  PASS  Chicago median income 2024                 A.Demographic_Socioeconomic!C88  xlsx=80486.595084088  json=80487
+  PASS  NL total households 2024                   A.Demographic_Socioeconomic!C67  xlsx=12307  json=12307
+  PASS  bracket <25K share                         A.Demographic_Socioeconomic!F67  xlsx=0.336800195010969  json=0.3368
+  PASS  bracket 25-50K share                       A.Demographic_Socioeconomic!I67  xlsx=0.22052490452588  json=0.220525
+  PASS  bracket 50-100K share                      A.Demographic_Socioeconomic!L67  xlsx=0.257658243276184  json=0.257658
+  PASS  bracket 100K+ share                        A.Demographic_Socioeconomic!O67  xlsx=0.185016657186967  json=0.185017
+  PASS  NL owner share 2024                        A.Demographic_Socioeconomic!I116 xlsx=0.266271227756561  json=0.266271
+  PASS  NL renter share 2024                       A.Demographic_Socioeconomic!O116 xlsx=0.733728772243439  json=0.733729
+  PASS  HMDA loans2019                             G.Mortgage_Lending!B19           xlsx=124  json=124
+  PASS  HMDA medianValue2019                       G.Mortgage_Lending!C19           xlsx=205000  json=205000
+  PASS  HMDA loans2023                             G.Mortgage_Lending!D19           xlsx=119  json=119
+  PASS  HMDA medianValue2023                       G.Mortgage_Lending!E19           xlsx=305000  json=305000
+  PASS  HMDA loans2024                             G.Mortgage_Lending!F19           xlsx=121  json=121
+  PASS  HMDA medianValue2024                       G.Mortgage_Lending!G19           xlsx=325000  json=325000
+  PASS  HMDA income count Low income               G.Mortgage_Lending!F67           xlsx=29  json=29
+  PASS  HMDA income count Moderate income          G.Mortgage_Lending!G67           xlsx=95  json=95
+  PASS  HMDA income count Middle income            G.Mortgage_Lending!H67           xlsx=80  json=80
+  PASS  HMDA income count Upper income             G.Mortgage_Lending!I67           xlsx=36  json=36
+  PASS  HMDA income share Low income               G.Mortgage_Lending!F83           xlsx=0.121  json=0.121
+  PASS  HMDA income share Moderate income          G.Mortgage_Lending!G83           xlsx=0.396  json=0.396
+  PASS  HMDA income share Middle income            G.Mortgage_Lending!H83           xlsx=0.333  json=0.333
+  PASS  HMDA income share Upper income             G.Mortgage_Lending!I83           xlsx=0.15  json=0.15
+  PASS  HMDA upper-income share 2019               G.Mortgage_Lending!E83           xlsx=0.073  json=0.073
+  PASS  HMDA race count African American           G.Mortgage_Lending!I35           xlsx=104  json=104
+  PASS  HMDA race share African American           G.Mortgage_Lending!I51           xlsx=0.433  json=0.433
+  PASS  HMDA race count Hispanic                   G.Mortgage_Lending!J35           xlsx=104  json=104
+  PASS  HMDA race share Hispanic                   G.Mortgage_Lending!J51           xlsx=0.433  json=0.433
+  PASS  HMDA race count White                      G.Mortgage_Lending!H35           xlsx=15  json=15
+  PASS  HMDA race share White                      G.Mortgage_Lending!H51           xlsx=0.062  json=0.062
+  PASS  HMDA race count Asian                      G.Mortgage_Lending!K35           xlsx=2  json=2
+  PASS  HMDA race share Asian                      G.Mortgage_Lending!K51           xlsx=0.008  json=0.008
+  PASS  HMDA race count Not available              G.Mortgage_Lending!M35           xlsx=15  json=15
+  PASS  HMDA race share Not available              G.Mortgage_Lending!M51           xlsx=0.062  json=0.062
+
+== CROSS-FOOT CONSISTENCY ==
+  PASS  income-mix counts sum = 2023+2024 loans          240 vs 240
+  PASS  race-mix counts sum = 2023+2024 loans            240 vs 240
+  PASS  income bracket shares sum to 1                   1.0 vs 1.0
+  PASS  owner+renter share = 1                           1.0 vs 1.0
+  PASS  owner+renter households = total                  12307 vs 12307
+  PASS  2019 HMDA income counts sum = 2019 loans         124 vs 124
+
+== FORMULA: closed-form vs 360-payment simulation (ending balance ~ $0) ==
+  PASS  $100,000 @ 6.0% 30yr -> M=$599.55, end balance $-0.000000
+  PASS  $200,000 @ 6.0% 30yr -> M=$1,199.10, end balance $-0.000000
+  PASS  $300,000 @ 7.0% 30yr -> M=$1,995.91, end balance $+0.000000
+  PASS  $190,000 @ 6.5% 30yr -> M=$1,200.93, end balance $-0.000000
+  PASS  $275,500 @ 6.5% 30yr -> M=$1,741.35, end balance $-0.000000
+  PASS  $190,000 @ 6.5% 15yr -> M=$1,655.10, end balance $-0.000000
+  PASS  $232,000 @ 6.5% 30yr -> M=$1,466.40, end balance $-0.000000
+  PASS  $ 95,000 @ 3.0% 20yr -> M=$526.87, end balance $-0.000000
+  PASS  $760,000 @ 10.0% 30yr -> M=$6,669.54, end balance $-0.000000
+
+== FORMULA: vs published reference payments ==
+  PASS  $100,000 @ 6.0% 30yr: reference $599.55 vs computed $599.55
+  PASS  $200,000 @ 6.0% 30yr: reference $1199.1 vs computed $1199.10
+  PASS  $300,000 @ 7.0% 30yr: reference $1995.91 vs computed $1995.91
+  PASS  A.piti          page=$1,576                 independent=$1,576
+  PASS  A.pi            page=$1,201                 independent=$1,201
+  PASS  A.legRows       page=4                      independent=4
+  PASS  A.needed        page=$67,543 /yr            independent=$67,543 /yr
+  PASS  A.renterBurden  page=52.5%                  independent=52.5%
+  PASS  A.renterMax     page=$89K                   independent=$89K
+  PASS  A.renterPill    page=Severely burdened      independent=Severely burdened
+  PASS  A.ownerBurden   page=20.4%                  independent=20.4%
+  PASS  B.piti          page=$2,223                 independent=$2,223
+  PASS  B.pi            page=$1,741                 independent=$1,741
+  PASS  B.legRows       page=4                      independent=4
+  PASS  B.needed        page=$95,262 /yr            independent=$95,262 /yr
+  PASS  B.renterBurden  page=74%                    independent=74%
+  PASS  B.renterMax     page=$81K                   independent=$81K
+  PASS  B.renterPill    page=Severely burdened      independent=Severely burdened
+  PASS  B.ownerBurden   page=28.8%                  independent=28.8%
+  PASS  C.piti          page=$916                   independent=$916
+  PASS  C.pi            page=$600                   independent=$600
+  PASS  C.legRows       page=4                      independent=4
+  PASS  C.needed        page=$39,265 /yr            independent=$39,265 /yr
+  PASS  C.renterBurden  page=30.5%                  independent=30.5%
+  PASS  C.renterMax     page=$89K                   independent=$89K
+  PASS  C.renterPill    page=Cost-burdened          independent=Cost-burdened
+  PASS  C.ownerBurden   page=11.9%                  independent=11.9%
+  PASS  D.piti          page=$1,268                 independent=$1,268
+  PASS  D.pi            page=$1,011                 independent=$1,011
+  PASS  D.legRows       page=3                      independent=3
+  PASS  D.needed        page=$54,328 /yr            independent=$54,328 /yr
+  PASS  D.renterBurden  page=42.2%                  independent=42.2%
+  PASS  D.renterMax     page=$116K                  independent=$116K
+  PASS  D.renterPill    page=Cost-burdened          independent=Cost-burdened
+  PASS  D.ownerBurden   page=16.4%                  independent=16.4%
+  PASS  E.piti          page=$2,531                 independent=$2,531
+  PASS  E.pi            page=$2,149                 independent=$2,149
+  PASS  E.legRows       page=4                      independent=4
+  PASS  E.needed        page=$67,481 /yr            independent=$67,481 /yr
+  PASS  E.renterBurden  page=84.3%                  independent=84.3%
+  PASS  E.renterMax     page=$96K                   independent=$96K
+  PASS  E.renterPill    page=Severely burdened      independent=Severely burdened
+  PASS  E.ownerBurden   page=32.7%                  independent=32.7%
+  PASS  F.piti          page=$1,254                 independent=$1,254
+  PASS  F.pi            page=$804                   independent=$804
+  PASS  F.legRows       page=3                      independent=3
+  PASS  F.needed        page=$75,250 /yr            independent=$75,250 /yr
+  PASS  F.renterBurden  page=41.8%                  independent=41.8%
+  PASS  F.renterMax     page=$54K                   independent=$54K
+  PASS  F.renterPill    page=Cost-burdened          independent=Cost-burdened
+  PASS  F.ownerBurden   page=16.2%                  independent=16.2%
+  PASS  G.piti          page=$2,565                 independent=$2,565
+  PASS  G.pi            page=$2,113                 independent=$2,113
+  PASS  G.legRows       page=4                      independent=4
+  PASS  G.needed        page=$109,941 /yr           independent=$109,941 /yr
+  PASS  G.renterBurden  page=85.5%                  independent=85.5%
+  PASS  G.renterMax     page=$82K                   independent=$82K
+  PASS  G.renterPill    page=Severely burdened      independent=Severely burdened
+  PASS  G.ownerBurden   page=33.2%                  independent=33.2%
+  PASS  H.piti          page=$660                   independent=$660
+  PASS  H.pi            page=$600                   independent=$600
+  PASS  H.legRows       page=4                      independent=4
+  PASS  H.needed        page=$28,279 /yr            independent=$28,279 /yr
+  PASS  H.renterBurden  page=22%                    independent=22%
+  PASS  H.renterMax     page=$127K                  independent=$127K
+  PASS  H.renterPill    page=Affordable             independent=Affordable
+  PASS  H.ownerBurden   page=8.5%                   independent=8.5%
+
+ALL PASS — 64 displayed values checked across 8 states

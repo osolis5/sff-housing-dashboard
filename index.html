@@ -7,6 +7,86 @@
 <script src="vendor/d3.v7.min.js"></script>
 <link rel="stylesheet" href="vendor/fonts.css">
 <script type="module" src="vendor/material-tabs.min.js"></script>
+<link rel="stylesheet" href="piti-calculator/piti.css">
+<script src="piti-calculator/piti.js"></script>
+<script id="piti-data" type="application/json">
+{
+  "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_04022026.xlsx. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
+  "geo": "NORTH LAWNDALE",
+
+  "salePrices2024": {
+    "_source": "E.Property_Sales — tables 8 (row 124), 11 (row 170), 14 (row 216): median sales prices, North Lawndale, full-year 2024 (2025 column covers only the first half)",
+    "sf": 200000,
+    "u24": 290000,
+    "condo": 100000
+  },
+  "salesCounts2024": {
+    "_source": "E.Property_Sales — tables 7 (row 109), 10 (row 155), 13 (row 201): number of sales, North Lawndale, 2024",
+    "sf": 49,
+    "u24": 180,
+    "condo": 7
+  },
+  "taxBillsTY2023": {
+    "_source": "B.Taxpayer_Characteristics — table 1 (row 18) single family, table 2 (row 33) 2-to-4 unit: median tax bill, North Lawndale, Tax Year 2023. The dataset has no condo tax-bill table.",
+    "sf": 1376,
+    "u24": 2011,
+    "condo": null
+  },
+  "taxBillsTY2012": {
+    "_source": "B.Taxpayer_Characteristics — tables 1 and 2, TY2012 column (context: NL bills FELL 27.5% / 28.7% from 2012 to 2023)",
+    "sf": 1899,
+    "u24": 2819
+  },
+  "exemptions2023": {
+    "_source": "B.Taxpayer_Characteristics — tables 3 (row 49) and 4 (row 65): share of taxpayers with exemptions, North Lawndale, TY2023",
+    "homeownerShareSF": 0.61,
+    "homeownerShareU24": 0.37,
+    "seniorShareSF": 0.19,
+    "seniorShareU24": 0.145
+  },
+
+  "incomes2024": {
+    "_source": "A.Demographic_Socioeconomic — section 5 (rows 83, 88): median household income, 2024, rounded to nearest dollar",
+    "nlMedian": 51591,
+    "nlRenter": 36023,
+    "nlOwner": 92765,
+    "chicagoMedian": 80487
+  },
+  "households2024": {
+    "_source": "A.Demographic_Socioeconomic — section 4 (row 67) income composition, section 7 (row 116) tenure, 2024",
+    "total": 12307,
+    "ownerShare": 0.266271,
+    "renterShare": 0.733729,
+    "incomeBrackets": [
+      { "label": "Under $25K", "share": 0.3368 },
+      { "label": "$25K–$50K", "share": 0.220525 },
+      { "label": "$50K–$100K", "share": 0.257658 },
+      { "label": "$100K or more", "share": 0.185017 }
+    ]
+  },
+
+  "hmda": {
+    "_source": "G.Mortgage_Lending — table 1 (row 19) loan counts + median property value; tables 4/5 (rows 67, 83) borrower income mix; tables 2/3 (rows 35, 51) borrower race/ethnicity, North Lawndale. First-lien, owner-occupied, 1-to-4 unit home purchase loans (HMDA).",
+    "loans2019": 124, "medianValue2019": 205000,
+    "loans2023": 119, "medianValue2023": 305000,
+    "loans2024": 121, "medianValue2024": 325000,
+    "incomeMix2324": [
+      { "label": "Low income", "count": 29, "share": 0.121 },
+      { "label": "Moderate income", "count": 95, "share": 0.396 },
+      { "label": "Middle income", "count": 80, "share": 0.333 },
+      { "label": "Upper income", "count": 36, "share": 0.15 }
+    ],
+    "incomeMix2019Upper": 0.073,
+    "raceMix2324": [
+      { "label": "African American", "count": 104, "share": 0.433 },
+      { "label": "Hispanic", "count": 104, "share": 0.433 },
+      { "label": "White", "count": 15, "share": 0.062 },
+      { "label": "Asian", "count": 2, "share": 0.008 },
+      { "label": "Not available", "count": 15, "share": 0.062 }
+    ]
+  }
+}
+</script>
 <style>
   /* v3 - Material Design 3 (material-web). Light color scheme generated from a
      navy seed (Material Theme Builder tones); Roboto type scale; M3 shape and
@@ -1010,6 +1090,7 @@ const TABS = [
     charts:["occ","race","buyerincome_geo","buyerincome_nl","buyerincome_med"] },
   { id:"property", label:"Property & Parcels", num:2,
     charts:["units","foreclosure","vacantland","salesprice","pricechange","investor"] },
+  { id:"calculator", label:"PITI Calculator", custom:"calculator" },
   { id:"appendix", label:"Data Appendix" },
 ];
 
@@ -1121,6 +1202,22 @@ TABS.forEach((t, i) => {
         .text("Data table A." + tableNumbers[id] + " \u2197")
         .on("click", event => { event.preventDefault(); jumpTo("appendix", "tableA-" + tableNumbers[id]); });
     });
+  } else if (t.custom === "calculator") {
+    /* PITI calculator renders natively (shared component from piti-calculator/
+       piti.js + piti.css) \u2014 no iframe, full panel width, embedded type scale.
+       Its own dataset stat cards act as this tab's top-level cards (the global
+       KPI strip is hidden here \u2014 see activate()). */
+    const mount = panel.append("div").attr("id", "piti-mount").node();
+    PITI.render(mount, JSON.parse(document.getElementById("piti-data").textContent),
+      { embedded: true, repoBase: "piti-calculator/",
+        cards: ["Calculator 3.1", "Calculator 3.2", "Calculator 3.3", "Calculator 3.4"],
+        heading: "Principal, interest, taxes &amp; insurance calculator" });
+    /* per-card "Data Appendix \u2197" links emitted by the component jump via the
+       dashboard's own tab switcher */
+    mount.addEventListener("click", event => {
+      const a = event.target.closest("[data-jump]");
+      if (a) { event.preventDefault(); jumpTo("appendix", a.dataset.jump); }
+    });
   } else {
     TABS.filter(x => x.charts).forEach(x => x.charts.forEach(id => {
       const c = CHARTS.find(ch => ch.id === id);
@@ -1136,6 +1233,31 @@ TABS.forEach((t, i) => {
         .text("View Chart " + chartNumbers[id] + " \u2197")
         .on("click", event => { event.preventDefault(); jumpTo(chartTab[id], "chart-" + id); });
     }));
+    /* ---- PITI calculator: sources & methods reference ---- */
+    const pc = grid.append("div").attr("class", "card wide").attr("id", "appendix-piti");
+    pc.append("span").attr("class", "chip").text("PITI Calculator \u00b7 Sources & methods");
+    pc.append("h3").text("\u201cWhat does it cost to buy in North Lawndale?\u201d \u2014 where its numbers come from");
+    pc.append("p").attr("class", "source").style("margin", "6px 0 2px").html(
+      "Dataset values: <b>E.Property_Sales</b> tables 7\u201314 (2024 median sale prices &amp; sales counts by property type) \u00b7 " +
+      "<b>B.Taxpayer_Characteristics</b> tables 1\u20134 (TY2023 median tax bills; homeowner &amp; senior exemption take-up) \u00b7 " +
+      "<b>A.Demographic_Socioeconomic</b> tables 4, 5 &amp; 7 (2024 household incomes, income brackets, tenure) \u00b7 " +
+      "<b>G.Mortgage_Lending</b> tables 1\u20135 (HMDA home-purchase loans; buyer income &amp; race/ethnicity). " +
+      "North Lawndale rows throughout. Interest rate, down payment, insurance, PMI, and the income-share " +
+      "threshold are user-adjustable assumptions labeled in the tool \u2014 not workbook values. All 50 dataset " +
+      "values are re-extracted and verified programmatically against the workbook by cell address.");
+    const plinks = pc.append("p").attr("class", "source");
+    plinks.append("a").attr("class", "xref").attr("href", "piti-calculator/data.html")
+      .attr("target", "_blank").attr("rel", "noopener").text("Cell-by-cell data repository & methods \u2197");
+    plinks.append("span").text(" \u00b7 ");
+    plinks.append("a").attr("class", "xref").attr("href", "piti-calculator/data.json")
+      .attr("target", "_blank").attr("rel", "noopener").text("Machine-readable data.json \u2197");
+    plinks.append("span").text(" \u00b7 ");
+    plinks.append("a").attr("class", "xref").attr("href", "piti-calculator/audit/audit_report.txt")
+      .attr("target", "_blank").attr("rel", "noopener").text("Verification report \u2197");
+    plinks.append("span").text(" \u00b7 ");
+    plinks.append("a").attr("class", "xref").attr("href", "#piti-mount")
+      .text("Open the calculator \u2197")
+      .on("click", event => { event.preventDefault(); jumpTo("calculator", "piti-mount"); });
   }
 });
 
@@ -1146,6 +1268,9 @@ document.getElementById("tabs").addEventListener("change", e => {
 
 function activate(id) {
   d3.selectAll(".panel").classed("active", function() { return this.id === "panel-" + id; });
+  /* the calculator tab leads with its own dataset stat cards, so the global
+     KPI strip (different indicators & vintages) is hidden there */
+  d3.select("#kpis").style("display", id === "calculator" ? "none" : null);
   /* render charts the first time their tab is shown, so entry animations play */
   d3.selectAll("#panel-" + id + " .card[data-chart]").each(function() {
     if (!this.dataset.rendered) { this.dataset.rendered = "1"; renderInto(d3.select(this)); }
