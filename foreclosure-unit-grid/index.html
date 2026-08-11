@@ -102,7 +102,7 @@
   .chip.off .sw { background: var(--gray-bar) !important; }
 
   /* grid */
-  #grid-box { margin-top: 28px; position: relative; }
+  #grid-box { margin-top: 28px; position: relative; overflow-x: auto; }
   #grid { display: block; }
   .yr-label { font-size: 12px; fill: var(--on-surface-variant); font-weight: 500; }
   .yr-count { font-size: 12px; fill: var(--outline); font-weight: 300; }
@@ -240,7 +240,11 @@ function layout(vis, width) {
 // ---- render ----------------------------------------------------------------
 function render(animate = true) {
   const box = document.getElementById('grid-box');
-  const width = box.clientWidth;
+  /* same mobile fix as the timeline: floor the layout width so the grid
+     never squeezes into a super-tall minimum-column strip on narrow screens —
+     below 560px it scrolls horizontally inside #grid-box instead. 860 is the
+     design-width fallback for renders in a not-yet-laid-out iframe. */
+  const width = Math.max(560, box.clientWidth || 860);
   const vis = visibleSquares();
   const { height, labels } = layout(vis, width);
 
