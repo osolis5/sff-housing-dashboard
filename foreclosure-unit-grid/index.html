@@ -298,9 +298,7 @@ function renderHeader(vis) {
     `${areaName}: every foreclosure, one square at a time`;
   document.getElementById('dek').innerHTML =
     `Each square below is <strong>one residential foreclosure filing</strong> in ${areaName} between
-     2005 and mid-2025 — <strong>${fmt(total)}</strong> in all, colored by property type. The wave
-     crests in <strong>${peakYear}</strong> (${fmt(peakN)} filings) and recedes to
-     <strong>${fmt(last)}</strong> by 2024.`;
+     2005 and mid-2025.`;
 
   const stats = [
     { v: fmt(vis.length === total ? total : vis.length), l: vis.length === total ? 'Filings 2005–1H 2025' : 'Filings shown', focus: true },
