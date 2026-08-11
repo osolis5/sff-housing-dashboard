@@ -244,6 +244,15 @@ const data = [{
 
 const colorScale = d3.scaleOrdinal().domain(TIERS).range(TIER_COLORS);
 
+/* chart width: cap at the design width, but never below 560px — the fixed
+   axis margins (140 left + 150 right) drive the plot area negative in very
+   narrow containers and the library renders garbage. Below 560 the page
+   scrolls horizontally instead (embed iframes included). */
+function fitWidth() {
+  const w = document.getElementById('chart').clientWidth || 1032;
+  return Math.min(1032, Math.max(560, w));
+}
+
 /* The chart must not initialize against a zero-size layout (a lazily-created
    or still-hidden iframe): its scales latch microscopic values and never
    recover. Boot defers initChart() until the document reports real width. */
@@ -255,7 +264,7 @@ function initChart() {
 
   chart = TimelinesChart()(document.getElementById('chart'))
   .data(data)
-  .width(Math.min(1032, document.getElementById('chart').clientWidth || 1032))
+  .width(fitWidth())
   .maxLineHeight(26)
   .zQualitative(true)
   .zColorScale(colorScale)
@@ -302,7 +311,7 @@ wrapGroupLabel();
 
 /* keep the chart responsive to the card width */
 addEventListener('resize', () => {
-  chart.width(Math.min(1032, document.getElementById('chart').clientWidth || 1032));
+  chart.width(fitWidth());
   ensureDither();
   wrapGroupLabel();
 });
@@ -317,7 +326,7 @@ function mainChartHealthy() {
   return !!seg && seg.getBoundingClientRect().height > 1;
 }
 function rekickChart() {
-  chart.width(Math.min(1032, document.getElementById('chart').clientWidth || 1032));
+  chart.width(fitWidth());
   ensureDither();
   wrapGroupLabel();
   const svg = document.querySelector('#chart svg:not(.brusher)');

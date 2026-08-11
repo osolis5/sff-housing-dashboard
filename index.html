@@ -1089,8 +1089,10 @@ function renderStacked(svg, c, legend) {
 
 /* ================= DASHBOARD BUILD: KPIs + TABS + PANELS ================= */
 /* Interactive foreclosure explorations — self-contained subpages embedded as
-   iframes after Chart 2.2. Each posts { type: msg, height } (the same contract
-   as piti-calculator/index.html), handled by the message listener below. */
+   iframes in Property & Parcels. The timeline is numbered Chart 2.7 at the end
+   of the tab; the unit grid follows Chart 2.2 as an unnumbered interactive.
+   Each posts { type: msg, height } (the same contract as
+   piti-calculator/index.html), handled by the message listener below. */
 const FC_EMBEDS = [
   { id:"fctimeline", dir:"foreclosure-timeline", msg:"fc-timeline-height",
     headline:"Residential Foreclosure Filings in Nine West Side Communities, 2005–2025",
@@ -1108,6 +1110,11 @@ const TABS = [
   { id:"calculator", label:"PITI Calculator", custom:"calculator" },
   { id:"appendix", label:"Data Appendix" },
 ];
+
+/* the timeline's chart number is derived, so a chart later appended to the
+   property tab's charts array renumbers it instead of colliding with it */
+const propertyTab = TABS.find(t => t.id === "property");
+const FC_TIMELINE_NUM = propertyTab.num + "." + (propertyTab.charts.length + 1);
 
 /* Headline indicators for North Lawndale, pulled from the chart data above. */
 const KPIS = [
@@ -1184,6 +1191,28 @@ function appendixTable(c) {
 /* ---------------- Build tabs + panels ---------------- */
 const tabsEl = d3.select("#tabs");
 const panels = d3.select("#panels");
+
+/* one embedded-subpage card (iframe + source line). appendixId, when given,
+   adds the numbered-chart "Data & sources ↗" cross-link into the appendix. */
+function appendFcEmbed(grid, e, chipText, appendixId) {
+  const ecard = grid.append("div").attr("class", "card wide").attr("id", "embed-" + e.id);
+  ecard.append("span").attr("class", "chip").text(chipText);
+  ecard.append("h3").text(e.headline);
+  ecard.append("iframe").attr("class", "fc-embed").attr("id", "iframe-" + e.id)
+    .attr("src", e.dir + "/index.html?embed=1")
+    .attr("loading", "lazy")
+    .attr("title", e.headline);
+  const esrc = ecard.append("p").attr("class", "source");
+  esrc.append("span").text("Source: " + e.source + " · ");
+  if (appendixId) {
+    esrc.append("a").attr("class", "xref").attr("href", "#" + appendixId)
+      .text("Data & sources ↗")
+      .on("click", event => { event.preventDefault(); jumpTo("appendix", appendixId); });
+    esrc.append("span").text(" · ");
+  }
+  esrc.append("a").attr("class", "xref").attr("href", e.dir + "/index.html")
+    .attr("target", "_blank").attr("rel", "noopener").text("Open full page ↗");
+}
 TABS.forEach((t, i) => {
   const tabBtn = tabsEl.append("md-primary-tab")
     .attr("data-tab", t.id)
@@ -1216,21 +1245,14 @@ TABS.forEach((t, i) => {
       src.append("a").attr("class", "xref").attr("href", "#tableA-" + tableNumbers[id])
         .text("Data table A." + tableNumbers[id] + " \u2197")
         .on("click", event => { event.preventDefault(); jumpTo("appendix", "tableA-" + tableNumbers[id]); });
-      /* the two interactive foreclosure explorations follow Chart 2.2 */
-      if (id === "foreclosure") FC_EMBEDS.forEach(e => {
-        const ecard = grid.append("div").attr("class", "card wide").attr("id", "embed-" + e.id);
-        ecard.append("span").attr("class", "chip").text("Interactive");
-        ecard.append("h3").text(e.headline);
-        ecard.append("iframe").attr("class", "fc-embed").attr("id", "iframe-" + e.id)
-          .attr("src", e.dir + "/index.html?embed=1")
-          .attr("loading", "lazy")
-          .attr("title", e.headline);
-        const esrc = ecard.append("p").attr("class", "source");
-        esrc.append("span").text("Source: " + e.source + " \u00b7 ");
-        esrc.append("a").attr("class", "xref").attr("href", e.dir + "/index.html")
-          .attr("target", "_blank").attr("rel", "noopener").text("Open full page \u2197");
-      });
+      /* the unit-grid interactive follows Chart 2.2 (foreclosure share) */
+      if (id === "foreclosure")
+        appendFcEmbed(grid, FC_EMBEDS.find(e => e.id === "fcunitgrid"), "Interactive");
     });
+    /* the foreclosure timeline closes the property tab as Chart 2.7 */
+    if (t.id === "property")
+      appendFcEmbed(grid, FC_EMBEDS.find(e => e.id === "fctimeline"),
+        "Chart " + FC_TIMELINE_NUM, "appendix-fctimeline");
   } else if (t.custom === "calculator") {
     /* PITI calculator renders natively (shared component from piti-calculator/
        piti.js + piti.css) \u2014 no iframe, full panel width, embedded type scale.
@@ -1287,6 +1309,25 @@ TABS.forEach((t, i) => {
     plinks.append("a").attr("class", "xref").attr("href", "#piti-mount")
       .text("Open the calculator \u2197")
       .on("click", event => { event.preventDefault(); jumpTo("calculator", "piti-mount"); });
+    /* ---- Chart 2.7 (foreclosure timeline): data & sources reference ---- */
+    const fc = grid.append("div").attr("class", "card wide").attr("id", "appendix-fctimeline");
+    fc.append("span").attr("class", "chip").text("Chart " + FC_TIMELINE_NUM + " \u00b7 Data & sources");
+    fc.append("h3").text("Residential foreclosure filings by community area and year, 2005\u20132025");
+    fc.append("p").attr("class", "source").style("margin", "6px 0 2px").html(
+      "Filing counts for the nine West Side community areas and the City of Chicago benchmark, " +
+      "transcribed verbatim from <b>D.Foreclosures</b>, \u201cForeclosure Activity for Residential " +
+      "Properties.\u201d 2025 covers the first half of the year only (through June). The interactive " +
+      "chart embeds this dataset directly; the CSVs below are the machine-readable copies.");
+    const flinks = fc.append("p").attr("class", "source");
+    flinks.append("a").attr("class", "xref").attr("href", "foreclosure-timeline/data/foreclosure_filings_wide.csv")
+      .attr("target", "_blank").attr("rel", "noopener").text("foreclosure_filings_wide.csv \u2197");
+    flinks.append("span").text(" \u00b7 ");
+    flinks.append("a").attr("class", "xref").attr("href", "foreclosure-timeline/data/foreclosure_filings_long.csv")
+      .attr("target", "_blank").attr("rel", "noopener").text("foreclosure_filings_long.csv \u2197");
+    flinks.append("span").text(" \u00b7 ");
+    flinks.append("a").attr("class", "xref").attr("href", "#embed-fctimeline")
+      .text("View Chart " + FC_TIMELINE_NUM + " \u2197")
+      .on("click", event => { event.preventDefault(); jumpTo("property", "embed-fctimeline"); });
   }
 });
 
