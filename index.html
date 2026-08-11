@@ -1089,9 +1089,8 @@ function renderStacked(svg, c, legend) {
 
 /* ================= DASHBOARD BUILD: KPIs + TABS + PANELS ================= */
 /* Interactive foreclosure explorations — self-contained subpages embedded as
-   iframes in Property & Parcels. The timeline is numbered Chart 2.7 at the end
-   of the tab; the unit grid follows Chart 2.2 as an unnumbered interactive.
-   Each posts { type: msg, height } (the same contract as
+   iframes closing the Property & Parcels tab, numbered in array order (2.7,
+   2.8). Each posts { type: msg, height } (the same contract as
    piti-calculator/index.html), handled by the message listener below. */
 const FC_EMBEDS = [
   { id:"fctimeline", dir:"foreclosure-timeline", msg:"fc-timeline-height",
@@ -1111,10 +1110,11 @@ const TABS = [
   { id:"appendix", label:"Data Appendix" },
 ];
 
-/* the timeline's chart number is derived, so a chart later appended to the
-   property tab's charts array renumbers it instead of colliding with it */
+/* embed chart numbers are derived (charts.length + 1 + embed index), so a
+   chart later appended to the property tab's charts array renumbers the
+   embeds instead of colliding with them */
 const propertyTab = TABS.find(t => t.id === "property");
-const FC_TIMELINE_NUM = propertyTab.num + "." + (propertyTab.charts.length + 1);
+const fcChartNum = i => propertyTab.num + "." + (propertyTab.charts.length + 1 + i);
 
 /* Headline indicators for North Lawndale, pulled from the chart data above. */
 const KPIS = [
@@ -1192,11 +1192,12 @@ function appendixTable(c) {
 const tabsEl = d3.select("#tabs");
 const panels = d3.select("#panels");
 
-/* one embedded-subpage card (iframe + source line). appendixId, when given,
-   adds the numbered-chart "Data & sources ↗" cross-link into the appendix. */
-function appendFcEmbed(grid, e, chipText, appendixId) {
+/* one embedded-subpage card (iframe + source line), numbered like the D3
+   chart cards and cross-linked to its "Data & sources" appendix card */
+function appendFcEmbed(grid, e, i) {
+  const appendixId = "appendix-" + e.id;
   const ecard = grid.append("div").attr("class", "card wide").attr("id", "embed-" + e.id);
-  ecard.append("span").attr("class", "chip").text(chipText);
+  ecard.append("span").attr("class", "chip").text("Chart " + fcChartNum(i));
   ecard.append("h3").text(e.headline);
   ecard.append("iframe").attr("class", "fc-embed").attr("id", "iframe-" + e.id)
     .attr("src", e.dir + "/index.html?embed=1")
@@ -1204,14 +1205,9 @@ function appendFcEmbed(grid, e, chipText, appendixId) {
     .attr("title", e.headline);
   const esrc = ecard.append("p").attr("class", "source");
   esrc.append("span").text("Source: " + e.source + " · ");
-  if (appendixId) {
-    esrc.append("a").attr("class", "xref").attr("href", "#" + appendixId)
-      .text("Data & sources ↗")
-      .on("click", event => { event.preventDefault(); jumpTo("appendix", appendixId); });
-    esrc.append("span").text(" · ");
-  }
-  esrc.append("a").attr("class", "xref").attr("href", e.dir + "/index.html")
-    .attr("target", "_blank").attr("rel", "noopener").text("Open full page ↗");
+  esrc.append("a").attr("class", "xref").attr("href", "#" + appendixId)
+    .text("Data & sources ↗")
+    .on("click", event => { event.preventDefault(); jumpTo("appendix", appendixId); });
 }
 TABS.forEach((t, i) => {
   const tabBtn = tabsEl.append("md-primary-tab")
@@ -1245,14 +1241,9 @@ TABS.forEach((t, i) => {
       src.append("a").attr("class", "xref").attr("href", "#tableA-" + tableNumbers[id])
         .text("Data table A." + tableNumbers[id] + " \u2197")
         .on("click", event => { event.preventDefault(); jumpTo("appendix", "tableA-" + tableNumbers[id]); });
-      /* the unit-grid interactive follows Chart 2.2 (foreclosure share) */
-      if (id === "foreclosure")
-        appendFcEmbed(grid, FC_EMBEDS.find(e => e.id === "fcunitgrid"), "Interactive");
     });
-    /* the foreclosure timeline closes the property tab as Chart 2.7 */
-    if (t.id === "property")
-      appendFcEmbed(grid, FC_EMBEDS.find(e => e.id === "fctimeline"),
-        "Chart " + FC_TIMELINE_NUM, "appendix-fctimeline");
+    /* the foreclosure interactives close the property tab as Charts 2.7–2.8 */
+    if (t.id === "property") FC_EMBEDS.forEach((e, i) => appendFcEmbed(grid, e, i));
   } else if (t.custom === "calculator") {
     /* PITI calculator renders natively (shared component from piti-calculator/
        piti.js + piti.css) \u2014 no iframe, full panel width, embedded type scale.
@@ -1311,7 +1302,7 @@ TABS.forEach((t, i) => {
       .on("click", event => { event.preventDefault(); jumpTo("calculator", "piti-mount"); });
     /* ---- Chart 2.7 (foreclosure timeline): data & sources reference ---- */
     const fc = grid.append("div").attr("class", "card wide").attr("id", "appendix-fctimeline");
-    fc.append("span").attr("class", "chip").text("Chart " + FC_TIMELINE_NUM + " \u00b7 Data & sources");
+    fc.append("span").attr("class", "chip").text("Chart " + fcChartNum(0) + " \u00b7 Data & sources");
     fc.append("h3").text("Residential foreclosure filings by community area and year, 2005\u20132025");
     fc.append("p").attr("class", "source").style("margin", "6px 0 2px").html(
       "Filing counts for the nine West Side community areas and the City of Chicago benchmark, " +
@@ -1326,8 +1317,26 @@ TABS.forEach((t, i) => {
       .attr("target", "_blank").attr("rel", "noopener").text("foreclosure_filings_long.csv \u2197");
     flinks.append("span").text(" \u00b7 ");
     flinks.append("a").attr("class", "xref").attr("href", "#embed-fctimeline")
-      .text("View Chart " + FC_TIMELINE_NUM + " \u2197")
+      .text("View Chart " + fcChartNum(0) + " \u2197")
       .on("click", event => { event.preventDefault(); jumpTo("property", "embed-fctimeline"); });
+    /* ---- Chart 2.8 (foreclosure unit grid): data & sources reference ---- */
+    const fu = grid.append("div").attr("class", "card wide").attr("id", "appendix-fcunitgrid");
+    fu.append("span").attr("class", "chip").text("Chart " + fcChartNum(1) + " \u00b7 Data & sources");
+    fu.append("h3").text("Residential foreclosure filings by property type, community area, and year, 2005\u20132025");
+    fu.append("p").attr("class", "source").style("margin", "6px 0 2px").html(
+      "Filing counts broken out by property type (single family, condominium, 2\u20134 unit, " +
+      "multifamily 5+) for the nine West Side community areas and the City of Chicago benchmark, " +
+      "transcribed verbatim from <b>D.Foreclosures</b>. Property-type counts sum exactly to the " +
+      "reported residential totals for every community area and year; 2025 covers the first half " +
+      "of the year only (through June). The interactive chart embeds this dataset directly; " +
+      "data.json is the machine-readable copy.");
+    const fulinks = fu.append("p").attr("class", "source");
+    fulinks.append("a").attr("class", "xref").attr("href", "foreclosure-unit-grid/data.json")
+      .attr("target", "_blank").attr("rel", "noopener").text("Machine-readable data.json \u2197");
+    fulinks.append("span").text(" \u00b7 ");
+    fulinks.append("a").attr("class", "xref").attr("href", "#embed-fcunitgrid")
+      .text("View Chart " + fcChartNum(1) + " \u2197")
+      .on("click", event => { event.preventDefault(); jumpTo("property", "embed-fcunitgrid"); });
   }
 });
 
