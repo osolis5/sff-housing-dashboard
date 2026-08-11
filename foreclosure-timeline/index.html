@@ -48,6 +48,14 @@
     padding: 32px 20px 64px;
   }
   .wrap { max-width: 1080px; margin: 0 auto; }
+
+  /* embed mode (dashboard iframe): the host card supplies title, border and
+     elevation, so flatten this page's own chrome */
+  .embed body { padding: 0 0 8px; }
+  .embed .wrap { max-width: none; }
+  .embed .card { border: none; box-shadow: none; border-radius: 0; padding: 0; }
+  .embed .card h2, .embed .card .sub { display: none; }
+  .embed .card .source { display: none; }  /* host card carries the source line */
   .eyebrow {
     font-size: 12px; font-weight: 500; letter-spacing: .09em; text-transform: uppercase;
     color: var(--md-sys-color-primary);
@@ -121,6 +129,11 @@
 </div>
 
 <script>
+/* embed mode (?embed=1, dashboard iframe): host card supplies title + chrome.
+   Applied before the chart renders so it measures the embed-mode width. */
+if (new URLSearchParams(location.search).has('embed'))
+  document.documentElement.classList.add('embed');
+
 /* ---- real data (embedded verbatim from the SFF indicators workbook) ---- */
 const FORECLOSURE = {
  years: [2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
@@ -231,7 +244,16 @@ const data = [{
 
 const colorScale = d3.scaleOrdinal().domain(TIERS).range(TIER_COLORS);
 
-const chart = TimelinesChart()(document.getElementById('chart'))
+/* The chart must not initialize against a zero-size layout (a lazily-created
+   or still-hidden iframe): its scales latch microscopic values and never
+   recover. Boot defers initChart() until the document reports real width. */
+let chart = null;
+let chartBooted = false;
+function initChart() {
+  if (chartBooted) return;
+  chartBooted = true;
+
+  chart = TimelinesChart()(document.getElementById('chart'))
   .data(data)
   .width(Math.min(1032, document.getElementById('chart').clientWidth || 1032))
   .maxLineHeight(26)
@@ -252,9 +274,14 @@ const chart = TimelinesChart()(document.getElementById('chart'))
 /* dress the chart once it has drawn: dither patterns + wrapped group label */
 ensureDither();
 wrapGroupLabel();
-/* re-wrap if the library redraws the group axis */
-new MutationObserver(() => wrapGroupLabel())
-  .observe(document.querySelector('#chart svg:not(.brusher) .grp-axis'), { childList: true, subtree: true });
+/* re-wrap if the library redraws the group axis. The axis node appears during
+   the library's async first render, so poll for it — observe(null) would throw
+   and kill everything below (zoom reset, resize handler, embed height). */
+(function watchGrpAxis() {
+  const el = document.querySelector('#chart svg:not(.brusher) .grp-axis');
+  if (!el) { setTimeout(watchGrpAxis, 120); return; }
+  new MutationObserver(() => wrapGroupLabel()).observe(el, { childList: true, subtree: true });
+})();
 
 /* Force the full 2005–2025 range on load. The chart's first render is async, and
    depending on load timing it can initialize zoomed to ~80%. Fire the library's
@@ -279,6 +306,66 @@ addEventListener('resize', () => {
   ensureDither();
   wrapGroupLabel();
 });
+
+/* Self-heal: when the page loads in a lazily-created or hidden iframe (the
+   dashboard embed), the library's async first render can latch onto a
+   zero-size layout — segments come out microscopic and it never recovers on
+   its own. Detect the collapsed state and re-kick width + zoom until healthy:
+   a short poll covers load, an IntersectionObserver covers late tab opens. */
+function mainChartHealthy() {
+  const seg = document.querySelector('#chart svg:not(.brusher) rect.series-segment');
+  return !!seg && seg.getBoundingClientRect().height > 1;
+}
+function rekickChart() {
+  chart.width(Math.min(1032, document.getElementById('chart').clientWidth || 1032));
+  ensureDither();
+  wrapGroupLabel();
+  const svg = document.querySelector('#chart svg:not(.brusher)');
+  if (svg) svg.dispatchEvent(new Event('resetZoom'));
+}
+const healIO = new IntersectionObserver(entries => {
+  if (!entries.some(en => en.isIntersecting)) return;
+  if (mainChartHealthy()) healIO.disconnect();
+  else rekickChart();
+});
+healIO.observe(document.getElementById('chart'));
+const healIv = setInterval(() => {
+  if (mainChartHealthy()) { clearInterval(healIv); return; }
+  if (document.documentElement.clientWidth > 0) rekickChart();
+}, 400);
+setTimeout(() => clearInterval(healIv), 15000);
+}
+
+/* boot: init immediately when layout exists; otherwise wait for the first
+   real layout (IntersectionObserver fires when the iframe becomes visible,
+   the interval covers contexts where IO never fires) */
+(function boot() {
+  const laidOut = () => document.documentElement.clientWidth > 0;
+  if (laidOut()) { initChart(); return; }
+  const io = new IntersectionObserver(() => {
+    if (laidOut()) { io.disconnect(); initChart(); }
+  });
+  io.observe(document.getElementById('chart'));
+  const iv = setInterval(() => {
+    if (laidOut()) { clearInterval(iv); io.disconnect(); initChart(); }
+  }, 250);
+})();
+</script>
+<script>
+/* auto-height for iframe embeds — same contract as piti-calculator/index.html:
+   measure the content wrap, not documentElement (its scrollHeight includes the
+   viewport, which would feed back through the parent's iframe height). Kept in
+   its own script block so errors in the chart script can never disable it;
+   the IntersectionObserver re-posts when the host tab is shown late. */
+if (window.parent !== window) {
+  const wrap = document.querySelector('.wrap');
+  const post = () => parent.postMessage(
+    { type: 'fc-timeline-height', height: Math.ceil(wrap.getBoundingClientRect().height) }, '*');
+  new ResizeObserver(post).observe(wrap);
+  new IntersectionObserver(post).observe(wrap);
+  addEventListener('load', post);
+  post();
+}
 </script>
 </body>
 </html>

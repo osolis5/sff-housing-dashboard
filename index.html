@@ -262,6 +262,9 @@
   .source { font: 400 12px/1.4 'Roboto'; color: var(--md-sys-color-on-surface-variant); margin: 10px 0 2px; }
   svg { display: block; width: 100%; height: auto; }
   .chart-holder { min-height: 240px; }
+  /* embedded interactive subpages (foreclosure timeline / unit grid); height
+     is set from each page's posted content height — never scrolls internally */
+  .fc-embed { display: block; width: 100%; border: 0; height: 640px; }
   .bar-label { font-size: 14.5px; font-weight: 500; fill: var(--md-sys-color-on-surface-variant); font-family: 'Roboto'; }
   .bar-label.sm { font-size: 12px; }
   .seg-label { font-size: 12px; font-weight: 500; fill: #fff; font-family: 'Roboto'; }
@@ -1085,6 +1088,18 @@ function renderStacked(svg, c, legend) {
 }
 
 /* ================= DASHBOARD BUILD: KPIs + TABS + PANELS ================= */
+/* Interactive foreclosure explorations — self-contained subpages embedded as
+   iframes after Chart 2.2. Each posts { type: msg, height } (the same contract
+   as piti-calculator/index.html), handled by the message listener below. */
+const FC_EMBEDS = [
+  { id:"fctimeline", dir:"foreclosure-timeline", msg:"fc-timeline-height",
+    headline:"Residential Foreclosure Filings in Nine West Side Communities, 2005–2025",
+    source:"Chicago Community Areas 2026 SFF Indicators (04/02/2026), sheet D. Foreclosures" },
+  { id:"fcunitgrid", dir:"foreclosure-unit-grid", msg:"fc-unitgrid-height",
+    headline:"One Square per Residential Foreclosure Filing, 2005–2025",
+    source:"Chicago Community Areas 2026 SFF Indicators (04/02/2026), sheet D. Foreclosures" },
+];
+
 const TABS = [
   { id:"demo", label:"Demographics", num:1,
     charts:["occ","race","buyerincome_geo","buyerincome_nl","buyerincome_med"] },
@@ -1201,6 +1216,20 @@ TABS.forEach((t, i) => {
       src.append("a").attr("class", "xref").attr("href", "#tableA-" + tableNumbers[id])
         .text("Data table A." + tableNumbers[id] + " \u2197")
         .on("click", event => { event.preventDefault(); jumpTo("appendix", "tableA-" + tableNumbers[id]); });
+      /* the two interactive foreclosure explorations follow Chart 2.2 */
+      if (id === "foreclosure") FC_EMBEDS.forEach(e => {
+        const ecard = grid.append("div").attr("class", "card wide").attr("id", "embed-" + e.id);
+        ecard.append("span").attr("class", "chip").text("Interactive");
+        ecard.append("h3").text(e.headline);
+        ecard.append("iframe").attr("class", "fc-embed").attr("id", "iframe-" + e.id)
+          .attr("src", e.dir + "/index.html?embed=1")
+          .attr("loading", "lazy")
+          .attr("title", e.headline);
+        const esrc = ecard.append("p").attr("class", "source");
+        esrc.append("span").text("Source: " + e.source + " \u00b7 ");
+        esrc.append("a").attr("class", "xref").attr("href", e.dir + "/index.html")
+          .attr("target", "_blank").attr("rel", "noopener").text("Open full page \u2197");
+      });
     });
   } else if (t.custom === "calculator") {
     /* PITI calculator renders natively (shared component from piti-calculator/
@@ -1261,6 +1290,15 @@ TABS.forEach((t, i) => {
   }
 });
 
+/* embedded subpages post their content height (same contract as the PITI
+   standalone page) so the iframes fit exactly and never scroll internally */
+addEventListener("message", e => {
+  const em = FC_EMBEDS.find(x => x.msg === (e.data || {}).type);
+  if (em && typeof e.data.height === "number")
+    document.getElementById("iframe-" + em.id).style.height =
+      Math.max(320, e.data.height + 8) + "px";
+});
+
 document.getElementById("tabs").addEventListener("change", e => {
   const t = TABS[e.target.activeTabIndex];
   if (t) activate(t.id);
@@ -1268,6 +1306,15 @@ document.getElementById("tabs").addEventListener("change", e => {
 
 function activate(id) {
   d3.selectAll(".panel").classed("active", function() { return this.id === "panel-" + id; });
+  /* nudge embedded subpages when their tab is shown — an iframe created while
+     its panel was hidden can first render unlaid-out; a resize re-kicks its
+     chart (same-origin only; on file:// the pages rely on their own self-heal) */
+  if (id === "property") FC_EMBEDS.forEach(em => {
+    try {
+      const f = document.getElementById("iframe-" + em.id);
+      if (f && f.contentWindow) f.contentWindow.dispatchEvent(new f.contentWindow.Event("resize"));
+    } catch (err) { /* cross-origin (file://) — child self-heal covers it */ }
+  });
   /* the calculator tab leads with its own dataset stat cards, so the global
      KPI strip (different indicators & vintages) is hidden there */
   d3.select("#kpis").style("display", id === "calculator" ? "none" : null);
