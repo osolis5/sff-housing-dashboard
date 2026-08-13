@@ -1,18 +1,29 @@
+PITI CALCULATOR — VERIFICATION REPORT
+Run: 2026-08-12 22:20 CDT
+Workbook: Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx
+Presentation: IHS_NLawndale_Dashboard_Presentation_05182026.pptx (slide 21)
+
+================ AUDIT 1+2: dataset cells, cross-foots, amortization ================
 == INLINE DATA BLOCK: PASS — PITI-Calculator/index.html matches data.json ==
 == INLINE DATA BLOCK: PASS — baseline-data-tool/index.html matches data.json ==
 == INLINE DATA BLOCK: PASS — baseline-data-tool/piti-calculator/index.html matches data.json ==
 
-== DATASET AUDIT: 50 cell checks, 50 PASS, 0 FAIL ==
-  PASS  sale median SF 2024                        E.Property_Sales!U124            xlsx=200000  json=200000
-  PASS  sale median condo 2024                     E.Property_Sales!U170            xlsx=100000  json=100000
-  PASS  sale median 2-4 2024                       E.Property_Sales!U216            xlsx=290000  json=290000
+== DATASET AUDIT: 60 value checks, 60 PASS, 0 FAIL ==
+  PASS  tier typical (2024 HMDA median)            G.Mortgage_Lending!G19           xlsx=325000  json=325000
+  PASS  tier lower (75% placeholder)               G.Mortgage_Lending!I19           xlsx=243750  json=243750
+  PASS  tier higher (125% placeholder)             G.Mortgage_Lending!J19           xlsx=406250  json=406250
+  PASS  all-sales median SF 2024                   E.Property_Sales!U124            xlsx=200000  json=200000
+  PASS  all-sales median condo 2024                E.Property_Sales!U170            xlsx=100000  json=100000
+  PASS  all-sales median 2-4 2024                  E.Property_Sales!U216            xlsx=290000  json=290000
   PASS  sales count SF 2024                        E.Property_Sales!U109            xlsx=49  json=49
   PASS  sales count condo 2024                     E.Property_Sales!U155            xlsx=7  json=7
   PASS  sales count 2-4 2024                       E.Property_Sales!U201            xlsx=180  json=180
-  PASS  tax bill SF TY2023                         B.Taxpayer_Characteristics!M18   xlsx=1376  json=1376
-  PASS  tax bill 2-4 TY2023                        B.Taxpayer_Characteristics!M33   xlsx=2011  json=2011
-  PASS  tax bill SF TY2012                         B.Taxpayer_Characteristics!B18   xlsx=1899  json=1899
-  PASS  tax bill 2-4 TY2012                        B.Taxpayer_Characteristics!B33   xlsx=2819  json=2819
+  PASS  tax bill SF TY2024                         B.Taxpayer_Characteristics!N18   xlsx=2379.49  json=2379
+  PASS  tax bill 2-4 TY2024                        B.Taxpayer_Characteristics!N33   xlsx=4436.485  json=4436
+  PASS  tax bill SF TY2023                         B.Taxpayer_Characteristics!M18   xlsx=1375.93  json=1376
+  PASS  tax bill 2-4 TY2023                        B.Taxpayer_Characteristics!M33   xlsx=2011.08  json=2011
+  PASS  tax bill SF TY2012                         B.Taxpayer_Characteristics!B18   xlsx=1883.81  json=1884
+  PASS  tax bill 2-4 TY2012                        B.Taxpayer_Characteristics!B33   xlsx=2819.61  json=2820
   PASS  homeowner exemption SF                     B.Taxpayer_Characteristics!F49   xlsx=0.61  json=0.61
   PASS  homeowner exemption 2-4                    B.Taxpayer_Characteristics!H49   xlsx=0.37  json=0.37
   PASS  senior exemption SF                        B.Taxpayer_Characteristics!F65   xlsx=0.19  json=0.19
@@ -21,6 +32,7 @@
   PASS  NL owner median income 2024                A.Demographic_Socioeconomic!F83  xlsx=92765.3  json=92765
   PASS  NL renter median income 2024               A.Demographic_Socioeconomic!I83  xlsx=36022.5  json=36023
   PASS  Chicago median income 2024                 A.Demographic_Socioeconomic!C88  xlsx=80486.595084088  json=80487
+  PASS  Chicago renter median income 2024          A.Demographic_Socioeconomic!I88  xlsx=59633.5747126437  json=59634
   PASS  NL total households 2024                   A.Demographic_Socioeconomic!C67  xlsx=12307  json=12307
   PASS  bracket <25K share                         A.Demographic_Socioeconomic!F67  xlsx=0.336800195010969  json=0.3368
   PASS  bracket 25-50K share                       A.Demographic_Socioeconomic!I67  xlsx=0.22052490452588  json=0.220525
@@ -53,93 +65,151 @@
   PASS  HMDA race share Asian                      G.Mortgage_Lending!K51           xlsx=0.008  json=0.008
   PASS  HMDA race count Not available              G.Mortgage_Lending!M35           xlsx=15  json=15
   PASS  HMDA race share Not available              G.Mortgage_Lending!M51           xlsx=0.062  json=0.062
+  PASS  NL homebuyer income 2024                   slide21 2024/North Lawndale      pptx=90000.0  json=90000
+  PASS  Chicago homebuyer income 2024              slide21 2024/City of Chicago     pptx=125000.0  json=125000
+  PASS  NL homebuyer income 2019                   slide21 2019/North Lawndale      pptx=61000.0  json=61000
+  PASS  Chicago homebuyer income 2019              slide21 2019/City of Chicago     pptx=97000.0  json=97000
 
 == CROSS-FOOT CONSISTENCY ==
-  PASS  income-mix counts sum = 2023+2024 loans          240 vs 240
-  PASS  race-mix counts sum = 2023+2024 loans            240 vs 240
-  PASS  income bracket shares sum to 1                   1.0 vs 1.0
-  PASS  owner+renter share = 1                           1.0 vs 1.0
-  PASS  owner+renter households = total                  12307 vs 12307
-  PASS  2019 HMDA income counts sum = 2019 loans         124 vs 124
+  PASS  tier lower = 75% of typical (placeholder rule)       243750 vs 243750.0
+  PASS  tier higher = 125% of typical (placeholder rule)     406250 vs 406250.0
+  PASS  typical tier = HMDA 2024 median value                325000 vs 325000
+  PASS  income-mix counts sum = 2023+2024 loans              240 vs 240
+  PASS  race-mix counts sum = 2023+2024 loans                240 vs 240
+  PASS  income bracket shares sum to 1                       1.0 vs 1.0
+  PASS  owner+renter share = 1                               1.0 vs 1.0
+  PASS  owner+renter households = total                      12307 vs 12307
+  PASS  2019 HMDA income counts sum = 2019 loans             124 vs 124
+  PASS  SF tax-bill change TY2023→TY2024 ≈ +73% (About-card claim) 0.73 vs 0.73
 
 == FORMULA: closed-form vs 360-payment simulation (ending balance ~ $0) ==
-  PASS  $100,000 @ 6.0% 30yr -> M=$599.55, end balance $-0.000000
-  PASS  $200,000 @ 6.0% 30yr -> M=$1,199.10, end balance $-0.000000
-  PASS  $300,000 @ 7.0% 30yr -> M=$1,995.91, end balance $+0.000000
-  PASS  $190,000 @ 6.5% 30yr -> M=$1,200.93, end balance $-0.000000
-  PASS  $275,500 @ 6.5% 30yr -> M=$1,741.35, end balance $-0.000000
-  PASS  $190,000 @ 6.5% 15yr -> M=$1,655.10, end balance $-0.000000
-  PASS  $232,000 @ 6.5% 30yr -> M=$1,466.40, end balance $-0.000000
-  PASS  $ 95,000 @ 3.0% 20yr -> M=$526.87, end balance $-0.000000
-  PASS  $760,000 @ 10.0% 30yr -> M=$6,669.54, end balance $-0.000000
+  PASS  $  100,000 @ 6.0% 30yr -> M=$599.55, end balance $-0.000000
+  PASS  $  200,000 @ 6.0% 30yr -> M=$1,199.10, end balance $-0.000000
+  PASS  $  300,000 @ 7.0% 30yr -> M=$1,995.91, end balance $+0.000000
+  PASS  $  308,750 @ 6.5% 30yr -> M=$1,951.51, end balance $-0.000000
+  PASS  $  231,562 @ 6.5% 30yr -> M=$1,463.63, end balance $-0.000000
+  PASS  $  385,938 @ 6.5% 30yr -> M=$2,439.39, end balance $-0.000000
+  PASS  $  308,750 @ 6.5% 15yr -> M=$2,689.54, end balance $-0.000000
+  PASS  $   95,000 @ 3.0% 20yr -> M=$526.87, end balance $-0.000000
+  PASS  $  760,000 @ 10.0% 30yr -> M=$6,669.54, end balance $-0.000000
 
 == FORMULA: vs published reference payments ==
   PASS  $100,000 @ 6.0% 30yr: reference $599.55 vs computed $599.55
   PASS  $200,000 @ 6.0% 30yr: reference $1199.1 vs computed $1199.10
   PASS  $300,000 @ 7.0% 30yr: reference $1995.91 vs computed $1995.91
-  PASS  A.piti          page=$1,576                 independent=$1,576
-  PASS  A.pi            page=$1,201                 independent=$1,201
-  PASS  A.legRows       page=4                      independent=4
-  PASS  A.needed        page=$67,543 /yr            independent=$67,543 /yr
-  PASS  A.renterBurden  page=52.5%                  independent=52.5%
-  PASS  A.renterMax     page=$89K                   independent=$89K
-  PASS  A.renterPill    page=Severely burdened      independent=Severely burdened
-  PASS  A.ownerBurden   page=20.4%                  independent=20.4%
-  PASS  B.piti          page=$2,223                 independent=$2,223
-  PASS  B.pi            page=$1,741                 independent=$1,741
-  PASS  B.legRows       page=4                      independent=4
-  PASS  B.needed        page=$95,262 /yr            independent=$95,262 /yr
-  PASS  B.renterBurden  page=74%                    independent=74%
-  PASS  B.renterMax     page=$81K                   independent=$81K
-  PASS  B.renterPill    page=Severely burdened      independent=Severely burdened
-  PASS  B.ownerBurden   page=28.8%                  independent=28.8%
-  PASS  C.piti          page=$916                   independent=$916
-  PASS  C.pi            page=$600                   independent=$600
-  PASS  C.legRows       page=4                      independent=4
-  PASS  C.needed        page=$39,265 /yr            independent=$39,265 /yr
-  PASS  C.renterBurden  page=30.5%                  independent=30.5%
-  PASS  C.renterMax     page=$89K                   independent=$89K
-  PASS  C.renterPill    page=Cost-burdened          independent=Cost-burdened
-  PASS  C.ownerBurden   page=11.9%                  independent=11.9%
-  PASS  D.piti          page=$1,268                 independent=$1,268
-  PASS  D.pi            page=$1,011                 independent=$1,011
-  PASS  D.legRows       page=3                      independent=3
-  PASS  D.needed        page=$54,328 /yr            independent=$54,328 /yr
-  PASS  D.renterBurden  page=42.2%                  independent=42.2%
-  PASS  D.renterMax     page=$116K                  independent=$116K
-  PASS  D.renterPill    page=Cost-burdened          independent=Cost-burdened
-  PASS  D.ownerBurden   page=16.4%                  independent=16.4%
-  PASS  E.piti          page=$2,531                 independent=$2,531
-  PASS  E.pi            page=$2,149                 independent=$2,149
-  PASS  E.legRows       page=4                      independent=4
-  PASS  E.needed        page=$67,481 /yr            independent=$67,481 /yr
-  PASS  E.renterBurden  page=84.3%                  independent=84.3%
-  PASS  E.renterMax     page=$96K                   independent=$96K
-  PASS  E.renterPill    page=Severely burdened      independent=Severely burdened
-  PASS  E.ownerBurden   page=32.7%                  independent=32.7%
-  PASS  F.piti          page=$1,254                 independent=$1,254
-  PASS  F.pi            page=$804                   independent=$804
-  PASS  F.legRows       page=3                      independent=3
-  PASS  F.needed        page=$75,250 /yr            independent=$75,250 /yr
-  PASS  F.renterBurden  page=41.8%                  independent=41.8%
-  PASS  F.renterMax     page=$54K                   independent=$54K
-  PASS  F.renterPill    page=Cost-burdened          independent=Cost-burdened
-  PASS  F.ownerBurden   page=16.2%                  independent=16.2%
-  PASS  G.piti          page=$2,565                 independent=$2,565
-  PASS  G.pi            page=$2,113                 independent=$2,113
-  PASS  G.legRows       page=4                      independent=4
-  PASS  G.needed        page=$109,941 /yr           independent=$109,941 /yr
-  PASS  G.renterBurden  page=85.5%                  independent=85.5%
-  PASS  G.renterMax     page=$82K                   independent=$82K
-  PASS  G.renterPill    page=Severely burdened      independent=Severely burdened
-  PASS  G.ownerBurden   page=33.2%                  independent=33.2%
-  PASS  H.piti          page=$660                   independent=$660
-  PASS  H.pi            page=$600                   independent=$600
-  PASS  H.legRows       page=4                      independent=4
-  PASS  H.needed        page=$28,279 /yr            independent=$28,279 /yr
-  PASS  H.renterBurden  page=22%                    independent=22%
-  PASS  H.renterMax     page=$127K                  independent=$127K
-  PASS  H.renterPill    page=Affordable             independent=Affordable
-  PASS  H.ownerBurden   page=8.5%                   independent=8.5%
 
-ALL PASS — 64 displayed values checked across 8 states
+================ AUDIT 3: end-to-end display recompute (8 browser states) ================
+  PASS  A.piti           page=$2,692                   independent=$2,692
+  PASS  A.pi             page=$1,952                   independent=$1,952
+  PASS  A.legRows        page=4                        independent=4
+  PASS  A.needed         page=$115,388 /yr             independent=$115,388 /yr
+  PASS  A.taxMode        page=assumption · 1.5% of price independent=assumption · 1.5% of price
+  PASS  A.taxField       page=4,875                    independent=4,875
+  PASS  A.renterBurden   page=89.7%                    independent=89.7%
+  PASS  A.renterMax      page=$89K                     independent=$89K
+  PASS  A.renterGap      page=−$236K                   independent=−$236K
+  PASS  A.renterPill     page=Severely burdened        independent=Severely burdened
+  PASS  A.chiBuyerBurden page=25.8%                    independent=25.8%
+  PASS  A.chiBuyerMax    page=$354K                    independent=$354K
+  PASS  A.chiBuyerGap    page=+$29K                    independent=+$29K
+  PASS  A.chiBuyerPill   page=Affordable               independent=Affordable
+  PASS  B.piti           page=$2,055                   independent=$2,055
+  PASS  B.pi             page=$1,464                   independent=$1,464
+  PASS  B.legRows        page=4                        independent=4
+  PASS  B.needed         page=$88,059 /yr              independent=$88,059 /yr
+  PASS  B.taxMode        page=assumption · 1.5% of price independent=assumption · 1.5% of price
+  PASS  B.taxField       page=3,656                    independent=3,656
+  PASS  B.renterBurden   page=68.4%                    independent=68.4%
+  PASS  B.renterMax      page=$89K                     independent=$89K
+  PASS  B.renterGap      page=−$155K                   independent=−$155K
+  PASS  B.renterPill     page=Severely burdened        independent=Severely burdened
+  PASS  B.chiBuyerBurden page=19.7%                    independent=19.7%
+  PASS  B.chiBuyerMax    page=$354K                    independent=$354K
+  PASS  B.chiBuyerGap    page=+$110K                   independent=+$110K
+  PASS  B.chiBuyerPill   page=Affordable               independent=Affordable
+  PASS  C.piti           page=$3,330                   independent=$3,330
+  PASS  C.pi             page=$2,439                   independent=$2,439
+  PASS  C.legRows        page=4                        independent=4
+  PASS  C.needed         page=$142,718 /yr             independent=$142,718 /yr
+  PASS  C.taxMode        page=assumption · 1.5% of price independent=assumption · 1.5% of price
+  PASS  C.taxField       page=6,094                    independent=6,094
+  PASS  C.renterBurden   page=110.9%                   independent=110.9%
+  PASS  C.renterMax      page=$89K                     independent=$89K
+  PASS  C.renterGap      page=−$317K                   independent=−$317K
+  PASS  C.renterPill     page=Severely burdened        independent=Severely burdened
+  PASS  C.chiBuyerBurden page=32%                      independent=32%
+  PASS  C.chiBuyerMax    page=$354K                    independent=$354K
+  PASS  C.chiBuyerGap    page=−$53K                    independent=−$53K
+  PASS  C.chiBuyerPill   page=Cost-burdened            independent=Cost-burdened
+  PASS  D.piti           page=$2,191                   independent=$2,191
+  PASS  D.pi             page=$1,643                   independent=$1,643
+  PASS  D.legRows        page=3                        independent=3
+  PASS  D.needed         page=$93,913 /yr              independent=$93,913 /yr
+  PASS  D.taxMode        page=assumption · 1.5% of price independent=assumption · 1.5% of price
+  PASS  D.taxField       page=4,875                    independent=4,875
+  PASS  D.renterBurden   page=73%                      independent=73%
+  PASS  D.renterMax      page=$111K                    independent=$111K
+  PASS  D.renterGap      page=−$214K                   independent=−$214K
+  PASS  D.renterPill     page=Severely burdened        independent=Severely burdened
+  PASS  D.chiBuyerBurden page=21%                      independent=21%
+  PASS  D.chiBuyerMax    page=$440K                    independent=$440K
+  PASS  D.chiBuyerGap    page=+$115K                   independent=+$115K
+  PASS  D.chiBuyerPill   page=Affordable               independent=Affordable
+  PASS  E.piti           page=$1,576                   independent=$1,576
+  PASS  E.pi             page=$1,201                   independent=$1,201
+  PASS  E.legRows        page=4                        independent=4
+  PASS  E.needed         page=$67,543 /yr              independent=$67,543 /yr
+  PASS  E.taxMode        page=edited · custom amount   independent=edited · custom amount
+  PASS  E.taxField       page=1,376                    independent=1,376
+  PASS  E.renterBurden   page=52.5%                    independent=52.5%
+  PASS  E.renterMax      page=$89K                     independent=$89K
+  PASS  E.renterGap      page=−$111K                   independent=−$111K
+  PASS  E.renterPill     page=Severely burdened        independent=Severely burdened
+  PASS  E.chiBuyerBurden page=15.1%                    independent=15.1%
+  PASS  E.chiBuyerMax    page=$403K                    independent=$403K
+  PASS  E.chiBuyerGap    page=+$203K                   independent=+$203K
+  PASS  E.chiBuyerPill   page=Affordable               independent=Affordable
+  PASS  F.piti           page=$1,254                   independent=$1,254
+  PASS  F.pi             page=$804                     independent=$804
+  PASS  F.legRows        page=3                        independent=3
+  PASS  F.needed         page=$75,250 /yr              independent=$75,250 /yr
+  PASS  F.taxMode        page=edited · custom amount   independent=edited · custom amount
+  PASS  F.taxField       page=3,000                    independent=3,000
+  PASS  F.renterBurden   page=41.8%                    independent=41.8%
+  PASS  F.renterMax      page=$54K                     independent=$54K
+  PASS  F.renterGap      page=−$236K                   independent=−$236K
+  PASS  F.renterPill     page=Cost-burdened            independent=Cost-burdened
+  PASS  F.chiBuyerBurden page=12%                      independent=12%
+  PASS  F.chiBuyerMax    page=$589K                    independent=$589K
+  PASS  F.chiBuyerGap    page=+$299K                   independent=+$299K
+  PASS  F.chiBuyerPill   page=Affordable               independent=Affordable
+  PASS  G.piti           page=$2,035                   independent=$2,035
+  PASS  G.pi             page=$1,612                   independent=$1,612
+  PASS  G.legRows        page=4                        independent=4
+  PASS  G.needed         page=$54,262 /yr              independent=$54,262 /yr
+  PASS  G.taxMode        page=assumption · 1.5% of price independent=assumption · 1.5% of price
+  PASS  G.taxField       page=2,250                    independent=2,250
+  PASS  G.renterBurden   page=67.8%                    independent=67.8%
+  PASS  G.renterMax      page=$96K                     independent=$96K
+  PASS  G.renterGap      page=−$54K                    independent=−$54K
+  PASS  G.renterPill     page=Severely burdened        independent=Severely burdened
+  PASS  G.chiBuyerBurden page=19.5%                    independent=19.5%
+  PASS  G.chiBuyerMax    page=$360K                    independent=$360K
+  PASS  G.chiBuyerGap    page=+$210K                   independent=+$210K
+  PASS  G.chiBuyerPill   page=Affordable               independent=Affordable
+  PASS  H.piti           page=$660                     independent=$660
+  PASS  H.pi             page=$600                     independent=$600
+  PASS  H.legRows        page=4                        independent=4
+  PASS  H.needed         page=$28,279 /yr              independent=$28,279 /yr
+  PASS  H.taxMode        page=edited · custom amount   independent=edited · custom amount
+  PASS  H.taxField       page=0                        independent=0
+  PASS  H.renterBurden   page=22%                      independent=22%
+  PASS  H.renterMax      page=$127K                    independent=$127K
+  PASS  H.renterGap      page=+$27K                    independent=+$27K
+  PASS  H.renterPill     page=Affordable               independent=Affordable
+  PASS  H.chiBuyerBurden page=6.3%                     independent=6.3%
+  PASS  H.chiBuyerMax    page=$442K                    independent=$442K
+  PASS  H.chiBuyerGap    page=+$342K                   independent=+$342K
+  PASS  H.chiBuyerPill   page=Affordable               independent=Affordable
+
+ALL PASS — 112 displayed values checked across 8 states

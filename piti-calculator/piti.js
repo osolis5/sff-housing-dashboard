@@ -6,11 +6,15 @@
 (function () {
   'use strict';
 
-  const TYPES = {
-    sf:    { label: 'Single family', color: '#5578AE' },
-    u24:   { label: '2–4 unit',      color: '#33518A' },
-    condo: { label: 'Condominium',   color: '#91AAD4' }
-  };
+  /* price tiers replace the former property-type chips (July 2026 feedback):
+     anchored in mortgage-financed purchases, not all-sales medians by type.
+     lower/higher are workbook placeholders (75% / 125% of the median) until
+     true 25th/75th percentile prices are calculated. */
+  const TIERS = [
+    { key: 'lower',   label: 'Lower cost',  badge: 'placeholder · 75% of median',  color: '#91AAD4' },
+    { key: 'typical', label: 'Typical',     badge: 'dataset · 2024 median',        color: '#33518A' },
+    { key: 'higher',  label: 'Higher cost', badge: 'placeholder · 125% of median', color: '#5578AE' }
+  ];
   const RAMP4 = ['#D3DCEF', '#A8BCE0', '#5578AE', '#33518A'];
   const RACE5 = ['#33518A', '#5578AE', '#91AAD4', '#A8BCE0', '#C4C6D0'];
   const PMI_RATE = 0.75;          // % of loan per year, assumption
@@ -23,10 +27,10 @@
   function template(D, opts) {
     const carded = Array.isArray(opts.cards);
     const statData = [
-      [fmt$(D.salePrices2024.sf), '2024 median sale, single family'],
-      [fmt$(D.taxBillsTY2023.sf), 'TY2023 median tax bill, single family'],
+      [fmt$(D.priceTiers2024.typical), '2024 median sale, mortgage-financed 1–4 unit'],
+      [fmt$(D.taxBillsTY2024.sf), 'TY2024 median tax bill, single family'],
       [D.hmda.loans2024, 'home-purchase loans, 2024'],
-      [fmt$(D.incomes2024.nlMedian), 'median household income, 2024']
+      [fmt$(D.homebuyerIncomes2024.nl), 'median homebuyer income, 2024']
     ];
     /* carded mode mirrors the dashboard KPI cards (label above value); the
        flat/standalone mode keeps the calculator's own value-first stat tiles */
@@ -41,14 +45,15 @@
   /* ---- shared section bodies (identical ids/controls in both layouts) ---- */
   function bodyPayment(D, repoHref) {
     return `
-  <p class="pc-sub">Pick a property type to load its real North Lawndale median price and tax bill, then adjust
-    the loan to match a buyer. Values marked <span class="pc-badge pc-data">dataset</span> come straight from the
-    SFF indicator tables; values marked <span class="pc-badge pc-assume">assumption</span> are adjustable estimates.
-    Every number is itemized, cell by cell, in the <a href="${repoHref}" target="_blank" rel="noopener">data repository &amp; methods</a>.</p>
+  <p class="pc-sub">Pick a price tier — anchored in what mortgage-financed buyers actually paid for North Lawndale
+    homes in 2024 — then adjust the loan to match a buyer. Values marked <span class="pc-badge pc-data">dataset</span>
+    come straight from the SFF indicator tables; values marked <span class="pc-badge pc-assume">assumption</span> are
+    adjustable estimates. Every number is itemized, cell by cell, in the
+    <a href="${repoHref}" target="_blank" rel="noopener">data repository &amp; methods</a>.</p>
 
   <div class="pc-calc">
     <div class="pc-card pc-inputs">
-      <div class="pc-chips" id="type-chips" role="group" aria-label="Property type"></div>
+      <div class="pc-chips" id="tier-chips" role="group" aria-label="Price tier"></div>
 
       <div class="pc-field">
         <div class="pc-row">
@@ -56,10 +61,10 @@
           <span class="pc-badge pc-data" id="price-badge">dataset · 2024 median</span>
           <span class="pc-val" id="price-val"></span>
         </div>
-        <input type="range" id="price" min="25000" max="800000" step="5000" aria-label="Purchase price">
-        <div class="pc-presets">Set to:
-          <button id="preset-median"></button> ·
-          <button id="preset-hmda"></button>
+        <input type="range" id="price" min="25000" max="800000" step="1250" aria-label="Purchase price">
+        <div class="pc-presets">Compare: all-sales 2024 medians —
+          <button id="preset-sf">single family (${fmtK(D.salePrices2024.sf)})</button> ·
+          <button id="preset-u24">2–4 unit (${fmtK(D.salePrices2024.u24)})</button>
         </div>
       </div>
 
@@ -92,7 +97,7 @@
       <div class="pc-field">
         <div class="pc-row">
           <label for="tax">Property taxes / year</label>
-          <span class="pc-badge pc-data" id="tax-badge">dataset · TY2023 median</span>
+          <span class="pc-badge pc-assume" id="tax-badge">assumption · 1.5% of price</span>
         </div>
         <div class="pc-money"><span>$</span><input type="text" id="tax" inputmode="numeric" aria-label="Annual property taxes"></div>
         <p class="pc-fine" id="tax-note"></p>
@@ -121,7 +126,7 @@
     return `
   <p class="pc-sub">Lenders typically want housing costs under about 28% of gross income. Set the threshold,
     and the payment above is translated into the <strong>household income it requires</strong> — placed against
-    what North Lawndale households actually earn.</p>
+    what North Lawndale renters and recent homebuyers actually earn.</p>
 
   <div class="pc-ratio-row">
     <span class="pc-rlab">Housing share of income</span>
@@ -132,7 +137,7 @@
 
   <p class="pc-need" id="need-line"></p>
 
-  <svg class="pc-ladder" id="ladder" viewBox="0 0 760 178" role="img" aria-label="Income needed compared with North Lawndale median incomes"></svg>
+  <svg class="pc-ladder" id="ladder" viewBox="0 0 760 178" role="img" aria-label="Income needed compared with North Lawndale and Chicago renter and homebuyer median incomes"></svg>
 
   <div class="pc-profiles" id="profiles"></div>
 
@@ -165,16 +170,21 @@
   function footPs(repoHref) {
     return [
       `<p id="pc-src"></p>`,
-      `<p>Purchase prices are full-year 2024 medians by property type (2025 data covers only the first half of the year;
-       North Lawndale condo medians rest on very few sales — 7 in 2024). Property-tax defaults are Tax Year 2023 median
-       bills for current owners; a buyer's future bill can differ as Cook County assessments and exemptions change.
-       The dataset has no condo tax-bill table, so the condo tax default is a placeholder assumption.
-       In TY2023, 61% of North Lawndale single-family taxpayers claimed the homeowner exemption and 19% the senior exemption.</p>`,
+      `<p>Price tiers are anchored in what mortgage-financed buyers actually paid: the typical tier is the $325,000
+       median property value across North Lawndale's 2024 HMDA home-purchase loans; the lower and higher tiers are
+       placeholders at 75% and 125% of that median until true 25th and 75th percentile prices are calculated.
+       Across all recorded 2024 sales — cash and financed — the single-family median was $200,000. Property taxes
+       default to a 1.5%-of-price effective-rate estimate (a Civic Federation figure for the City of Chicago,
+       adjustable). For context, the TY2024 median bill for current owners was $2,379 for single-family homes and
+       $4,436 for 2–4 units — single-family bills jumped 73% from TY2023 — and a buyer's future bill can differ as
+       Cook County assessments and exemptions change. In TY2023, 61% of North Lawndale single-family taxpayers
+       claimed the homeowner exemption and 19% the senior exemption.</p>`,
       `<p>Interest rate, down payment, insurance, PMI (0.75%/yr of the loan when the down payment is under 20%),
-       and the income-share threshold are adjustable assumptions, not dataset values.
+       the 1.5% effective tax rate, and the income-share threshold are adjustable assumptions, not dataset values.
        Payment status uses standard cost-burden definitions: over 30% of income = cost-burdened, over 50% = severely burdened.
        Mortgage activity is from HMDA: first-lien, owner-occupied, 1-to-4-unit home purchase loans; borrower income
-       categories (low / moderate / middle / upper) are as defined in the source data relative to area median income.</p>`,
+       categories (low / moderate / middle / upper) are as defined in the source data relative to area median income.
+       Median homebuyer incomes come from the IHS baseline data presentation (slide 21, HMDA).</p>`,
       `<p>This tool is an educational illustration of neighborhood housing costs, not financial or lending advice.
        Full citations, formulas, and verification: <a href="${repoHref}" target="_blank" rel="noopener">data repository &amp; methods</a>.</p>`
     ];
@@ -205,9 +215,9 @@
     const jump = `<a class="pc-jump" href="#appendix-piti" data-jump="appendix-piti">Data Appendix ↗</a>`;
     const cards = [
       { title: 'The monthly payment', body: bodyPayment(D, repoHref),
-        src: `Source: E.Property_Sales (2024 medians &amp; counts) · B.Taxpayer_Characteristics (TY2023 tax bills) · ${jump}` },
+        src: `Source: G.Mortgage_Lending (2024 mortgage-financed prices &amp; tiers) · B.Taxpayer_Characteristics (TY2024 tax bills) · effective tax rate: Civic Federation (assumption) · ${jump}` },
       { title: 'Who could afford that payment?', body: bodyAfford(D),
-        src: `Source: A.Demographic_Socioeconomic (2024 ACS 5-year incomes, brackets &amp; tenure) · ${jump}` },
+        src: `Source: A.Demographic_Socioeconomic (2024 ACS 5-year incomes, brackets &amp; tenure) · IHS presentation slide 21 (median homebuyer incomes, HMDA) · ${jump}` },
       { title: 'Who is actually buying?', body: bodyBuyers(),
         src: `Source: G.Mortgage_Lending (HMDA home-purchase loans, 2019–2024) · ${jump}` },
       { title: 'About these numbers', body: footPs(repoHref).join('\n'), src: null }
@@ -231,38 +241,36 @@
     if (opts.embedded) mount.classList.add('pc-embedded');
     mount.innerHTML = template(D, opts);
 
-    const CONDO_TAX_FALLBACK = D.taxBillsTY2023.sf;   // placeholder — dataset has no condo table
     const $ = id => mount.querySelector('#' + id);
+    const TAX_RATE = D.effectiveTaxRate.rate;            // 1.5% of price, assumption
+    const effTax = () => TAX_RATE * S.price;
 
     // ---------- state ----------
     const S = {
-      type: 'sf',
-      price: D.salePrices2024.sf,
+      price: D.priceTiers2024.typical,
       downPct: 5,
       ratePct: 6.5,
       years: 30,
-      taxAnnual: D.taxBillsTY2023.sf,
+      taxMode: 'rate',            // 'rate' = 1.5% of price (live), 'custom' = user-entered $
+      taxAnnual: 0,               // set below
       insAnnual: INS_DEFAULT,
       ratio: 28
     };
+    S.taxAnnual = effTax();
 
-    // ---------- type chips ----------
-    const chipBox = $('type-chips');
-    chipBox.innerHTML = Object.entries(TYPES).map(([k, t]) => `
-      <button class="pc-chip${k === S.type ? ' pc-on' : ''}" data-t="${k}" aria-pressed="${k === S.type}" aria-label="${t.label}: ${fmtK(D.salePrices2024[k])} median, ${D.salesCounts2024[k]} sales in 2024">
+    // ---------- price-tier chips ----------
+    const chipBox = $('tier-chips');
+    chipBox.innerHTML = TIERS.map(t => `
+      <button class="pc-chip" data-t="${t.key}" aria-pressed="false" aria-label="${t.label}: ${fmtK(D.priceTiers2024[t.key])}, ${t.badge}">
         <span class="pc-sw" style="background:${t.color}"></span>
         <span>${t.label}
-          <span class="pc-n">${fmtK(D.salePrices2024[k])} median · ${D.salesCounts2024[k]} sales (2024)</span>
+          <span class="pc-n">${fmtK(D.priceTiers2024[t.key])} · ${t.key === 'typical' ? '2024 median, financed' : t.badge.replace('placeholder · ', 'placeholder: ')}</span>
         </span>
       </button>`).join('');
     chipBox.addEventListener('click', e => {
       const b = e.target.closest('.pc-chip'); if (!b) return;
-      S.type = b.dataset.t;
-      S.price = D.salePrices2024[S.type];
-      S.taxAnnual = D.taxBillsTY2023[S.type] ?? CONDO_TAX_FALLBACK;
-      chipBox.querySelectorAll('.pc-chip').forEach(c => {
-        c.classList.toggle('pc-on', c === b); c.setAttribute('aria-pressed', c === b);
-      });
+      S.price = D.priceTiers2024[b.dataset.t];
+      if (S.taxMode === 'rate') S.taxAnnual = effTax();
       syncInputs(); recalc();
     });
 
@@ -274,41 +282,75 @@
       const p = ((v - min) / (max - min)) * 100;
       el.style.setProperty('--pc-sl', `linear-gradient(to right, #33518A ${p}%, var(--pc-track) ${p}%)`);
     }
+    /* badges + chip highlight + notes: safe to call while typing (does not
+       rewrite the money fields) */
+    function syncBadges() {
+      const tier = TIERS.find(t => D.priceTiers2024[t.key] === S.price);
+      chipBox.querySelectorAll('.pc-chip').forEach(c => {
+        const on = !!tier && c.dataset.t === tier.key;
+        c.classList.toggle('pc-on', on); c.setAttribute('aria-pressed', on);
+      });
+      const pb = $('price-badge');
+      pb.className = tier && tier.key === 'typical' ? 'pc-badge pc-data' : 'pc-badge pc-assume';
+      pb.textContent = tier ? tier.badge : 'custom';
+
+      const tb = $('tax-badge');
+      if (S.taxMode === 'rate') {
+        tb.className = 'pc-badge pc-assume';
+        tb.textContent = 'assumption · 1.5% of price';
+        $('tax-note').innerHTML = `Estimated at a ${fmtPct(TAX_RATE, 1)} effective tax rate on the purchase price
+          (Civic Federation estimate for Chicago). TY2024 median bill for current single-family owners: ${fmt$(D.taxBillsTY2024.sf)}.`;
+      } else {
+        tb.className = 'pc-badge pc-assume';
+        tb.textContent = 'edited · custom amount';
+        $('tax-note').innerHTML = `Custom amount. <button type="button" class="pc-linkbtn" id="tax-reset">Reset to the
+          ${fmtPct(TAX_RATE, 1)} estimate (${fmt$(effTax())})</button>`;
+      }
+    }
     function syncInputs() {
       priceEl.value = Math.min(S.price, 800000);
       downEl.value = S.downPct; rateEl.value = S.ratePct; ratioEl.value = S.ratio;
       taxEl.value = Math.round(S.taxAnnual).toLocaleString('en-US');
       insEl.value = Math.round(S.insAnnual).toLocaleString('en-US');
-      $('preset-median').textContent = `2024 ${TYPES[S.type].label.toLowerCase()} median (${fmtK(D.salePrices2024[S.type])})`;
-      $('preset-hmda').textContent = `typical mortgage-financed purchase (${fmtK(D.hmda.medianValue2024)})`;
-      const isData = D.taxBillsTY2023[S.type] != null && Math.round(S.taxAnnual) === D.taxBillsTY2023[S.type];
-      const tb = $('tax-badge');
-      if (D.taxBillsTY2023[S.type] == null) {
-        tb.className = 'pc-badge pc-assume'; tb.textContent = 'assumption · no condo table';
-        $('tax-note').textContent = 'The dataset has no condo tax-bill table — this default is a placeholder. Edit it freely.';
-      } else {
-        tb.className = isData ? 'pc-badge pc-data' : 'pc-badge pc-assume';
-        tb.textContent = isData ? 'dataset · TY2023 median' : 'edited · dataset default ' + fmt$(D.taxBillsTY2023[S.type]);
-        $('tax-note').textContent = '';
-      }
-      const pb = $('price-badge');
-      const isMed = S.price === D.salePrices2024[S.type];
-      pb.className = isMed ? 'pc-badge pc-data' : 'pc-badge pc-assume';
-      pb.textContent = isMed ? 'dataset · 2024 median' : 'custom';
+      syncBadges();
     }
 
-    priceEl.addEventListener('input', () => { S.price = +priceEl.value; syncInputs(); recalc(); });
+    priceEl.addEventListener('input', () => {
+      S.price = +priceEl.value;
+      if (S.taxMode === 'rate') S.taxAnnual = effTax();
+      syncInputs(); recalc();
+    });
     downEl.addEventListener('input', () => { S.downPct = +downEl.value; syncInputs(); recalc(); });
     rateEl.addEventListener('input', () => { S.ratePct = +rateEl.value; syncInputs(); recalc(); });
     ratioEl.addEventListener('input', () => { S.ratio = +ratioEl.value; syncInputs(); recalc(); });
     const parseMoney = s => Math.max(0, parseInt(String(s).replace(/[^0-9]/g, ''), 10) || 0);
-    taxEl.addEventListener('input', () => { S.taxAnnual = parseMoney(taxEl.value); recalc(); });
+    taxEl.addEventListener('input', () => {
+      S.taxAnnual = parseMoney(taxEl.value);
+      S.taxMode = S.taxAnnual === Math.round(effTax()) ? 'rate' : 'custom';
+      if (S.taxMode === 'rate') S.taxAnnual = effTax();
+      syncBadges(); recalc();
+    });
     taxEl.addEventListener('change', () => { syncInputs(); recalc(); });
     insEl.addEventListener('input', () => { S.insAnnual = parseMoney(insEl.value); recalc(); });
     insEl.addEventListener('change', () => { syncInputs(); recalc(); });
+    /* reset link lives inside tax-note (rebuilt on every sync) — delegate */
+    mount.addEventListener('click', e => {
+      if (e.target.closest('#tax-reset')) {
+        S.taxMode = 'rate'; S.taxAnnual = effTax();
+        syncInputs(); recalc();
+      }
+    });
 
-    $('preset-median').addEventListener('click', () => { S.price = D.salePrices2024[S.type]; syncInputs(); recalc(); });
-    $('preset-hmda').addEventListener('click', () => { S.price = D.hmda.medianValue2024; syncInputs(); recalc(); });
+    $('preset-sf').addEventListener('click', () => {
+      S.price = D.salePrices2024.sf;
+      if (S.taxMode === 'rate') S.taxAnnual = effTax();
+      syncInputs(); recalc();
+    });
+    $('preset-u24').addEventListener('click', () => {
+      S.price = D.salePrices2024.u24;
+      if (S.taxMode === 'rate') S.taxAnnual = effTax();
+      syncInputs(); recalc();
+    });
 
     $('term').addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
@@ -327,11 +369,16 @@
       const pmi = d < 0.2 ? loan * (PMI_RATE / 100) / 12 : 0;
       return { loan, down$: S.price - loan, pi, tax, ins, pmi, piti: pi + tax + ins + pmi };
     }
+    /* max affordable price at the income-share threshold. In rate mode taxes
+       scale with the candidate price (1.5%/yr), so the rate joins the per-$
+       cost; in custom mode the fixed dollar bill is subtracted from budget. */
     function maxPrice(income, c) {
-      const budget = income / 12 * (S.ratio / 100) - c.tax - c.ins;
-      if (budget <= 0) return 0;
       const d = S.downPct / 100, r = S.ratePct / 100 / 12, n = S.years * 12;
-      const per$ = (1 - d) * (pniFactor(r, n) + (d < 0.2 ? PMI_RATE / 100 / 12 : 0));
+      const rateMode = S.taxMode === 'rate';
+      const budget = income / 12 * (S.ratio / 100) - c.ins - (rateMode ? 0 : c.tax);
+      if (budget <= 0) return 0;
+      const per$ = (1 - d) * (pniFactor(r, n) + (d < 0.2 ? PMI_RATE / 100 / 12 : 0))
+                 + (rateMode ? TAX_RATE / 12 : 0);
       return budget / per$;
     }
 
@@ -368,17 +415,20 @@
     }
 
     // ---------- render: affordability ----------
+    /* benchmarks (July 2026 feedback): renter vs homebuyer medians for North
+       Lawndale and Chicago, ascending. Homebuyer medians: IHS presentation
+       slide 21 (HMDA); renter medians: workbook A!I83 / A!I88. */
     const PROFILES = [
-      { key: 'nlRenter',      who: 'Median renter household',  note: '73% of NL households rent' },
-      { key: 'nlMedian',      who: 'Median NL household',      note: 'all households' },
-      { key: 'chicagoMedian', who: 'Median Chicago household', note: 'citywide benchmark' },
-      { key: 'nlOwner',       who: 'Median owner household',   note: '27% of NL households own' }
+      { inc: D.incomes2024.nlRenter,          who: 'Median NL renter household',      short: 'NL renter',         note: '73% of NL households rent' },
+      { inc: D.incomes2024.chicagoRenter,     who: 'Median Chicago renter household', short: 'Chicago renter',    note: 'citywide renter benchmark' },
+      { inc: D.homebuyerIncomes2024.nl,       who: 'Median NL homebuyer',             short: 'NL homebuyer',      note: `HMDA · ${D.hmda.loans2024} NL purchases in 2024` },
+      { inc: D.homebuyerIncomes2024.chicago,  who: 'Median Chicago homebuyer',        short: 'Chicago homebuyer', note: 'citywide homebuyer benchmark' }
     ];
     function renderAfford(c) {
       const needed = c.piti * 12 / (S.ratio / 100);
       $('need-line').innerHTML = `This payment takes a household income of about <b>${fmt$(needed)} a year</b>
-        to stay under ${S.ratio}% of income — in a neighborhood where the median household earns
-        ${fmt$(D.incomes2024.nlMedian)} and the median renter ${fmt$(D.incomes2024.nlRenter)}.`;
+        to stay under ${S.ratio}% of income — in a neighborhood where the median renter household earns
+        ${fmt$(D.incomes2024.nlRenter)} and the median 2024 homebuyer earned ${fmt$(D.homebuyerIncomes2024.nl)}.`;
 
       // ladder
       const L = 14, R = 746, AXY = 96, MAX = 150000;
@@ -390,11 +440,11 @@
         t += `<line class="pc-ax" x1="${x(v)}" y1="${AXY - 3}" x2="${x(v)}" y2="${AXY + 3}"/>
               <text class="pc-tick-lab" x="${x(v)}" y="${AXY + 16}" text-anchor="middle">${v === 0 ? '$0' : '$' + v / 1000 + 'K'}</text>`;
       PROFILES.forEach((p, i) => {
-        const v = D.incomes2024[p.key], px = x(v);
+        const v = p.inc, px = x(v);
         const y2 = AXY + 38 + (i % 2) * 27;
         t += `<line x1="${px}" y1="${AXY}" x2="${px}" y2="${y2 - 20}" stroke="#8A9297" stroke-width="1"/>
               <circle cx="${px}" cy="${AXY}" r="4" fill="#5578AE" stroke="#FFF" stroke-width="1.5"/>
-              <text x="${px}" y="${y2 - 8}" text-anchor="middle" font-size="11" fill="#44474E" font-weight="500">${p.who.replace('Median ', '').replace(' household', '')}</text>
+              <text x="${px}" y="${y2 - 8}" text-anchor="middle" font-size="11" fill="#44474E" font-weight="500">${p.short}</text>
               <text x="${px}" y="${y2 + 5}" text-anchor="middle" font-size="10.5" fill="#74777F">${fmtK(v)}</text>`;
       });
       t += `<line x1="${nx}" y1="${AXY}" x2="${nx}" y2="34" stroke="#BA1A1A" stroke-width="2"/>
@@ -403,17 +453,19 @@
             <circle cx="${nx}" cy="${AXY}" r="4.5" fill="#BA1A1A" stroke="#FFF" stroke-width="1.5"/>`;
       $('ladder').innerHTML = t;
 
-      // profile rows
+      // profile rows: burden %, max price, gap to this scenario's price, pill
       $('profiles').innerHTML = PROFILES.map(p => {
-        const inc = D.incomes2024[p.key];
+        const inc = p.inc;
         const burden = c.piti / (inc / 12);
         const cls = burden <= 0.30 ? 'pc-ok' : burden <= 0.50 ? 'pc-warn' : 'pc-bad';
         const lab = burden <= 0.30 ? 'Affordable' : burden <= 0.50 ? 'Cost-burdened' : 'Severely burdened';
         const mp = maxPrice(inc, c);
+        const gap = mp - S.price;
         return `<div class="pc-profile">
           <div class="pc-who">${p.who}<small>${fmt$(inc)} /yr · ${p.note}</small></div>
           <div class="pc-m"><b>${fmtPct(burden)}</b>of income on this payment</div>
           <div class="pc-m"><b>${mp > 1000 ? fmtK(mp) : '—'}</b>max price at ${S.ratio}%</div>
+          <div class="pc-m"><b class="${gap >= 0 ? 'pc-gpos' : 'pc-gneg'}">${gap >= 0 ? '+' : '−'}${fmtK(Math.abs(gap))}</b>gap vs. this price</div>
           <span class="pc-pill ${cls}">${lab}</span>
         </div>`;
       }).join('');
@@ -441,7 +493,9 @@
       const h = D.hmda;
       $('buyers-intro').innerHTML = `In 2024, <strong>${h.loans2024} households</strong> bought a North Lawndale home
         (1–4 units) with a mortgage, at a median property value of <strong>${fmt$(h.medianValue2024)}</strong> —
-        up from ${fmt$(h.medianValue2019)} in 2019. Upper-income buyers grew from ${fmtPct(h.incomeMix2019Upper)}
+        up from ${fmt$(h.medianValue2019)} in 2019. The median North Lawndale homebuyer earned
+        <strong>${fmt$(D.homebuyerIncomes2024.nl)}</strong> in 2024, up from ${fmt$(D.homebuyerIncomes2024.nl2019)}
+        in 2019. Upper-income buyers grew from ${fmtPct(h.incomeMix2019Upper)}
         of borrowers in 2019 to ${fmtPct(h.incomeMix2324[3].share)} in 2023–24, and buying remains almost evenly
         split between African American and Hispanic homebuyers.`;
       const isLight = col => col === '#D3DCEF' || col === '#A8BCE0' || col === '#C4C6D0' || col === '#91AAD4';
@@ -459,11 +513,12 @@
     }
 
     // ---------- footnote sources ----------
-    $('pc-src').textContent = 'Source: Chicago Community Areas 2026 SFF Indicators (April 2026) — ' +
-      'E.Property_Sales (median sales prices & counts by property type, 2024); ' +
-      'B.Taxpayer_Characteristics (median tax bills TY2023, exemptions); ' +
-      'A.Demographic_Socioeconomic (household incomes, income composition & tenure, 2024 ACS 5-yr); ' +
-      'G.Mortgage_Lending (HMDA home-purchase loans, borrower income & race/ethnicity, 2019–2024). ' +
+    $('pc-src').textContent = 'Source: Chicago Community Areas 2026 SFF Indicators (July 2026) — ' +
+      'G.Mortgage_Lending (HMDA home-purchase loans, mortgage-financed price tiers, borrower income & race/ethnicity, 2019–2024); ' +
+      'B.Taxpayer_Characteristics (median tax bills TY2024, exemptions); ' +
+      'A.Demographic_Socioeconomic (household & renter incomes, income composition & tenure, 2024 ACS 5-yr); ' +
+      'E.Property_Sales (all-sales median prices & counts, 2024). ' +
+      'Median homebuyer incomes: IHS baseline data presentation, slide 21 (HMDA). ' +
       'Underlying data: Institute for Housing Studies at DePaul University.';
 
     // ---------- main loop ----------

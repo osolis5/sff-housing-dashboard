@@ -1,9 +1,22 @@
 {
-  "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_04022026.xlsx. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
+  "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx (July 2026 data repository) except where a block names another source. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
   "geo": "NORTH LAWNDALE",
 
+  "priceTiers2024": {
+    "_source": "G.Mortgage_Lending — table 1 (row 19). Typical = median property value of North Lawndale 1–4 unit owner-occupied purchases financed with a mortgage, 2024 (G19). Lower / higher tiers are placeholder cut points at 75% / 125% of that median (I19 / J19) until true 25th / 75th percentile prices are calculated.",
+    "lower": 243750,
+    "typical": 325000,
+    "higher": 406250,
+    "lowerIsPlaceholder": true,
+    "higherIsPlaceholder": true
+  },
+  "effectiveTaxRate": {
+    "_source": "ASSUMPTION — not a workbook value. Civic Federation analysis of effective residential property-tax rates puts the City of Chicago near 1.5% of sale price (civicfed.org/node/4141). Default annual taxes = rate × purchase price; the TY2024 median bills below are dataset context.",
+    "rate": 0.015
+  },
+
   "salePrices2024": {
-    "_source": "E.Property_Sales — tables 8 (row 124), 11 (row 170), 14 (row 216): median sales prices, North Lawndale, full-year 2024 (2025 column covers only the first half)",
+    "_source": "E.Property_Sales — tables 8 (row 124), 11 (row 170), 14 (row 216): median sales prices across ALL recorded sales (cash and financed), North Lawndale, full-year 2024 (2025 column covers only the first half)",
     "sf": 200000,
     "u24": 290000,
     "condo": 100000
@@ -14,16 +27,23 @@
     "u24": 180,
     "condo": 7
   },
+
+  "taxBillsTY2024": {
+    "_source": "B.Taxpayer_Characteristics — table 1 (row 18, col N) single family, table 2 (row 33, col N) 2-to-4 unit: median tax bill, North Lawndale, Tax Year 2024 (exact $2,379.49 / $4,436.49, rounded). Single-family bills rose 73% from TY2023. The dataset has no condo tax-bill table.",
+    "sf": 2379,
+    "u24": 4436,
+    "condo": null
+  },
   "taxBillsTY2023": {
-    "_source": "B.Taxpayer_Characteristics — table 1 (row 18) single family, table 2 (row 33) 2-to-4 unit: median tax bill, North Lawndale, Tax Year 2023. The dataset has no condo tax-bill table.",
+    "_source": "B.Taxpayer_Characteristics — same tables, col M: TY2023 context (exact $1,375.93 / $2,011.08, rounded)",
     "sf": 1376,
     "u24": 2011,
     "condo": null
   },
   "taxBillsTY2012": {
-    "_source": "B.Taxpayer_Characteristics — tables 1 and 2, TY2012 column (context: NL bills FELL 27.5% / 28.7% from 2012 to 2023)",
-    "sf": 1899,
-    "u24": 2819
+    "_source": "B.Taxpayer_Characteristics — tables 1 and 2, TY2012 column (context: NL bills rose 26% / 57% from 2012 to 2024; exact $1,883.81 / $2,819.61, rounded)",
+    "sf": 1884,
+    "u24": 2820
   },
   "exemptions2023": {
     "_source": "B.Taxpayer_Characteristics — tables 3 (row 49) and 4 (row 65): share of taxpayers with exemptions, North Lawndale, TY2023",
@@ -34,11 +54,19 @@
   },
 
   "incomes2024": {
-    "_source": "A.Demographic_Socioeconomic — section 5 (rows 83, 88): median household income, 2024, rounded to nearest dollar",
+    "_source": "A.Demographic_Socioeconomic — section 5 (rows 83, 88): median household income overall and by tenure, 2024, rounded to nearest dollar",
     "nlMedian": 51591,
     "nlRenter": 36023,
     "nlOwner": 92765,
-    "chicagoMedian": 80487
+    "chicagoMedian": 80487,
+    "chicagoRenter": 59634
+  },
+  "homebuyerIncomes2024": {
+    "_source": "IHS baseline data presentation (May 2026), slide 21 — Median Homebuyer Incomes in Select West Side Communities (HMDA): North Lawndale and City of Chicago, 2024 series, with 2019 for context. Not published in the indicator workbook; values read from the slide's chart data.",
+    "nl": 90000,
+    "chicago": 125000,
+    "nl2019": 61000,
+    "chicago2019": 97000
   },
   "households2024": {
     "_source": "A.Demographic_Socioeconomic — section 4 (row 67) income composition, section 7 (row 116) tenure, 2024",

@@ -91,71 +91,71 @@
   <a class="back" href="index.html">&larr; Back to the calculator</a>
 
   <h1>Data repository &amp; methods</h1>
-  <p class="dek">Every number in <strong>“What does it cost to buy in North Lawndale?”</strong> traces to a
-    specific cell of the SFF indicators workbook, itemized below, or is an explicitly labeled, adjustable
-    assumption. This page lists each value, the exact table and cell it comes from, the calculation methods,
-    and how the tool was verified.</p>
-
-  <div class="verify">
-    <div class="vt">Verification status — August 10, 2026</div>
-    <p><b>50 / 50</b> dataset values re-extracted programmatically from the workbook by cell address and matched
-      against the calculator's data file &nbsp;·&nbsp; <b>6 / 6</b> internal cross-checks passed (loan counts sum to
-      totals, shares sum to 100%, owner + renter households equal total households) &nbsp;·&nbsp; the payment formula
-      reproduces published reference payments and retires a simulated 360-payment loan to a
-      <b>$0.00</b> ending balance &nbsp;·&nbsp; <b>64 / 64</b> on-screen values across 8 calculator states matched an
-      independent re-implementation of the math.</p>
-  </div>
 
   <h2>The source workbook</h2>
-  <p class="sub">All dataset values come from one file: <strong>“Chicago Community Areas_2026_SFF_Indicators_04022026.xlsx”</strong>
-    (April 2026), compiled for the Steans Family Foundation with underlying data from the
+  <p class="sub">Dataset values come from one file: <strong>“Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx”</strong>
+    (the July 2026 data repository), compiled for the Steans Family Foundation with underlying data from the
     <a href="https://www.housingstudies.org/" target="_blank" rel="noopener">Institute for Housing Studies at DePaul University</a>.
-    The workbook covers nine West/Southwest Side community areas plus the City of Chicago; the calculator uses the
-    <strong>North Lawndale</strong> rows throughout. Cell references below are 1-indexed (column letter + row number)
-    within each named sheet.</p>
+    One value pair — median homebuyer incomes — comes from the accompanying <strong>IHS baseline data presentation,
+    slide 21</strong> (HMDA), and is cited below where used. The workbook covers nine West/Southwest Side community
+    areas plus the City of Chicago; the calculator uses the <strong>North Lawndale</strong> rows throughout.
+    Cell references below are 1-indexed (column letter + row number) within each named sheet.</p>
   <ul>
     <li><b>A.Demographic_Socioeconomic</b> — households and incomes; American Community Survey 5-year estimates (2010 &amp; 2024 vintages).</li>
-    <li><b>B.Taxpayer_Characteristics</b> — median property-tax bills and exemptions; <a href="https://www.cookcountytreasurer.com/" target="_blank" rel="noopener">Cook County Treasurer</a> / Assessor records, Tax Years 2012–2023.</li>
+    <li><b>B.Taxpayer_Characteristics</b> — median property-tax bills and exemptions; <a href="https://www.cookcountytreasurer.com/" target="_blank" rel="noopener">Cook County Treasurer</a> / Assessor records, Tax Years 2012–2024.</li>
     <li><b>E.Property_Sales</b> — recorded sales counts and median prices by property type, 2005–1H&nbsp;2025.</li>
-    <li><b>G.Mortgage_Lending</b> — <a href="https://ffiec.cfpb.gov/" target="_blank" rel="noopener">Home Mortgage Disclosure Act (HMDA)</a> first-lien, owner-occupied, 1–4-unit home-purchase originations, 2019 / 2023 / 2024.</li>
+    <li><b>G.Mortgage_Lending</b> — <a href="https://ffiec.cfpb.gov/" target="_blank" rel="noopener">Home Mortgage Disclosure Act (HMDA)</a> first-lien, owner-occupied, 1–4-unit home-purchase originations, 2019 / 2023 / 2024 — including the 2024 mortgage-financed price tiers.</li>
   </ul>
 
   <h2>Dataset values used in the calculator</h2>
 
-  <h3>Purchase prices &amp; sales volume — sheet E.Property_Sales</h3>
+  <h3>Price tiers — sheet G.Mortgage_Lending (HMDA)</h3>
   <div class="tbl-scroll"><table>
     <tr><th>Value</th><th>Used for</th><th>Workbook table</th><th>Cell</th></tr>
-    <tr><td class="v">$200,000</td><td>Single-family default price; header stat</td><td>Table 8 — Median Sales Prices for Single Family Homes, 2005–1H 2025 (North Lawndale row, 2024 column)</td><td><span class="cell">E!U124</span></td></tr>
-    <tr><td class="v">$290,000</td><td>2–4-unit default price</td><td>Table 14 — Median Sales Prices for 2 to 4 Unit Buildings (NL row, 2024)</td><td><span class="cell">E!U216</span></td></tr>
-    <tr><td class="v">$100,000</td><td>Condominium default price</td><td>Table 11 — Median Sales Prices for Condominiums (NL row, 2024)</td><td><span class="cell">E!U170</span></td></tr>
-    <tr><td class="v">49</td><td>Single-family sales count shown on chip</td><td>Table 7 — Number of Sales for Single Family Homes (NL row, 2024)</td><td><span class="cell">E!U109</span></td></tr>
-    <tr><td class="v">180</td><td>2–4-unit sales count on chip</td><td>Table 13 — Number of Sales for 2 to 4 Unit Buildings (NL row, 2024)</td><td><span class="cell">E!U201</span></td></tr>
-    <tr><td class="v">7</td><td>Condo sales count on chip (small-sample caveat)</td><td>Table 10 — Number of Sales for Condominiums (NL row, 2024)</td><td><span class="cell">E!U155</span></td></tr>
+    <tr><td class="v">$325,000</td><td>“Typical” tier &amp; default price; header stat</td><td>Table 1 — 1 to 4 Unit Home Purchase Loans (NL row, 2024 median property value): what mortgage-financed, owner-occupied buyers actually paid</td><td><span class="cell">G!G19</span></td></tr>
+    <tr><td class="v">$243,750</td><td>“Lower cost” tier</td><td>Placeholder cut point at 75% of the 2024 median, pending a true 25th-percentile price of mortgage-financed purchases</td><td><span class="cell">G!I19</span></td></tr>
+    <tr><td class="v">$406,250</td><td>“Higher cost” tier</td><td>Placeholder cut point at 125% of the 2024 median, pending a true 75th-percentile price of mortgage-financed purchases</td><td><span class="cell">G!J19</span></td></tr>
+  </table></div>
+  <p class="note">The tiers replace the earlier property-type presets (single family / 2–4 unit / condo all-sales medians)
+    so that the anchor prices reflect <strong>homes bought with a mortgage</strong> — the calculator's subject — rather than
+    all recorded sales, which include cash and investor purchases. The lower/higher tiers are labeled
+    <em>placeholder</em> in the tool until percentile prices are calculated from the loan-level data.</p>
+
+  <h3>All-sales medians (comparison presets) — sheet E.Property_Sales</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Value</th><th>Used for</th><th>Workbook table</th><th>Cell</th></tr>
+    <tr><td class="v">$200,000</td><td>“Compare” preset; About-card context</td><td>Table 8 — Median Sales Prices for Single Family Homes, 2005–1H 2025 (North Lawndale row, 2024 column)</td><td><span class="cell">E!U124</span></td></tr>
+    <tr><td class="v">$290,000</td><td>“Compare” preset</td><td>Table 14 — Median Sales Prices for 2 to 4 Unit Buildings (NL row, 2024)</td><td><span class="cell">E!U216</span></td></tr>
+    <tr><td class="v">$100,000</td><td>Context (very thin market: 7 sales)</td><td>Table 11 — Median Sales Prices for Condominiums (NL row, 2024)</td><td><span class="cell">E!U170</span></td></tr>
+    <tr><td class="v">49 / 180 / 7</td><td>2024 sales counts (SF / 2–4 / condo)</td><td>Tables 7, 13, 10 — Number of Sales (NL row, 2024)</td><td><span class="cell">E!U109</span> <span class="cell">E!U201</span> <span class="cell">E!U155</span></td></tr>
   </table></div>
   <p class="note">2024 is the latest full year in the workbook; the 2025 column covers only January–June and is not used
-    for defaults. Sales medians include all recorded arm's-length sales (cash and financed).</p>
+    for defaults. All-sales medians include every recorded arm's-length sale (cash and financed), which is why the
+    single-family figure ($200,000) sits well below the mortgage-financed median ($325,000).</p>
 
   <h3>Property taxes &amp; exemptions — sheet B.Taxpayer_Characteristics</h3>
   <div class="tbl-scroll"><table>
     <tr><th>Value</th><th>Used for</th><th>Workbook table</th><th>Cell</th></tr>
-    <tr><td class="v">$1,376</td><td>Single-family tax default; header stat</td><td>Table 1 — Median Tax Bill for Single Family Properties, TY2012–2023 (NL row, TY2023)</td><td><span class="cell">B!M18</span></td></tr>
-    <tr><td class="v">$2,011</td><td>2–4-unit tax default</td><td>Table 2 — Median Tax Bill for 2 to 4 Unit Properties (NL row, TY2023)</td><td><span class="cell">B!M33</span></td></tr>
-    <tr><td class="v">$1,899 / $2,819</td><td>TY2012 context (bills fell 27.5% / 28.7%)</td><td>Tables 1 &amp; 2 (NL row, TY2012)</td><td><span class="cell">B!B18</span> <span class="cell">B!B33</span></td></tr>
+    <tr><td class="v">$2,379</td><td>Header stat; tax-field context note</td><td>Table 1 — Median Tax Bill for Single Family Properties, TY2012–2024 (NL row, TY2024; exact $2,379.49)</td><td><span class="cell">B!N18</span></td></tr>
+    <tr><td class="v">$4,436</td><td>About-card context (2–4 unit, TY2024; exact $4,436.49)</td><td>Table 2 — Median Tax Bill for 2 to 4 Unit Properties (NL row, TY2024)</td><td><span class="cell">B!N33</span></td></tr>
+    <tr><td class="v">$1,376 / $2,011</td><td>TY2023 context (single-family bills rose 73% TY2023→TY2024; exact $1,375.93 / $2,011.08)</td><td>Tables 1 &amp; 2 (NL row, TY2023)</td><td><span class="cell">B!M18</span> <span class="cell">B!M33</span></td></tr>
+    <tr><td class="v">$1,884 / $2,820</td><td>TY2012 context (bills rose 26% / 57% from 2012 to 2024; exact $1,883.81 / $2,819.61)</td><td>Tables 1 &amp; 2 (NL row, TY2012)</td><td><span class="cell">B!B18</span> <span class="cell">B!B33</span></td></tr>
     <tr><td class="v">61% / 37%</td><td>Footnote: homeowner-exemption take-up (SF / 2–4)</td><td>Table 3 — Homeowner Exemptions by Property Type, TY2023 (NL row, share columns)</td><td><span class="cell">B!F49</span> <span class="cell">B!H49</span></td></tr>
     <tr><td class="v">19% / 14.5%</td><td>Footnote: senior-exemption take-up (SF / 2–4)</td><td>Table 4 — Senior Exemptions by Property Type, TY2023 (NL row, share columns)</td><td><span class="cell">B!F65</span> <span class="cell">B!H65</span></td></tr>
   </table></div>
-  <p class="note">The workbook has <strong>no condo tax-bill table</strong>; when Condominium is selected the tax field
-    is seeded with the single-family value purely as an editable placeholder and is badged as an assumption.
-    TY2023 bills (billed in 2024) are the medians paid by <em>current</em> owners — a new buyer's future bill can differ
-    as assessments, levies, and exemptions change.</p>
+  <p class="note">Median bills are what <em>current</em> owners pay and are shown as context only. The tax field itself
+    now defaults to an <strong>effective-rate estimate — 1.5% of the purchase price</strong> (an adjustable assumption;
+    see the assumptions table below) — because a buyer's future bill scales with what they pay, not with the median
+    of existing owners, many of whom benefit from exemptions and lagging assessments. TY2024 bills (billed in 2025)
+    are the latest in the workbook.</p>
 
-  <h3>Household incomes &amp; composition — sheet A.Demographic_Socioeconomic</h3>
+  <h3>Renter &amp; household incomes — sheet A.Demographic_Socioeconomic</h3>
   <div class="tbl-scroll"><table>
     <tr><th>Value</th><th>Used for</th><th>Workbook table</th><th>Cell</th></tr>
-    <tr><td class="v">$51,591</td><td>“Median NL household” profile; header stat</td><td>Table 5 — Median Household Income, 2010 &amp; 2024 (NL row, 2024; exact value $51,590.77, rounded)</td><td><span class="cell">A!C83</span></td></tr>
-    <tr><td class="v">$36,023</td><td>“Median renter household” profile</td><td>Table 5, Median Renter Household Income (NL row, 2024; exact $36,022.50)</td><td><span class="cell">A!I83</span></td></tr>
-    <tr><td class="v">$92,765</td><td>“Median owner household” profile</td><td>Table 5, Median Owner Household Income (NL row, 2024; exact $92,765.30)</td><td><span class="cell">A!F83</span></td></tr>
-    <tr><td class="v">$80,487</td><td>“Median Chicago household” benchmark profile</td><td>Table 5 (City of Chicago row, 2024; exact $80,486.60)</td><td><span class="cell">A!C88</span></td></tr>
+    <tr><td class="v">$36,023</td><td>“Median NL renter household” benchmark</td><td>Table 5, Median Renter Household Income (NL row, 2024; exact $36,022.50)</td><td><span class="cell">A!I83</span></td></tr>
+    <tr><td class="v">$59,634</td><td>“Median Chicago renter household” benchmark</td><td>Table 5, Median Renter Household Income (City of Chicago row, 2024; exact $59,633.57)</td><td><span class="cell">A!I88</span></td></tr>
+    <tr><td class="v">$51,591</td><td>Context in data.json (all-household NL median; exact $51,590.77)</td><td>Table 5 — Median Household Income, 2010 &amp; 2024 (NL row, 2024)</td><td><span class="cell">A!C83</span></td></tr>
+    <tr><td class="v">$92,765 / $80,487</td><td>Context in data.json (NL owner / Chicago all-household medians)</td><td>Table 5 (NL owner col; City of Chicago row; exact $92,765.30 / $80,486.60)</td><td><span class="cell">A!F83</span> <span class="cell">A!C88</span></td></tr>
     <tr><td class="v">12,307</td><td>Total households, bracket-bar caption</td><td>Table 4 — Composition of Households by Income (NL row, 2024 total)</td><td><span class="cell">A!C67</span></td></tr>
     <tr><td class="v">33.7% / 22.1% / 25.8% / 18.5%</td><td>Income-bracket bar (&lt;$25K / $25–50K / $50–100K / $100K+)</td><td>Table 4, 2024 share columns (NL row)</td><td><span class="cell">A!F67</span> <span class="cell">A!I67</span> <span class="cell">A!L67</span> <span class="cell">A!O67</span></td></tr>
     <tr><td class="v">73% rent / 27% own</td><td>Profile-row context lines</td><td>Table 7 — Households by Tenure (NL row, 2024 shares; exact 73.37% / 26.63%)</td><td><span class="cell">A!O116</span> <span class="cell">A!I116</span></td></tr>
@@ -163,10 +163,22 @@
   <p class="note">Income figures are American Community Survey 5-year estimates as compiled in the workbook
     (2024 vintage) and are rounded to the nearest dollar for display. Bracket shares sum to exactly 100%.</p>
 
+  <h3>Median homebuyer incomes — IHS baseline data presentation, slide 21</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Value</th><th>Used for</th><th>Source</th><th>Cell</th></tr>
+    <tr><td class="v">$90,000</td><td>“Median NL homebuyer” benchmark; header stat</td><td>“Median Homebuyer Incomes in Select West Side Communities, 2019, 2021, 2024” (HMDA) — North Lawndale, 2024 series</td><td><span class="cell">slide 21</span></td></tr>
+    <tr><td class="v">$125,000</td><td>“Median Chicago homebuyer” benchmark</td><td>Same chart — City of Chicago, 2024 series</td><td><span class="cell">slide 21</span></td></tr>
+    <tr><td class="v">$61,000 / $97,000</td><td>2019 context (“up from $61,000 in 2019”)</td><td>Same chart — NL / City of Chicago, 2019 series</td><td><span class="cell">slide 21</span></td></tr>
+  </table></div>
+  <p class="note">These HMDA-derived medians are published in the IHS presentation
+    (“IHS_NLawndale_Dashboard_Presentation_05182026”), not in the indicator workbook; the audit script reads them
+    directly from the slide's embedded chart data. They describe the incomes of households who <em>bought</em> —
+    a different population from the renter medians above.</p>
+
   <h3>Who is actually buying — sheet G.Mortgage_Lending (HMDA)</h3>
   <div class="tbl-scroll"><table>
     <tr><th>Value</th><th>Used for</th><th>Workbook table</th><th>Cell</th></tr>
-    <tr><td class="v">121 · $325,000</td><td>2024 loans + median property value; header stat; price preset</td><td>Table 1 — 1 to 4 Unit Home Purchase Loans, 2019 / 2023 / 2024 (NL row)</td><td><span class="cell">G!F19</span> <span class="cell">G!G19</span></td></tr>
+    <tr><td class="v">121 · $325,000</td><td>2024 loans + median property value; header stats; “Typical” tier</td><td>Table 1 — 1 to 4 Unit Home Purchase Loans, 2019 / 2023 / 2024 (NL row)</td><td><span class="cell">G!F19</span> <span class="cell">G!G19</span></td></tr>
     <tr><td class="v">124 · $205,000</td><td>2019 comparison in “Who is actually buying?”</td><td>Table 1 (NL row, 2019)</td><td><span class="cell">G!B19</span> <span class="cell">G!C19</span></td></tr>
     <tr><td class="v">119 · $305,000</td><td>2023 loans (income/race mixes pool 2023–24: 119 + 121 = 240 loans)</td><td>Table 1 (NL row, 2023)</td><td><span class="cell">G!D19</span> <span class="cell">G!E19</span></td></tr>
     <tr><td class="v">12.1% / 39.6% / 33.3% / 15%</td><td>Borrower income-category bar (low / moderate / middle / upper), 2023–24</td><td>Tables 4 &amp; 5 — Loans by Homebuyer Income (NL row; counts 29 / 95 / 80 / 36)</td><td><span class="cell">G!F–I67</span> <span class="cell">G!F–I83</span></td></tr>
@@ -183,6 +195,9 @@
     <em>assumption</em> in the calculator and editable by the user. They are not drawn from the workbook.</p>
   <div class="tbl-scroll"><table>
     <tr><th>Assumption</th><th>Default</th><th>Basis</th></tr>
+    <tr><td>Effective property-tax rate</td><td class="v">1.5% of price / yr</td><td>Seeds the tax field: annual taxes = 1.5% × purchase price, recomputed live until the field is edited.
+      Based on the <a href="https://www.civicfed.org/node/4141" target="_blank" rel="noopener">Civic Federation's effective-tax-rate analysis</a> for the City of Chicago.
+      A buyer's actual bill depends on assessment, levies, and exemptions.</td></tr>
     <tr><td>Interest rate</td><td class="v">6.5%</td><td>Placeholder in the range of recent 30-year fixed averages; check
       <a href="https://www.freddiemac.com/pmms" target="_blank" rel="noopener">Freddie Mac's Primary Mortgage Market Survey</a> for current rates.</td></tr>
     <tr><td>Down payment</td><td class="v">5%</td><td>Common conventional first-time-buyer range (FHA minimum is 3.5%). Adjustable 0–50%.</td></tr>
@@ -197,49 +212,43 @@
   <div class="formula">loan L        = price × (1 − down%)
 monthly rate r = APR / 12          n = years × 12
 P&amp;I            = L · r(1+r)ⁿ / ((1+r)ⁿ − 1)        (standard amortization)
+taxes          = 1.5% × price per year (default; live until edited, then fixed $)
 PITI           = P&amp;I + taxes/12 + insurance/12 + PMI/12
 PMI            = 0.75% × L per year, only while down% &lt; 20</div>
   <h3>Affordability</h3>
   <div class="formula">income needed        = PITI × 12 ÷ (housing share %)
 burden (per profile) = PITI ÷ (household income / 12)
-max price            = (income/12 × share% − taxes/12 − ins/12)
-                       ÷ [(1 − down%) × (amortization factor + PMI factor)]</div>
+
+max price — taxes in default 1.5%-rate mode (taxes scale with the candidate price):
+  = (income/12 × share% − ins/12)
+    ÷ [(1 − down%) × (amortization factor + PMI factor) + 1.5%/12]
+max price — taxes edited to a fixed $ amount:
+  = (income/12 × share% − taxes/12 − ins/12)
+    ÷ [(1 − down%) × (amortization factor + PMI factor)]
+
+gap (per profile)    = max price − this scenario's purchase price
+                       (positive = headroom above this price; negative = shortfall)</div>
   <ul>
     <li><b>Rounding.</b> Dollar figures display rounded to whole dollars; derived values (income needed, burden)
       are computed from unrounded intermediates, so they can differ by a few dollars from arithmetic on the displayed numbers.</li>
     <li><b>Bracket marker.</b> The red marker on the income-bracket bar sits at the boundary of the bracket containing
       the required income (brackets are ranges, so position within a bracket is not interpolated). The
       “households at or above” share sums whole brackets only — no within-bracket estimation.</li>
-    <li><b>Vintages.</b> Prices are 2024 sales; tax bills are TY2023 (latest available); incomes are 2024 ACS 5-year
-      estimates; HMDA mixes pool 2023–24. These are the most recent values of each series in the workbook.</li>
-    <li><b>What the tool is not.</b> An educational illustration of neighborhood-level costs — not a loan quote,
-      not an appraisal, and not financial advice. Real payments depend on credit, insurance quotes, assessment
-      changes, and closing costs not modeled here.</li>
-  </ul>
-
-  <h2>How it was verified</h2>
-  <ul>
-    <li><b>Cell-level re-extraction.</b> A script independently re-read all 50 dataset values from the workbook by the
-      cell addresses listed above and compared them with the calculator's bundled <a href="data.json">data.json</a> — 50/50 matched.</li>
-    <li><b>Internal cross-checks.</b> HMDA income-mix and race-mix counts each sum to the 240 pooled 2023–24 loans;
-      2019 income counts sum to 124; income-bracket shares sum to 100%; owner (3,277) + renter (9,030) households equal
-      the 12,307 total. 6/6 passed.</li>
-    <li><b>Formula validation.</b> The amortization formula reproduces published reference payments
-      ($100,000 @ 6% / 30 yr → $599.55; $300,000 @ 7% / 30 yr → $1,995.91) and, fed back into a month-by-month
-      simulation, retires every test loan to a $0.00 balance at term.</li>
-    <li><b>End-to-end display audit.</b> The live page was driven through 8 input states (all property types, PMI on/off,
-      0–50% down, 3–10% rates, all terms, edited taxes/insurance, zero-value edge cases) and all 64 displayed outputs
-      matched an independent re-implementation exactly, including burden classifications.</li>
+    <li><b>Vintages.</b> Price tiers and homebuyer incomes are 2024 HMDA; all-sales medians are 2024; tax-bill context
+      is TY2024 (latest available); renter/household incomes are 2024 ACS 5-year estimates; HMDA borrower mixes pool
+      2023–24. These are the most recent values of each series.</li>
   </ul>
 
   <footer>
-    <p>Workbook: “Chicago Community Areas_2026_SFF_Indicators_04022026.xlsx” (April 2026), Steans Family Foundation /
-      Institute for Housing Studies at DePaul University. Related public sources:
+    <p>Workbook: “Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx” (July 2026), Steans Family Foundation /
+      Institute for Housing Studies at DePaul University; median homebuyer incomes from the IHS baseline data
+      presentation, slide 21. Related public sources:
       <a href="https://www.housingstudies.org/" target="_blank" rel="noopener">IHS DePaul</a> ·
       <a href="https://ffiec.cfpb.gov/" target="_blank" rel="noopener">HMDA (FFIEC)</a> ·
       <a href="https://www.cookcountytreasurer.com/" target="_blank" rel="noopener">Cook County Treasurer</a> ·
+      <a href="https://www.civicfed.org/node/4141" target="_blank" rel="noopener">Civic Federation</a> ·
       <a href="https://www.census.gov/programs-surveys/acs" target="_blank" rel="noopener">U.S. Census Bureau ACS</a>.
-      Verification last run August 10, 2026. Machine-readable values with the same source annotations:
+      Verification last run August 12, 2026. Machine-readable values with the same source annotations:
       <a href="data.json">data.json</a>.</p>
   </footer>
 </div>
