@@ -1134,7 +1134,7 @@ const TABS = [
     charts:["occ","race","buyerincome_geo","buyerincome_nl","buyerincome_med"] },
   { id:"property", label:"Property & Parcels", num:2,
     charts:["units","foreclosure","vacantland","salesprice","pricechange","investor"] },
-  { id:"calculator", label:"PITI Calculator", custom:"calculator" },
+  { id:"calculator", label:"Gap Analysis", custom:"calculator" },
   { id:"appendix", label:"Data Appendix" },
 ];
 
@@ -1305,7 +1305,7 @@ TABS.forEach((t, i) => {
     }));
     /* ---- PITI calculator: sources & methods reference ---- */
     const pc = grid.append("div").attr("class", "card wide").attr("id", "appendix-piti");
-    pc.append("span").attr("class", "chip").text("PITI Calculator \u00b7 Sources & methods");
+    pc.append("span").attr("class", "chip").text("Gap Analysis \u00b7 Sources & methods");
     pc.append("h3").text("\u201cWhat does it cost to buy in North Lawndale?\u201d \u2014 where its numbers come from");
     pc.append("p").attr("class", "source").style("margin", "6px 0 2px").html(
       "Dataset values: <b>G.Mortgage_Lending</b> tables 1\u20135 (HMDA home-purchase loans; 2024 mortgage-financed " +

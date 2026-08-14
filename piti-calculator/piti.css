@@ -164,6 +164,8 @@
 .pc-profile .pc-m b { display: block; font-size: 15.5px; font-weight: 700; color: var(--pc-on-surface); font-variant-numeric: tabular-nums; margin-bottom: 1px; }
 .pc-profile .pc-m b.pc-gpos { color: var(--pc-pos); }
 .pc-profile .pc-m b.pc-gneg { color: var(--pc-red); }
+.pc-gleg-pos { color: var(--pc-pos); font-weight: 500; }
+.pc-gleg-neg { color: var(--pc-red); font-weight: 500; }
 .pc-pill {
   justify-self: end; font-size: 11px; font-weight: 500; letter-spacing: .3px;
   padding: 4px 10px; border-radius: 999px; white-space: nowrap;

@@ -141,6 +141,15 @@
 
   <div class="pc-profiles" id="profiles"></div>
 
+  <div class="pc-dist" id="gap-viz">
+    <p class="pc-sub" style="margin-top:26px"><strong>The affordability gap, drawn to scale.</strong> Each dot is
+      the most that household could afford at the income share set above; the red line is this home's price. The
+      bar between them is the gap — <span class="pc-gleg-neg">shortfall</span> or
+      <span class="pc-gleg-pos">headroom</span> — and it moves with every control above.</p>
+    <svg class="pc-ladder" id="gapchart" viewBox="0 0 760 204" role="img"
+      aria-label="Gap between what each benchmark household could afford and this home's price"></svg>
+  </div>
+
   <div class="pc-dist" id="bracket-dist">
     <p class="pc-sub" style="margin-top:26px"><strong>Where the required income lands.</strong> Share of North Lawndale's
       ${D.households2024.total.toLocaleString()} households by income bracket (2024):</p>
@@ -454,21 +463,52 @@
       $('ladder').innerHTML = t;
 
       // profile rows: burden %, max price, gap to this scenario's price, pill
-      $('profiles').innerHTML = PROFILES.map(p => {
-        const inc = p.inc;
-        const burden = c.piti / (inc / 12);
-        const cls = burden <= 0.30 ? 'pc-ok' : burden <= 0.50 ? 'pc-warn' : 'pc-bad';
-        const lab = burden <= 0.30 ? 'Affordable' : burden <= 0.50 ? 'Cost-burdened' : 'Severely burdened';
-        const mp = maxPrice(inc, c);
-        const gap = mp - S.price;
+      const rows = PROFILES.map(p => {
+        const burden = c.piti / (p.inc / 12);
+        const mp = maxPrice(p.inc, c);
+        return { ...p, burden, mp, gap: mp - S.price };
+      });
+      $('profiles').innerHTML = rows.map(p => {
+        const cls = p.burden <= 0.30 ? 'pc-ok' : p.burden <= 0.50 ? 'pc-warn' : 'pc-bad';
+        const lab = p.burden <= 0.30 ? 'Affordable' : p.burden <= 0.50 ? 'Cost-burdened' : 'Severely burdened';
         return `<div class="pc-profile">
-          <div class="pc-who">${p.who}<small>${fmt$(inc)} /yr · ${p.note}</small></div>
-          <div class="pc-m"><b>${fmtPct(burden)}</b>of income on this payment</div>
-          <div class="pc-m"><b>${mp > 1000 ? fmtK(mp) : '—'}</b>max price at ${S.ratio}%</div>
-          <div class="pc-m"><b class="${gap >= 0 ? 'pc-gpos' : 'pc-gneg'}">${gap >= 0 ? '+' : '−'}${fmtK(Math.abs(gap))}</b>gap vs. this price</div>
+          <div class="pc-who">${p.who}<small>${fmt$(p.inc)} /yr · ${p.note}</small></div>
+          <div class="pc-m"><b>${fmtPct(p.burden)}</b>of income on this payment</div>
+          <div class="pc-m"><b>${p.mp > 1000 ? fmtK(p.mp) : '—'}</b>max price at ${S.ratio}%</div>
+          <div class="pc-m"><b class="${p.gap >= 0 ? 'pc-gpos' : 'pc-gneg'}">${p.gap >= 0 ? '+' : '−'}${fmtK(Math.abs(p.gap))}</b>gap vs. this price</div>
           <span class="pc-pill ${cls}">${lab}</span>
         </div>`;
       }).join('');
+
+      // gap chart: one slider-style track per household in home-price space —
+      // navy dot = max affordable price, red line = this home's price, the
+      // filled span between them = the gap (green headroom / red shortfall)
+      {
+        const GL = 134, GR = 746, GY = 182, GMAX = 600000;
+        const gx = v => GL + Math.min(v, GMAX) / GMAX * (GR - GL);
+        const px = gx(S.price);
+        let g = `<line class="pc-ax" x1="${GL}" y1="${GY}" x2="${GR}" y2="${GY}"/>`;
+        for (let v = 0; v <= GMAX; v += 100000)
+          g += `<line class="pc-ax" x1="${gx(v)}" y1="${GY - 3}" x2="${gx(v)}" y2="${GY + 3}"/>
+                <text class="pc-tick-lab" x="${gx(v)}" y="${GY + 16}" text-anchor="middle">${v === 0 ? '$0' : '$' + v / 1000 + 'K'}</text>`;
+        rows.forEach((p, i) => {
+          const y = 52 + i * 34;
+          const ax = gx(p.mp), over = p.mp > GMAX;
+          const col = p.gap >= 0 ? '#146C2E' : '#BA1A1A';
+          const mx = Math.min(Math.max((ax + px) / 2, GL + 26), GR - 26);
+          g += `<text x="${GL - 12}" y="${y + 4}" text-anchor="end" font-size="11" fill="#44474E" font-weight="500">${p.short}</text>
+                <line x1="${GL}" y1="${y}" x2="${GR}" y2="${y}" stroke="#E2E2E9" stroke-width="4.5" stroke-linecap="round"/>`;
+          if (Math.abs(ax - px) > 2)
+            g += `<line x1="${ax}" y1="${y}" x2="${px}" y2="${y}" stroke="${col}" stroke-width="4.5" stroke-linecap="round"/>`;
+          g += `<text x="${mx}" y="${y - 9}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${col}">${p.gap >= 0 ? '+' : '−'}${fmtK(Math.abs(p.gap))}</text>
+                <circle cx="${ax}" cy="${y}" r="5.5" fill="#33518A" stroke="#FFF" stroke-width="1.5"/>
+                ${over ? `<text x="${GR + 7}" y="${y + 4}" font-size="11" fill="#74777F">→</text>` : ''}`;
+        });
+        g += `<line x1="${px}" y1="30" x2="${px}" y2="${GY}" stroke="#BA1A1A" stroke-width="2"/>
+              <path d="M ${px - 5} 24 L ${px + 5} 24 L ${px} 32 Z" fill="#BA1A1A"/>
+              <text x="${Math.min(Math.max(px, GL + 62), GR - 66)}" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#BA1A1A">this home ${S.price > GMAX ? '≥ $600K →' : fmtK(S.price)}</text>`;
+        $('gapchart').innerHTML = g;
+      }
 
       // bracket bar
       const br = D.households2024.incomeBrackets;
