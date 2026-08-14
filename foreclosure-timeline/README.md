@@ -62,7 +62,7 @@ other tools (Excel, R, Python, etc.).
 
 ## Data
 
-**Source:** `Chicago Community Areas_2026_SFF_Indicators_04022026.xlsx`, sheet
+**Source:** `Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx`, sheet
 **D. Foreclosures**, table *"Foreclosure Activity for Residential Properties in
 Chicago Community Areas."*
 

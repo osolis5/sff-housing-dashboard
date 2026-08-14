@@ -19,7 +19,7 @@ Austin,2021,87,50-149
 Austin,2022,246,150-299
 Austin,2023,159,150-299
 Austin,2024,194,150-299
-Austin,2025,110,50-149
+Austin,2025,201,150-299
 East Garfield Park,2005,81,50-149
 East Garfield Park,2006,141,50-149
 East Garfield Park,2007,237,150-299
@@ -40,7 +40,7 @@ East Garfield Park,2021,14,0-49
 East Garfield Park,2022,33,0-49
 East Garfield Park,2023,30,0-49
 East Garfield Park,2024,24,0-49
-East Garfield Park,2025,20,0-49
+East Garfield Park,2025,34,0-49
 Humboldt Park,2005,265,150-299
 Humboldt Park,2006,318,300-599
 Humboldt Park,2007,495,300-599
@@ -61,7 +61,7 @@ Humboldt Park,2021,17,0-49
 Humboldt Park,2022,73,50-149
 Humboldt Park,2023,51,50-149
 Humboldt Park,2024,82,50-149
-Humboldt Park,2025,49,0-49
+Humboldt Park,2025,91,50-149
 Lower West Side,2005,34,0-49
 Lower West Side,2006,52,50-149
 Lower West Side,2007,71,50-149
@@ -82,7 +82,7 @@ Lower West Side,2021,9,0-49
 Lower West Side,2022,3,0-49
 Lower West Side,2023,13,0-49
 Lower West Side,2024,10,0-49
-Lower West Side,2025,14,0-49
+Lower West Side,2025,22,0-49
 Near West Side,2005,84,50-149
 Near West Side,2006,111,50-149
 Near West Side,2007,198,150-299
@@ -103,7 +103,7 @@ Near West Side,2021,13,0-49
 Near West Side,2022,49,0-49
 Near West Side,2023,33,0-49
 Near West Side,2024,38,0-49
-Near West Side,2025,27,0-49
+Near West Side,2025,58,50-149
 North Lawndale,2005,178,150-299
 North Lawndale,2006,249,150-299
 North Lawndale,2007,368,300-599
@@ -124,7 +124,7 @@ North Lawndale,2021,26,0-49
 North Lawndale,2022,63,50-149
 North Lawndale,2023,50,50-149
 North Lawndale,2024,62,50-149
-North Lawndale,2025,37,0-49
+North Lawndale,2025,65,50-149
 South Lawndale,2005,98,50-149
 South Lawndale,2006,123,50-149
 South Lawndale,2007,207,150-299
@@ -145,7 +145,7 @@ South Lawndale,2021,11,0-49
 South Lawndale,2022,41,0-49
 South Lawndale,2023,28,0-49
 South Lawndale,2024,28,0-49
-South Lawndale,2025,18,0-49
+South Lawndale,2025,38,0-49
 West Garfield Park,2005,119,50-149
 West Garfield Park,2006,191,150-299
 West Garfield Park,2007,262,150-299
@@ -166,7 +166,7 @@ West Garfield Park,2021,13,0-49
 West Garfield Park,2022,31,0-49
 West Garfield Park,2023,38,0-49
 West Garfield Park,2024,33,0-49
-West Garfield Park,2025,23,0-49
+West Garfield Park,2025,41,0-49
 West Town,2005,130,50-149
 West Town,2006,146,50-149
 West Town,2007,263,150-299
@@ -187,4 +187,4 @@ West Town,2021,19,0-49
 West Town,2022,66,50-149
 West Town,2023,43,0-49
 West Town,2024,46,0-49
-West Town,2025,36,0-49
+West Town,2025,66,50-149

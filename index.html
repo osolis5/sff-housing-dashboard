@@ -417,7 +417,11 @@
 /* ================= DATA =================
    Transcribed from IHS_NLawndale_Dashboard_Presentation_05182026.pdf
    (Institute for Housing Studies at DePaul University, May 21 2026).
-   Every value below is a labeled data point from the deck's charts.   */
+   Every value below is a labeled data point from the deck's charts.
+   Verified value-by-value (08/12/2026) against the July 2026 data
+   repository "Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx"
+   and the updated deck's embedded chart data — workbook anchors for each
+   chart live in WB_REFS below and print on the Data Appendix tables.  */
 
 const GEO_META = {
   "North Lawndale":     { short:"NORTH\nLAWNDALE",     role:"focus" },
@@ -587,6 +591,23 @@ const CHARTS = [
     ]
   },
 ];
+
+/* Workbook anchor for every chart, verified 08/12/2026 against the July 2026
+   data repository (sheet + table; NL = North Lawndale row). Printed on each
+   Data Appendix table so every dashboard number traces to its source cell. */
+const WB_REFS = {
+  occ:             "A.Demographic_Socioeconomic, table 8 (Housing Units by Occupancy Type) — Occupied Housing Units, Pct Chng 2010–2024",
+  units:           "A.Demographic_Socioeconomic, table 8 (Housing Units by Occupancy Type) — Total Housing Units, Pct Chng 2010–2024",
+  foreclosure:     "D.Foreclosures, table 2 — deck/2024 vintage; the 07/02/2026 workbook publishes 2025 shares instead (North Lawndale 47.3%, city 22.4%)",
+  vacantland:      "C.Housing_Stock, table 3 (Privately-Held and City-Owned Vacant Land) — share columns",
+  salesprice:      "E.Property_Sales, table 23 (Median Sales Prices for 1 to 4 Unit Buildings) — 2012 / 2019 / 2024 columns",
+  pricechange:     "E.Property_Sales, table 23 — computed from the 2019 and 2024 columns",
+  investor:        "E.Property_Sales, table 5 (Share of 1 to 4 Unit Properties Sold to Business Buyers) — 2024 column; 2025 now also published (North Lawndale 24.0%)",
+  race:            "G.Mortgage_Lending, table 3 (Share of Loans by Homebuyer Race/Ethnicity) — North Lawndale row, 2019 and 2023–24 blocks",
+  buyerincome_geo: "G.Mortgage_Lending, table 5 (Share of Loans by Homebuyer Income) — 2023–24 columns; LMI = low + moderate income",
+  buyerincome_nl:  "G.Mortgage_Lending, table 5 — North Lawndale row, 2019 and 2023–24 blocks",
+  buyerincome_med: "IHS baseline data presentation, slide 21 (HMDA) — not published in the workbook",
+};
 
 /* ================= HELPERS ================= */
 const tooltip = d3.select("#tooltip");
@@ -1123,10 +1144,10 @@ function renderStacked(svg, c, legend) {
 const FC_EMBEDS = [
   { id:"fctimeline", dir:"foreclosure-timeline", msg:"fc-timeline-height",
     headline:"Residential Foreclosure Filings in Nine West Side Communities, 2005–2025",
-    source:"Chicago Community Areas 2026 SFF Indicators (04/02/2026), sheet D. Foreclosures" },
+    source:"Chicago Community Areas 2026 SFF Indicators (07/02/2026), sheet D. Foreclosures" },
   { id:"fcunitgrid", dir:"foreclosure-unit-grid", msg:"fc-unitgrid-height",
     headline:"One Square per Residential Foreclosure Filing, 2005–2025",
-    source:"Chicago Community Areas 2026 SFF Indicators (04/02/2026), sheet D. Foreclosures" },
+    source:"Chicago Community Areas 2026 SFF Indicators (07/02/2026), sheet D. Foreclosures" },
 ];
 
 const TABS = [
@@ -1302,7 +1323,24 @@ TABS.forEach((t, i) => {
       src.append("a").attr("class", "xref").attr("href", "#chart-" + id)
         .text("View Chart " + chartNumbers[id] + " \u2197")
         .on("click", event => { event.preventDefault(); jumpTo(chartTab[id], "chart-" + id); });
+      if (WB_REFS[id]) card.append("p").attr("class", "source")
+        .text("Workbook: " + WB_REFS[id]);
     }));
+    /* ---- Headline indicators (KPI strip): sources ---- */
+    const kp = grid.append("div").attr("class", "card wide").attr("id", "appendix-kpis");
+    kp.append("span").attr("class", "chip").text("Headline indicators · Sources");
+    kp.append("h3").text("The six North Lawndale headline indicators");
+    kp.append("p").attr("class", "source").style("margin", "6px 0 2px").html(
+      "Each headline card above the tabs restates a value charted on this dashboard, so every figure " +
+      "has a data table here in the appendix: occupied-unit change 2010–24 (+10.6%) — Chart 1.1 / " +
+      "Table A.1 · total housing-unit change (−1.0%) — Chart 2.1 / Table A.6 · " +
+      "2024 median 1–4 unit sale price ($260K; +85.7% since 2019) — Charts 2.4–2.5 / Tables " +
+      "A.9–A.10 · share of 2024 sales bought by businesses (32.3%) — Chart 2.6 / Table A.11 · " +
+      "share of parcels with a foreclosure filing since 2005 (46.9%, 2024 vintage) — Chart 2.2 / Table A.7 · " +
+      "median homebuyer income ($90K in 2024 vs $61K in 2019) — Chart 1.5 / Table A.5. " +
+      "City-of-Chicago comparison figures come from the same tables. All values verified against " +
+      "“Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx” (July 2026 data repository) " +
+      "and the deck's embedded chart data.");
     /* ---- PITI calculator: sources & methods reference ---- */
     const pc = grid.append("div").attr("class", "card wide").attr("id", "appendix-piti");
     pc.append("span").attr("class", "chip").text("Gap Analysis \u00b7 Sources & methods");
@@ -1338,8 +1376,9 @@ TABS.forEach((t, i) => {
     fc.append("p").attr("class", "source").style("margin", "6px 0 2px").html(
       "Filing counts for the nine West Side community areas and the City of Chicago benchmark, " +
       "transcribed verbatim from <b>D.Foreclosures</b>, \u201cForeclosure Activity for Residential " +
-      "Properties.\u201d 2025 covers the first half of the year only (through June). The interactive " +
-      "chart embeds this dataset directly; the CSVs below are the machine-readable copies.");
+      "Properties,\u201d in the July 2026 repository (07/02/2026), which reports 2025 as a " +
+      "complete year. The interactive chart embeds this dataset directly; the CSVs below are " +
+      "the machine-readable copies.");
     const flinks = fc.append("p").attr("class", "source");
     flinks.append("a").attr("class", "xref").attr("href", "foreclosure-timeline/data/foreclosure_filings_wide.csv")
       .attr("target", "_blank").attr("rel", "noopener").text("foreclosure_filings_wide.csv \u2197");
@@ -1357,10 +1396,10 @@ TABS.forEach((t, i) => {
     fu.append("p").attr("class", "source").style("margin", "6px 0 2px").html(
       "Filing counts broken out by property type (single family, condominium, 2\u20134 unit, " +
       "multifamily 5+) for the nine West Side community areas and the City of Chicago benchmark, " +
-      "transcribed verbatim from <b>D.Foreclosures</b>. Property-type counts sum exactly to the " +
-      "reported residential totals for every community area and year; 2025 covers the first half " +
-      "of the year only (through June). The interactive chart embeds this dataset directly; " +
-      "data.json is the machine-readable copy.");
+      "transcribed verbatim from <b>D.Foreclosures</b> in the July 2026 repository (07/02/2026), " +
+      "which reports 2025 as a complete year. Property-type counts sum exactly to the reported " +
+      "residential totals for every community area and year. The interactive chart embeds this " +
+      "dataset directly; data.json is the machine-readable copy.");
     const fulinks = fu.append("p").attr("class", "source");
     fulinks.append("a").attr("class", "xref").attr("href", "foreclosure-unit-grid/data.json")
       .attr("target", "_blank").attr("rel", "noopener").text("Machine-readable data.json \u2197");

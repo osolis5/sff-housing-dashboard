@@ -62,10 +62,6 @@
           <span class="pc-val" id="price-val"></span>
         </div>
         <input type="range" id="price" min="25000" max="800000" step="1250" aria-label="Purchase price">
-        <div class="pc-presets">Compare: all-sales 2024 medians —
-          <button id="preset-sf">single family (${fmtK(D.salePrices2024.sf)})</button> ·
-          <button id="preset-u24">2–4 unit (${fmtK(D.salePrices2024.u24)})</button>
-        </div>
       </div>
 
       <div class="pc-field">
@@ -348,17 +344,6 @@
         S.taxMode = 'rate'; S.taxAnnual = effTax();
         syncInputs(); recalc();
       }
-    });
-
-    $('preset-sf').addEventListener('click', () => {
-      S.price = D.salePrices2024.sf;
-      if (S.taxMode === 'rate') S.taxAnnual = effTax();
-      syncInputs(); recalc();
-    });
-    $('preset-u24').addEventListener('click', () => {
-      S.price = D.salePrices2024.u24;
-      if (S.taxMode === 'rate') S.taxAnnual = effTax();
-      syncInputs(); recalc();
     });
 
     $('term').addEventListener('click', e => {

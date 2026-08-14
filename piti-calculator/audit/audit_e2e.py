@@ -14,8 +14,8 @@ STATES = {  # price, down%, rate%, years, tax mode, custom tax $, ins/yr, ratio%
   'B': (243750,  5,   6.5, 30, 'rate',   None, 1700, 28),   # Lower tier (G!I19)
   'C': (406250,  5,   6.5, 30, 'rate',   None, 1700, 28),   # Higher tier (G!J19)
   'D': (325000, 20,   6.5, 30, 'rate',   None, 1700, 28),   # 20% down -> no PMI
-  'E': (200000,  5,   6.5, 30, 'custom', 1376, 1700, 28),   # all-sales SF preset, TY2023 bill typed in
-  'F': (290000, 50,   3.0, 20, 'custom', 3000, 2400, 20),   # 2-4 preset, everything moved
+  'E': (200000,  5,   6.5, 30, 'custom', 1376, 1700, 28),   # all-sales SF median via slider, TY2023 bill typed in
+  'F': (290000, 50,   3.0, 20, 'custom', 3000, 2400, 20),   # all-sales 2-4 median via slider, everything moved
   'G': (150000,  0,  10.0, 15, 'rate',   None, 1700, 45),   # extremes, rate-mode tax
   'H': (100000,  5,   6.5, 30, 'custom',    0,    0, 28),   # zero tax & insurance
 }
