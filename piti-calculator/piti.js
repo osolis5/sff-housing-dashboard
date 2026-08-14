@@ -45,11 +45,11 @@
   /* ---- shared section bodies (identical ids/controls in both layouts) ---- */
   function bodyPayment(D, repoHref) {
     return `
-  <p class="pc-sub">Pick a price tier — anchored in what mortgage-financed buyers actually paid for North Lawndale
-    homes in 2024 — then adjust the loan to match a buyer. Values marked <span class="pc-badge pc-data">dataset</span>
-    come straight from the SFF indicator tables; values marked <span class="pc-badge pc-assume">assumption</span> are
-    adjustable estimates. Every number is itemized, cell by cell, in the
-    <a href="${repoHref}" target="_blank" rel="noopener">data repository &amp; methods</a>.</p>
+  <p class="pc-sub">Choose a price tier based on what mortgage-financed buyers actually paid for North Lawndale
+    homes in 2024. Use the slider to adjust the loan to match a buyer's PITI variables. Values marked
+    <span class="pc-badge pc-data">dataset</span> come straight from the SFF indicator tables; values marked
+    <span class="pc-badge pc-assume">assumption</span> are adjustable estimates. Data sets are referenced in the
+    <a href="${repoHref}" target="_blank" rel="noopener">Data Appendix</a>.</p>
 
   <div class="pc-calc">
     <div class="pc-card pc-inputs">
