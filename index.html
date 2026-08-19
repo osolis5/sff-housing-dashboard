@@ -1295,20 +1295,12 @@ TABS.forEach((t, i) => {
     if (t.id === "property") FC_EMBEDS.forEach((e, i) => appendFcEmbed(grid, e, i));
   } else if (t.custom === "calculator") {
     /* PITI calculator renders natively (shared component from piti-calculator/
-       piti.js + piti.css) \u2014 no iframe, full panel width, embedded type scale.
-       Its own dataset stat cards act as this tab's top-level cards (the global
-       KPI strip is hidden here \u2014 see activate()). */
+       piti.js + piti.css) \u2014 the same three-panel Gap Analysis layout as the
+       standalone page (dashboard: true). Its own KPI cards act as this tab's
+       top-level cards (the global KPI strip is hidden here \u2014 see activate()). */
     const mount = panel.append("div").attr("id", "piti-mount").node();
     PITI.render(mount, JSON.parse(document.getElementById("piti-data").textContent),
-      { embedded: true, repoBase: "piti-calculator/",
-        cards: ["Calculator 3.1", "Calculator 3.2", "Calculator 3.3", "Calculator 3.4"],
-        heading: "Principal, interest, taxes &amp; insurance calculator" });
-    /* per-card "Data Appendix \u2197" links emitted by the component jump via the
-       dashboard's own tab switcher */
-    mount.addEventListener("click", event => {
-      const a = event.target.closest("[data-jump]");
-      if (a) { event.preventDefault(); jumpTo("appendix", a.dataset.jump); }
-    });
+      { dashboard: true, repoBase: "piti-calculator/" });
   } else {
     TABS.filter(x => x.charts).forEach(x => x.charts.forEach(id => {
       const c = CHARTS.find(ch => ch.id === id);
