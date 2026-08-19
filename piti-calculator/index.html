@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PITI Calculator — Buying in North Lawndale</title>
+<title>Gap Analysis Calculator — North Lawndale</title>
 <link rel="stylesheet" href="vendor/fonts.css">
 <link rel="stylesheet" href="piti.css">
 <style>
@@ -14,23 +14,16 @@
     font-family: 'Roboto', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 24px 64px; }
-  header { margin-bottom: 28px; }
-  header h1 { font-weight: 700; font-size: 30px; line-height: 1.2; letter-spacing: -0.2px; }
-  header .dek {
-    margin-top: 12px; font-size: 16px; font-weight: 300; line-height: 1.55;
-    color: #44474E; max-width: 660px;
-  }
-  header .dek strong { font-weight: 500; color: #191C20; }
+  /* dashboard shell: slim header band over the three-panel layout */
+  .wrap { max-width: 1500px; margin: 0 auto; }
+  header { padding: 26px 24px 18px; border-bottom: 1px solid #C4C6D0; }
+  header h1 { font-weight: 700; font-size: 26px; line-height: 1.2; letter-spacing: -0.2px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>What does it cost to buy in North Lawndale?</h1>
-    <p class="dek">A real-time <strong>principal, interest, taxes &amp; insurance</strong> calculator grounded in
-      what mortgage-financed buyers actually paid for North Lawndale homes — and what those monthly costs
-      mean for the renters and homebuyers who live there today.</p>
+    <h1>Gap Analysis Calculator</h1>
   </header>
   <div id="piti-mount"></div>
 </div>
@@ -146,7 +139,7 @@
   PITI.render(
     document.getElementById('piti-mount'),
     JSON.parse(document.getElementById('piti-data').textContent),
-    {}
+    { dashboard: true }
   );
 
   // auto-height for iframe embeds (portfolio/Webflow). Measure the content

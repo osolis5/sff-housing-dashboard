@@ -1,5 +1,5 @@
 PITI CALCULATOR — VERIFICATION REPORT
-Run: 2026-08-12 22:20 CDT
+Run: 2026-08-18 12:47 CDT
 Workbook: Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx
 Presentation: IHS_NLawndale_Dashboard_Presentation_05182026.pptx (slide 21)
 

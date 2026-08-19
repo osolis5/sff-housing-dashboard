@@ -1,7 +1,8 @@
 /* PITI calculator — shared component. Renders the full calculator into a
-   mount node: window.PITI.render(mount, data, { embedded }).
-   Used by the standalone page (PITI-Calculator/index.html) and by the
-   dashboard's "PITI Calculator" tab (no iframe). Classes are pc-prefixed to
+   mount node: window.PITI.render(mount, data, { embedded, dashboard }).
+   Used by the standalone page (PITI-Calculator/index.html, dashboard: true —
+   three-panel Housing | results | People layout) and by the dashboard's
+   "PITI Calculator" tab (cards: [...], no iframe). Classes are pc-prefixed to
    coexist with host styles; ids are unique per page (one instance max). */
 (function () {
   'use strict';
@@ -9,12 +10,15 @@
   /* price tiers replace the former property-type chips (July 2026 feedback):
      anchored in mortgage-financed purchases, not all-sales medians by type.
      lower/higher are workbook placeholders (75% / 125% of the median) until
-     true 25th/75th percentile prices are calculated. */
+     true 25th/75th percentile prices are calculated. `seg` is the short label
+     used by the dashboard layout's segmented control. */
   const TIERS = [
-    { key: 'lower',   label: 'Lower cost',  badge: 'placeholder · 75% of median',  color: '#91AAD4' },
-    { key: 'typical', label: 'Typical',     badge: 'dataset · 2024 median',        color: '#33518A' },
-    { key: 'higher',  label: 'Higher cost', badge: 'placeholder · 125% of median', color: '#5578AE' }
+    { key: 'lower',   label: 'Lower cost',  seg: 'Low',     badge: 'placeholder · 75% of median',  color: '#91AAD4' },
+    { key: 'typical', label: 'Typical',     seg: 'Typical', badge: 'dataset · 2024 median',        color: '#33518A' },
+    { key: 'higher',  label: 'Higher cost', seg: 'High',    badge: 'placeholder · 125% of median', color: '#5578AE' }
   ];
+  /* segmented-control order (dashboard layout): default tier first */
+  const SEG_ORDER = ['typical', 'lower', 'higher'];
   const RAMP4 = ['#D3DCEF', '#A8BCE0', '#5578AE', '#33518A'];
   const RACE5 = ['#33518A', '#5578AE', '#91AAD4', '#A8BCE0', '#C4C6D0'];
   const PMI_RATE = 0.75;          // % of loan per year, assumption
@@ -27,33 +31,33 @@
   function template(D, opts) {
     const carded = Array.isArray(opts.cards);
     const statData = [
-      [fmt$(D.priceTiers2024.typical), '2024 median sale, mortgage-financed 1–4 unit'],
+      [fmt$(D.priceTiers2024.typical), '2024 median sales price, North Lawndale, 1–4 unit owner occupied property purchased with mortgage'],
       [fmt$(D.taxBillsTY2024.sf), 'TY2024 median tax bill, single family'],
       [D.hmda.loans2024, 'home-purchase loans, 2024'],
-      [fmt$(D.homebuyerIncomes2024.nl), 'median homebuyer income, 2024']
+      [fmt$(D.homebuyerIncomes2024.nl), 'median North Lawndale homebuyer income, 2024']
     ];
-    /* carded mode mirrors the dashboard KPI cards (label above value); the
-       flat/standalone mode keeps the calculator's own value-first stat tiles */
-    const stats = carded
+    /* carded + dashboard modes mirror the dashboard KPI cards (label above
+       value); the legacy flat mode keeps the value-first stat tiles */
+    const stats = carded || opts.dashboard
       ? statData.map(([v, l]) => `<div class="pc-stat"><p class="pc-kpi-label">${l}</p><p class="pc-kpi-value">${v}</p></div>`).join('')
       : statData.map(([v, l]) => `<div class="pc-stat"><div class="pc-v">${v}</div><div class="pc-l">${l}</div></div>`).join('');
 
     const repoHref = (opts.repoBase || '') + 'data.html';
-    return carded ? cardedLayout(D, opts, stats, repoHref) : flatLayout(D, opts, stats, repoHref);
+    if (carded) return cardedLayout(D, opts, stats, repoHref);
+    if (opts.dashboard) return dashLayout(D, opts, stats, repoHref);
+    return flatLayout(D, opts, stats, repoHref);
   }
 
-  /* ---- shared section bodies (identical ids/controls in both layouts) ---- */
-  function bodyPayment(D, repoHref) {
+  /* ---- shared control/section fragments (identical ids in every layout) ---- */
+  /* seg: wrap the tier chips as a labeled segmented control (dashboard rail) */
+  function inputsInner(D, seg) {
     return `
-  <p class="pc-sub">Choose a price tier based on what mortgage-financed buyers actually paid for North Lawndale
-    homes in 2024. Use the slider to adjust the loan to match a buyer's PITI variables. Values marked
-    <span class="pc-badge pc-data">dataset</span> come straight from the SFF indicator tables; values marked
-    <span class="pc-badge pc-assume">assumption</span> are adjustable estimates. Data sets are referenced in the
-    <a href="${repoHref}" target="_blank" rel="noopener">Data Appendix</a>.</p>
-
-  <div class="pc-calc">
-    <div class="pc-card pc-inputs">
-      <div class="pc-chips" id="tier-chips" role="group" aria-label="Price tier"></div>
+      ${seg
+        ? `<div class="pc-field pc-field-first">
+        <div class="pc-row"><label>Housing cost</label></div>
+        <div class="pc-chips pc-seg" id="tier-chips" role="group" aria-label="Price tier"></div>
+      </div>`
+        : `<div class="pc-chips" id="tier-chips" role="group" aria-label="Price tier"></div>`}
 
       <div class="pc-field">
         <div class="pc-row">
@@ -105,15 +109,78 @@
           <span class="pc-badge pc-assume">assumption</span>
         </div>
         <div class="pc-money"><span>$</span><input type="text" id="ins" inputmode="numeric" aria-label="Annual homeowners insurance"></div>
-      </div>
-    </div>
+      </div>`;
+  }
 
-    <div class="pc-card pc-results">
+  function resultsInner() {
+    return `
       <div class="pc-cap">Estimated monthly payment</div>
       <div class="pc-piti" role="status"><span id="piti-total"></span><small> /mo</small></div>
       <div class="pc-bar" id="piti-bar" aria-hidden="true"></div>
       <div class="pc-leg" id="piti-leg"></div>
-      <div class="pc-kv" id="loan-kv"></div>
+      <div class="pc-kv" id="loan-kv"></div>`;
+  }
+
+  function ratioInline() {
+    return `
+  <div class="pc-ratio-row">
+    <span class="pc-rlab">Housing share of income</span>
+    <input type="range" id="ratio" min="20" max="45" step="1" aria-label="Housing share of income">
+    <span class="pc-val" id="ratio-val"></span>
+    <span class="pc-badge pc-assume">assumption</span>
+  </div>`;
+  }
+
+  function needLadder() {
+    return `
+  <p class="pc-need" id="need-line"></p>
+
+  <svg class="pc-ladder" id="ladder" viewBox="0 0 760 178" role="img" aria-label="Income needed compared with North Lawndale and Chicago renter and homebuyer median incomes"></svg>`;
+  }
+
+  function profilesBox() {
+    return `<div class="pc-profiles" id="profiles"></div>`;
+  }
+
+  /* lead=true keeps the flat/carded bold lead-in sentence; the dashboard card
+     carries the title in its caption instead (and the ratio slider lives in
+     the People rail, not "above") */
+  function gapBox(lead) {
+    return `
+  <div class="pc-dist" id="gap-viz">
+    <p class="pc-sub"${lead ? ' style="margin-top:26px"' : ''}>${lead ? '<strong>The affordability gap, drawn to scale.</strong> ' : ''}Each dot is
+      the most that household could afford at the income share set ${lead ? 'above' : 'in the People panel'}; the red line is this home's price. The
+      bar between them is the gap — <span class="pc-gleg-neg">shortfall</span> or
+      <span class="pc-gleg-pos">headroom</span> — and it moves with every control ${lead ? 'above' : 'on this page'}.</p>
+    <svg class="pc-ladder" id="gapchart" viewBox="0 0 760 204" role="img"
+      aria-label="Gap between what each benchmark household could afford and this home's price"></svg>
+  </div>`;
+  }
+
+  function bracketBox(D, lead) {
+    return `
+  <div class="pc-dist" id="bracket-dist">
+    <p class="pc-sub"${lead ? ' style="margin-top:26px"' : ''}>${lead ? '<strong>Where the required income lands.</strong> ' : ''}Share of North Lawndale's
+      ${D.households2024.total.toLocaleString()} households by income bracket (2024):</p>
+    <div class="pc-bar" id="bracket-bar"></div>
+    <div class="pc-leg" id="bracket-leg"></div>
+    <p class="pc-marker-note" id="bracket-note"></p>
+  </div>`;
+  }
+
+  function bodyPayment(D, repoHref) {
+    return `
+  <p class="pc-sub">Choose a price tier based on what mortgage-financed buyers actually paid for North Lawndale
+    homes in 2024. Use the slider to adjust the loan to match a buyer's PITI variables. Values marked
+    <span class="pc-badge pc-data">dataset</span> come straight from the SFF indicator tables; values marked
+    <span class="pc-badge pc-assume">assumption</span> are adjustable estimates. Data sets are referenced in the
+    <a href="${repoHref}" target="_blank" rel="noopener">Data Appendix</a>.</p>
+
+  <div class="pc-calc">
+    <div class="pc-card pc-inputs">${inputsInner(D, false)}
+    </div>
+
+    <div class="pc-card pc-results">${resultsInner()}
     </div>
   </div>`;
   }
@@ -123,36 +190,14 @@
   <p class="pc-sub">Lenders typically want housing costs under about 28% of gross income. Set the threshold,
     and the payment above is translated into the <strong>household income it requires</strong> — placed against
     what North Lawndale renters and recent homebuyers actually earn.</p>
+  ${ratioInline()}
+  ${needLadder()}
 
-  <div class="pc-ratio-row">
-    <span class="pc-rlab">Housing share of income</span>
-    <input type="range" id="ratio" min="20" max="45" step="1" aria-label="Housing share of income">
-    <span class="pc-val" id="ratio-val"></span>
-    <span class="pc-badge pc-assume">assumption</span>
-  </div>
+  ${profilesBox()}
 
-  <p class="pc-need" id="need-line"></p>
+  ${gapBox(true)}
 
-  <svg class="pc-ladder" id="ladder" viewBox="0 0 760 178" role="img" aria-label="Income needed compared with North Lawndale and Chicago renter and homebuyer median incomes"></svg>
-
-  <div class="pc-profiles" id="profiles"></div>
-
-  <div class="pc-dist" id="gap-viz">
-    <p class="pc-sub" style="margin-top:26px"><strong>The affordability gap, drawn to scale.</strong> Each dot is
-      the most that household could afford at the income share set above; the red line is this home's price. The
-      bar between them is the gap — <span class="pc-gleg-neg">shortfall</span> or
-      <span class="pc-gleg-pos">headroom</span> — and it moves with every control above.</p>
-    <svg class="pc-ladder" id="gapchart" viewBox="0 0 760 204" role="img"
-      aria-label="Gap between what each benchmark household could afford and this home's price"></svg>
-  </div>
-
-  <div class="pc-dist" id="bracket-dist">
-    <p class="pc-sub" style="margin-top:26px"><strong>Where the required income lands.</strong> Share of North Lawndale's
-      ${D.households2024.total.toLocaleString()} households by income bracket (2024):</p>
-    <div class="pc-bar" id="bracket-bar"></div>
-    <div class="pc-leg" id="bracket-leg"></div>
-    <p class="pc-marker-note" id="bracket-note"></p>
-  </div>`;
+  ${bracketBox(D, true)}`;
   }
 
   function bodyBuyers() {
@@ -172,7 +217,8 @@
   </div>`;
   }
 
-  function footPs(repoHref) {
+  /* dash: the dashboard layout's People panel gets a benchmark-income note */
+  function footPs(repoHref, dash) {
     return [
       `<p id="pc-src"></p>`,
       `<p>Price tiers are anchored in what mortgage-financed buyers actually paid: the typical tier is the $325,000
@@ -186,7 +232,8 @@
        claimed the homeowner exemption and 19% the senior exemption.</p>`,
       `<p>Interest rate, down payment, insurance, PMI (0.75%/yr of the loan when the down payment is under 20%),
        the 1.5% effective tax rate, and the income-share threshold are adjustable assumptions, not dataset values.
-       Payment status uses standard cost-burden definitions: over 30% of income = cost-burdened, over 50% = severely burdened.
+       ${dash ? `The four benchmark incomes in the People panel default to dataset values and are adjustable
+       for what-if scenarios. ` : ''}Payment status uses standard cost-burden definitions: over 30% of income = cost-burdened, over 50% = severely burdened.
        Mortgage activity is from HMDA: first-lien, owner-occupied, 1-to-4-unit home purchase loans; borrower income
        categories (low / moderate / middle / upper) are as defined in the source data relative to area median income.
        Median homebuyer incomes come from the IHS baseline data presentation (slide 21, HMDA).</p>`,
@@ -195,7 +242,7 @@
     ];
   }
 
-  /* ---- flat layout: standalone page (h2 section headers, foot block) ---- */
+  /* ---- flat layout: legacy standalone page (h2 section headers, foot block) ---- */
   function flatLayout(D, opts, stats, repoHref) {
     return `
   <div class="pc-stats" style="margin-bottom:6px">${stats}</div>
@@ -211,6 +258,111 @@
   ${bodyBuyers()}
 
   <div class="pc-foot">${footPs(repoHref).join('\n')}</div>`;
+  }
+
+  /* ---- dashboard layout: standalone Gap Analysis page ----
+     Three panels (per the Figma dashboard mock): a "Housing" input rail on the
+     left, the results canvas in the center, and a "People" rail on the right
+     holding the benchmark-income inputs and the income-share threshold. */
+  function dashLayout(D, opts, stats, repoHref) {
+    return `
+  <div class="pc-stats pc-kpis">${stats}</div>
+
+  <div class="pc-dash">
+    <aside class="pc-rail pc-rail-housing" aria-label="Housing inputs">
+      <h2 class="pc-railtitle">Housing</h2>
+      <p class="pc-fine pc-raillegend">Values marked <span class="pc-badge pc-data">dataset</span> come straight from
+        the SFF indicator tables; values marked <span class="pc-badge pc-assume">assumption</span> are adjustable
+        estimates. Sources: <a href="${repoHref}" target="_blank" rel="noopener">Data Appendix ↗</a></p>
+      ${inputsInner(D, true)}
+    </aside>
+
+    <div class="pc-canvas">
+      <div class="pc-card pc-results">${resultsInner()}
+      </div>
+
+      <div class="pc-card pc-panel">
+        <div class="pc-cap">Who could afford that payment?</div>
+        ${needLadder()}
+      </div>
+
+      <div class="pc-card pc-panel">
+        <div class="pc-cap">The affordability gap, drawn to scale</div>
+        ${gapBox(false)}
+      </div>
+
+      <div class="pc-card pc-panel">
+        <div class="pc-cap">Benchmark households</div>
+        ${profilesBox()}
+      </div>
+
+      <div class="pc-card pc-panel">
+        <div class="pc-cap">Where the required income lands</div>
+        ${bracketBox(D, false)}
+      </div>
+
+      <div class="pc-card pc-panel">
+        <div class="pc-cap">Who is actually buying?</div>
+        ${bodyBuyers()}
+      </div>
+
+      <div class="pc-card pc-panel pc-about">
+        <div class="pc-cap">About these numbers</div>
+        ${footPs(repoHref, true).join('\n')}
+      </div>
+    </div>
+
+    <aside class="pc-rail pc-rail-people" aria-label="People inputs">
+      <h2 class="pc-railtitle">People</h2>
+
+      <div class="pc-field pc-field-first">
+        <div class="pc-row">
+          <label for="inc-renter">Median NL renter income</label>
+          <span class="pc-badge pc-data" id="inc-renter-badge">dataset · 2024</span>
+        </div>
+        <div class="pc-money"><span>$</span><input type="text" id="inc-renter" inputmode="numeric" aria-label="Median North Lawndale renter household income"></div>
+        <p class="pc-fine" id="inc-renter-note"></p>
+      </div>
+
+      <div class="pc-field">
+        <div class="pc-row">
+          <label for="inc-chi-renter">Median Chicago renter income</label>
+          <span class="pc-badge pc-data" id="inc-chi-renter-badge">dataset · 2024</span>
+        </div>
+        <div class="pc-money"><span>$</span><input type="text" id="inc-chi-renter" inputmode="numeric" aria-label="Median Chicago renter household income"></div>
+        <p class="pc-fine" id="inc-chi-renter-note"></p>
+      </div>
+
+      <div class="pc-field">
+        <div class="pc-row">
+          <label for="inc-buyer">Median NL homebuyer income</label>
+          <span class="pc-badge pc-data" id="inc-buyer-badge">dataset · 2024</span>
+        </div>
+        <div class="pc-money"><span>$</span><input type="text" id="inc-buyer" inputmode="numeric" aria-label="Median North Lawndale homebuyer income"></div>
+        <p class="pc-fine" id="inc-buyer-note"></p>
+      </div>
+
+      <div class="pc-field">
+        <div class="pc-row">
+          <label for="inc-chi-buyer">Median Chicago homebuyer income</label>
+          <span class="pc-badge pc-data" id="inc-chi-buyer-badge">dataset · 2024</span>
+        </div>
+        <div class="pc-money"><span>$</span><input type="text" id="inc-chi-buyer" inputmode="numeric" aria-label="Median Chicago homebuyer income"></div>
+        <p class="pc-fine" id="inc-chi-buyer-note"></p>
+      </div>
+
+      <div class="pc-field">
+        <div class="pc-row"><label for="ratio">Housing share of income</label></div>
+        <input type="range" id="ratio" min="20" max="45" step="1" aria-label="Housing share of income">
+        <div class="pc-row pc-row-after">
+          <span class="pc-val pc-val-left" id="ratio-val"></span>
+          <span class="pc-badge pc-assume">assumption</span>
+        </div>
+        <p class="pc-fine">Lenders typically want housing costs under about 28% of gross income. The estimated
+          payment is translated into the household income it requires at this threshold.</p>
+      </div>
+    </aside>
+  </div>`;
   }
 
   /* ---- carded layout: dashboard tab (chip-labeled cards, per-card sources,
@@ -259,13 +411,23 @@
       taxMode: 'rate',            // 'rate' = 1.5% of price (live), 'custom' = user-entered $
       taxAnnual: 0,               // set below
       insAnnual: INS_DEFAULT,
-      ratio: 28
+      ratio: 28,
+      /* benchmark incomes: dataset defaults, editable in the dashboard
+         layout's People rail (badges flag any custom value) */
+      incRenter: D.incomes2024.nlRenter,
+      incBuyer: D.homebuyerIncomes2024.nl,
+      incChiRenter: D.incomes2024.chicagoRenter,
+      incChiBuyer: D.homebuyerIncomes2024.chicago
     };
     S.taxAnnual = effTax();
 
     // ---------- price-tier chips ----------
     const chipBox = $('tier-chips');
-    chipBox.innerHTML = TIERS.map(t => `
+    const seg = chipBox.classList.contains('pc-seg');
+    const chipList = seg ? SEG_ORDER.map(k => TIERS.find(t => t.key === k)) : TIERS;
+    chipBox.innerHTML = chipList.map(t => seg
+      ? `<button class="pc-chip" data-t="${t.key}" aria-pressed="false" aria-label="${t.label}: ${fmtK(D.priceTiers2024[t.key])}, ${t.badge}">${t.seg}</button>`
+      : `
       <button class="pc-chip" data-t="${t.key}" aria-pressed="false" aria-label="${t.label}: ${fmtK(D.priceTiers2024[t.key])}, ${t.badge}">
         <span class="pc-sw" style="background:${t.color}"></span>
         <span>${t.label}
@@ -282,6 +444,21 @@
     // ---------- inputs ----------
     const priceEl = $('price'), downEl = $('down'), rateEl = $('rate'),
           taxEl = $('tax'), insEl = $('ins'), ratioEl = $('ratio');
+    /* benchmark-income inputs exist only in the dashboard layout */
+    const INCOMES = $('inc-renter') ? [
+      { key: 'incRenter', def: D.incomes2024.nlRenter, el: $('inc-renter'),
+        badge: $('inc-renter-badge'), note: $('inc-renter-note'), reset: 'inc-renter-reset',
+        src: 'Median income of North Lawndale renter households, 2024 (ACS 5-year).' },
+      { key: 'incChiRenter', def: D.incomes2024.chicagoRenter, el: $('inc-chi-renter'),
+        badge: $('inc-chi-renter-badge'), note: $('inc-chi-renter-note'), reset: 'inc-chi-renter-reset',
+        src: 'Median income of Chicago renter households, 2024 (ACS 5-year).' },
+      { key: 'incBuyer', def: D.homebuyerIncomes2024.nl, el: $('inc-buyer'),
+        badge: $('inc-buyer-badge'), note: $('inc-buyer-note'), reset: 'inc-buyer-reset',
+        src: 'Median income of 2024 North Lawndale homebuyers (IHS · HMDA).' },
+      { key: 'incChiBuyer', def: D.homebuyerIncomes2024.chicago, el: $('inc-chi-buyer'),
+        badge: $('inc-chi-buyer-badge'), note: $('inc-chi-buyer-note'), reset: 'inc-chi-buyer-reset',
+        src: 'Median income of 2024 Chicago homebuyers (IHS · HMDA).' }
+    ] : null;
 
     function paintSlider(el, min, max, v) {
       const p = ((v - min) / (max - min)) * 100;
@@ -311,12 +488,26 @@
         $('tax-note').innerHTML = `Custom amount. <button type="button" class="pc-linkbtn" id="tax-reset">Reset to the
           ${fmtPct(TAX_RATE, 1)} estimate (${fmt$(effTax())})</button>`;
       }
+      syncIncomeMeta();
+    }
+    /* People-rail badges/notes: dataset default vs edited custom value */
+    function syncIncomeMeta() {
+      if (!INCOMES) return;
+      INCOMES.forEach(m => {
+        const edited = Math.round(S[m.key]) !== Math.round(m.def);
+        m.badge.className = edited ? 'pc-badge pc-assume' : 'pc-badge pc-data';
+        m.badge.textContent = edited ? 'edited · custom' : 'dataset · 2024';
+        m.note.innerHTML = edited
+          ? `Custom amount. <button type="button" class="pc-linkbtn" id="${m.reset}">Reset to the dataset value (${fmt$(m.def)})</button>`
+          : m.src;
+      });
     }
     function syncInputs() {
       priceEl.value = Math.min(S.price, 800000);
       downEl.value = S.downPct; rateEl.value = S.ratePct; ratioEl.value = S.ratio;
       taxEl.value = Math.round(S.taxAnnual).toLocaleString('en-US');
       insEl.value = Math.round(S.insAnnual).toLocaleString('en-US');
+      if (INCOMES) INCOMES.forEach(m => { m.el.value = Math.round(S[m.key]).toLocaleString('en-US'); });
       syncBadges();
     }
 
@@ -338,12 +529,20 @@
     taxEl.addEventListener('change', () => { syncInputs(); recalc(); });
     insEl.addEventListener('input', () => { S.insAnnual = parseMoney(insEl.value); recalc(); });
     insEl.addEventListener('change', () => { syncInputs(); recalc(); });
-    /* reset link lives inside tax-note (rebuilt on every sync) — delegate */
+    if (INCOMES) INCOMES.forEach(m => {
+      /* min 1 so an emptied field doesn't divide-by-zero the burden math */
+      m.el.addEventListener('input', () => { S[m.key] = Math.max(1, parseMoney(m.el.value)); syncIncomeMeta(); recalc(); });
+      m.el.addEventListener('change', () => { syncInputs(); recalc(); });
+    });
+    /* reset links live inside notes (rebuilt on every sync) — delegate */
     mount.addEventListener('click', e => {
       if (e.target.closest('#tax-reset')) {
         S.taxMode = 'rate'; S.taxAnnual = effTax();
         syncInputs(); recalc();
       }
+      if (INCOMES) INCOMES.forEach(m => {
+        if (e.target.closest('#' + m.reset)) { S[m.key] = m.def; syncInputs(); recalc(); }
+      });
     });
 
     $('term').addEventListener('click', e => {
@@ -411,18 +610,20 @@
     // ---------- render: affordability ----------
     /* benchmarks (July 2026 feedback): renter vs homebuyer medians for North
        Lawndale and Chicago, ascending. Homebuyer medians: IHS presentation
-       slide 21 (HMDA); renter medians: workbook A!I83 / A!I88. */
-    const PROFILES = [
-      { inc: D.incomes2024.nlRenter,          who: 'Median NL renter household',      short: 'NL renter',         note: '73% of NL households rent' },
-      { inc: D.incomes2024.chicagoRenter,     who: 'Median Chicago renter household', short: 'Chicago renter',    note: 'citywide renter benchmark' },
-      { inc: D.homebuyerIncomes2024.nl,       who: 'Median NL homebuyer',             short: 'NL homebuyer',      note: `HMDA · ${D.hmda.loans2024} NL purchases in 2024` },
-      { inc: D.homebuyerIncomes2024.chicago,  who: 'Median Chicago homebuyer',        short: 'Chicago homebuyer', note: 'citywide homebuyer benchmark' }
+       slide 21 (HMDA); renter medians: workbook A!I83 / A!I88. The NL pair
+       reads from state so the People rail can adjust it (dataset defaults). */
+    const profiles = () => [
+      { inc: S.incRenter,    who: 'Median NL renter household',      short: 'NL renter',         note: '73% of NL households rent' },
+      { inc: S.incChiRenter, who: 'Median Chicago renter household', short: 'Chicago renter',    note: 'citywide renter benchmark' },
+      { inc: S.incBuyer,     who: 'Median NL homebuyer',             short: 'NL homebuyer',      note: `HMDA · ${D.hmda.loans2024} NL purchases in 2024` },
+      { inc: S.incChiBuyer,  who: 'Median Chicago homebuyer',        short: 'Chicago homebuyer', note: 'citywide homebuyer benchmark' }
     ];
     function renderAfford(c) {
+      const PROFILES = profiles();
       const needed = c.piti * 12 / (S.ratio / 100);
       $('need-line').innerHTML = `This payment takes a household income of about <b>${fmt$(needed)} a year</b>
         to stay under ${S.ratio}% of income — in a neighborhood where the median renter household earns
-        ${fmt$(D.incomes2024.nlRenter)} and the median 2024 homebuyer earned ${fmt$(D.homebuyerIncomes2024.nl)}.`;
+        ${fmt$(S.incRenter)} and the median 2024 homebuyer earned ${fmt$(S.incBuyer)}.`;
 
       // ladder
       const L = 14, R = 746, AXY = 96, MAX = 150000;
