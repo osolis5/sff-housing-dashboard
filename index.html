@@ -291,6 +291,10 @@
   .source { font: 400 12px/1.4 'Roboto'; color: var(--md-sys-color-on-surface-variant); margin: 10px 0 2px; }
   svg { display: block; width: 100%; height: auto; }
   .chart-holder { min-height: 240px; }
+  /* charts scale with the card but stop at a sane height and never outgrow
+     the window (2026-08-19 — at the 1500px wrap they overflowed shorter
+     screens); the drawing letterboxes centered inside the capped box */
+  .chart-holder svg { display: block; width: 100%; height: auto; max-height: min(600px, 65vh); margin: 0 auto; }
   /* embedded interactive subpages (foreclosure timeline / unit grid); height
      is set from each page's posted content height — never scrolls internally */
   .fc-embed { display: block; width: 100%; border: 0; height: 640px; }
