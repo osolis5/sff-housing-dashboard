@@ -76,7 +76,6 @@
           <span class="pc-val" id="down-val"></span>
         </div>
         <input type="range" id="down" min="0" max="50" step="0.5" aria-label="Down payment percent">
-        <p class="pc-fine" id="pmi-note"></p>
       </div>
 
       <div class="pc-field">
@@ -270,9 +269,6 @@
   <div class="pc-dash">
     <aside class="pc-rail pc-rail-housing" aria-label="Housing inputs">
       <h2 class="pc-railtitle">Housing</h2>
-      <p class="pc-fine pc-raillegend">Values marked <span class="pc-badge pc-data">dataset</span> come straight from
-        the SFF indicator tables; values marked <span class="pc-badge pc-assume">assumption</span> are adjustable
-        estimates. Sources: <a href="${repoHref}" target="_blank" rel="noopener">Data Appendix ↗</a></p>
       ${inputsInner(D, true)}
     </aside>
 
@@ -357,8 +353,6 @@
           <span class="pc-val pc-val-left" id="ratio-val"></span>
           <span class="pc-badge pc-assume">assumption</span>
         </div>
-        <p class="pc-fine">Lenders typically want housing costs under about 28% of gross income. The estimated
-          payment is translated into the household income it requires at this threshold.</p>
       </div>
     </aside>
   </div>`;
@@ -446,17 +440,13 @@
     /* benchmark-income inputs exist only in the dashboard layout */
     const INCOMES = $('inc-renter') ? [
       { key: 'incRenter', def: D.incomes2024.nlRenter, el: $('inc-renter'),
-        badge: $('inc-renter-badge'), note: $('inc-renter-note'), reset: 'inc-renter-reset',
-        src: 'Median income of North Lawndale renter households, 2024 (ACS 5-year).' },
+        badge: $('inc-renter-badge'), note: $('inc-renter-note'), reset: 'inc-renter-reset' },
       { key: 'incChiRenter', def: D.incomes2024.chicagoRenter, el: $('inc-chi-renter'),
-        badge: $('inc-chi-renter-badge'), note: $('inc-chi-renter-note'), reset: 'inc-chi-renter-reset',
-        src: 'Median income of Chicago renter households, 2024 (ACS 5-year).' },
+        badge: $('inc-chi-renter-badge'), note: $('inc-chi-renter-note'), reset: 'inc-chi-renter-reset' },
       { key: 'incBuyer', def: D.homebuyerIncomes2024.nl, el: $('inc-buyer'),
-        badge: $('inc-buyer-badge'), note: $('inc-buyer-note'), reset: 'inc-buyer-reset',
-        src: 'Median income of 2024 North Lawndale homebuyers (IHS · HMDA).' },
+        badge: $('inc-buyer-badge'), note: $('inc-buyer-note'), reset: 'inc-buyer-reset' },
       { key: 'incChiBuyer', def: D.homebuyerIncomes2024.chicago, el: $('inc-chi-buyer'),
-        badge: $('inc-chi-buyer-badge'), note: $('inc-chi-buyer-note'), reset: 'inc-chi-buyer-reset',
-        src: 'Median income of 2024 Chicago homebuyers (IHS · HMDA).' }
+        badge: $('inc-chi-buyer-badge'), note: $('inc-chi-buyer-note'), reset: 'inc-chi-buyer-reset' }
     ] : null;
 
     function paintSlider(el, min, max, v) {
@@ -479,8 +469,7 @@
       if (S.taxMode === 'rate') {
         tb.className = 'pc-badge pc-assume';
         tb.textContent = 'assumption · 1.5% of price';
-        $('tax-note').innerHTML = `Estimated at a ${fmtPct(TAX_RATE, 1)} effective tax rate on the purchase price
-          (Civic Federation estimate for Chicago). TY2024 median bill for current single-family owners: ${fmt$(D.taxBillsTY2024.sf)}.`;
+        $('tax-note').innerHTML = '';
       } else {
         tb.className = 'pc-badge pc-assume';
         tb.textContent = 'edited · custom amount';
@@ -489,7 +478,8 @@
       }
       syncIncomeMeta();
     }
-    /* People-rail badges/notes: dataset default vs edited custom value */
+    /* People-rail badges/notes: rail notes carry only the functional edited
+       state (reset link) — explanatory captions removed 2026-08-19 */
     function syncIncomeMeta() {
       if (!INCOMES) return;
       INCOMES.forEach(m => {
@@ -498,7 +488,7 @@
         m.badge.textContent = edited ? 'edited · custom' : 'dataset · 2024';
         m.note.innerHTML = edited
           ? `Custom amount. <button type="button" class="pc-linkbtn" id="${m.reset}">Reset to the dataset value (${fmt$(m.def)})</button>`
-          : m.src;
+          : '';
       });
     }
     function syncInputs() {
@@ -593,9 +583,6 @@
         ['Down payment', `${fmt$(c.down$)} (${S.downPct}%)`],
         ['Income needed at ' + S.ratio + '%', fmt$(c.piti * 12 / (S.ratio / 100)) + ' /yr']
       ].map(([l, v]) => `<div class="pc-lr">${l}<span class="pc-amt">${v}</span></div>`).join('');
-      $('pmi-note').textContent = S.downPct < 20
-        ? `Below 20% down: private mortgage insurance is added at ${PMI_RATE}%/yr of the loan (assumption).`
-        : 'At 20% down or more, no PMI is applied.';
       $('down-val').textContent = S.downPct + '%';
       $('price-val').textContent = fmt$(S.price);
       $('rate-val').textContent = S.ratePct.toFixed(3).replace(/0+$/, '').replace(/\.$/, '') + '%';
