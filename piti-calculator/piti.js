@@ -71,18 +71,14 @@
 
       <div class="pc-field">
         <div class="pc-row">
-          <label for="down">Down payment</label>
-          <span class="pc-badge pc-assume">assumption</span>
-          <span class="pc-val" id="down-val"></span>
+          <label for="down">Down payment</label>          <span class="pc-val" id="down-val"></span>
         </div>
         <input type="range" id="down" min="0" max="50" step="0.5" aria-label="Down payment percent">
       </div>
 
       <div class="pc-field">
         <div class="pc-row">
-          <label for="rate">Interest rate (30-yr fixed style APR)</label>
-          <span class="pc-badge pc-assume">assumption</span>
-          <span class="pc-val" id="rate-val"></span>
+          <label for="rate">Interest rate (30-yr fixed style APR)</label>          <span class="pc-val" id="rate-val"></span>
         </div>
         <input type="range" id="rate" min="3" max="10" step="0.125" aria-label="Interest rate">
       </div>
@@ -97,7 +93,7 @@
       <div class="pc-field">
         <div class="pc-row">
           <label for="tax">Property taxes / year</label>
-          <span class="pc-badge pc-assume" id="tax-badge">assumption · 1.5% of price</span>
+          <span class="pc-badge pc-assume" id="tax-badge"></span>
         </div>
         <div class="pc-money"><span>$</span><input type="text" id="tax" inputmode="numeric" aria-label="Annual property taxes"></div>
         <p class="pc-fine" id="tax-note"></p>
@@ -105,9 +101,7 @@
 
       <div class="pc-field">
         <div class="pc-row">
-          <label for="ins">Homeowners insurance / year</label>
-          <span class="pc-badge pc-assume">assumption</span>
-        </div>
+          <label for="ins">Homeowners insurance / year</label>        </div>
         <div class="pc-money"><span>$</span><input type="text" id="ins" inputmode="numeric" aria-label="Annual homeowners insurance"></div>
       </div>`;
   }
@@ -270,6 +264,7 @@
     <aside class="pc-rail pc-rail-housing" aria-label="Housing inputs">
       <h2 class="pc-railtitle">Housing</h2>
       ${inputsInner(D, true)}
+      <button type="button" class="pc-reset" id="pc-reset">Reset</button>
     </aside>
 
     <div class="pc-canvas">
@@ -350,9 +345,7 @@
         <div class="pc-row"><label for="ratio">Housing share of income</label></div>
         <input type="range" id="ratio" min="20" max="45" step="1" aria-label="Housing share of income">
         <div class="pc-row pc-row-after">
-          <span class="pc-val pc-val-left" id="ratio-val"></span>
-          <span class="pc-badge pc-assume">assumption</span>
-        </div>
+          <span class="pc-val pc-val-left" id="ratio-val"></span>        </div>
       </div>
     </aside>
   </div>`;
@@ -396,7 +389,8 @@
     const effTax = () => TAX_RATE * S.price;
 
     // ---------- state ----------
-    const S = {
+    /* initState() doubles as the Reset button's target (dashboard rail) */
+    const initState = () => ({
       price: D.priceTiers2024.typical,
       downPct: 5,
       ratePct: 6.5,
@@ -411,7 +405,8 @@
       incBuyer: D.homebuyerIncomes2024.nl,
       incChiRenter: D.incomes2024.chicagoRenter,
       incChiBuyer: D.homebuyerIncomes2024.chicago
-    };
+    });
+    const S = initState();
     S.taxAnnual = effTax();
 
     // ---------- price-tier chips ----------
@@ -467,8 +462,9 @@
 
       const tb = $('tax-badge');
       if (S.taxMode === 'rate') {
+        /* assumption tags removed 2026-08-19 — the badge only flags edits */
         tb.className = 'pc-badge pc-assume';
-        tb.textContent = 'assumption · 1.5% of price';
+        tb.textContent = '';
         $('tax-note').innerHTML = '';
       } else {
         tb.className = 'pc-badge pc-assume';
@@ -539,6 +535,16 @@
       S.years = +b.dataset.y;
       $('term').querySelectorAll('button').forEach(x => x.classList.toggle('pc-on', x === b));
       recalc();
+    });
+
+    /* Reset (dashboard rail): everything back to dataset defaults — Housing
+       inputs, loan term, and the People-rail benchmark incomes */
+    const resetBtn = $('pc-reset');
+    if (resetBtn) resetBtn.addEventListener('click', () => {
+      Object.assign(S, initState());
+      S.taxAnnual = effTax();
+      $('term').querySelectorAll('button').forEach(x => x.classList.toggle('pc-on', x.dataset.y === '30'));
+      syncInputs(); recalc();
     });
 
     // ---------- math ----------

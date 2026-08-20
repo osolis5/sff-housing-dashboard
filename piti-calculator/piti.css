@@ -73,6 +73,7 @@
 }
 .pc-badge.pc-data { background: var(--pc-primary-container); color: var(--pc-on-primary-container); }
 .pc-badge.pc-assume { background: #FFF; color: var(--pc-on-surface-variant); border: 1px solid var(--pc-outline-variant); }
+.pc-badge:empty { display: none; }  /* tax badge is blank until the amount is edited */
 
 .pc-root input[type="range"] {
   -webkit-appearance: none; appearance: none; width: 100%; height: 22px;
@@ -218,6 +219,21 @@
 }
 .pc-rail .pc-field { margin-top: 22px; }
 .pc-rail .pc-field.pc-field-first { margin-top: 16px; }
+
+/* rail-bottom reset: quiet outlined button, one hairline like the rest of
+   the rail chrome */
+.pc-reset {
+  display: block; width: 100%;
+  margin-top: 26px;
+  padding: 10px 12px;
+  font: 500 14px/1 'Roboto', sans-serif;
+  color: var(--pc-navy);
+  background: #FFF;
+  border: 1px solid var(--pc-outline);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.pc-reset:hover { background: var(--pc-secondary-container); color: var(--pc-on-secondary-container); }
 .pc-rail-people .pc-money { max-width: 100%; }
 .pc-field .pc-row.pc-row-after { margin-top: 6px; }
 .pc-field .pc-val.pc-val-left { margin-left: 0; }
