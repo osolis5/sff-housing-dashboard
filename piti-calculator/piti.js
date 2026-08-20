@@ -19,7 +19,9 @@
   ];
   /* segmented-control order (dashboard layout): default tier first */
   const SEG_ORDER = ['typical', 'lower', 'higher'];
-  const RAMP4 = ['#D3DCEF', '#A8BCE0', '#5578AE', '#33518A'];
+  /* income-bracket ramp: ends stretched (2026-08-19) so adjacent steps read
+     apart at a glance — near-white tint → mid-light → navy → deep navy */
+  const RAMP4 = ['#E2E9F8', '#91AAD4', '#5578AE', '#1E3567'];
   const RACE5 = ['#33518A', '#5578AE', '#91AAD4', '#A8BCE0', '#C4C6D0'];
   const PMI_RATE = 0.75;          // % of loan per year, assumption
   const INS_DEFAULT = 1700;       // $/yr, assumption
@@ -151,11 +153,13 @@
   </div>`;
   }
 
+  /* lead=true keeps the flat/carded lead-in + share line; the dashboard card
+     carries the share line as its caption instead (2026-08-19) */
   function bracketBox(D, lead) {
     return `
   <div class="pc-dist" id="bracket-dist">
-    <p class="pc-sub"${lead ? ' style="margin-top:26px"' : ''}>${lead ? '<strong>Where the required income lands.</strong> ' : ''}Share of North Lawndale's
-      ${D.households2024.total.toLocaleString()} households by income bracket (2024):</p>
+    ${lead ? `<p class="pc-sub" style="margin-top:26px"><strong>Where the required income lands.</strong> Share of North Lawndale's
+      ${D.households2024.total.toLocaleString()} households by income bracket (2024):</p>` : ''}
     <div class="pc-bar" id="bracket-bar"></div>
     <div class="pc-leg" id="bracket-leg"></div>
     <p class="pc-marker-note" id="bracket-note"></p>
@@ -287,7 +291,7 @@
       </div>
 
       <div class="pc-card pc-panel">
-        <div class="pc-cap">Where the required income lands</div>
+        <div class="pc-cap">Share of North Lawndale's ${D.households2024.total.toLocaleString()} households by income bracket (2024)</div>
         ${bracketBox(D, false)}
       </div>
 
@@ -547,6 +551,23 @@
       syncInputs(); recalc();
     });
 
+    /* bracket-bar tooltip: simple white box with a black outline, follows the
+       cursor. Listeners sit on the (persistent) bar; the segments carry
+       data-tip and are rebuilt on every recalc. */
+    const tip = document.createElement('div');
+    tip.className = 'pc-tip';
+    mount.appendChild(tip);
+    const tipBar = $('bracket-bar');
+    tipBar.addEventListener('mousemove', e => {
+      const seg = e.target.closest('[data-tip]');
+      if (!seg) { tip.style.display = 'none'; return; }
+      tip.textContent = seg.dataset.tip;
+      tip.style.display = 'block';
+      tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
+      tip.style.top = Math.min(e.clientY + 12, innerHeight - tip.offsetHeight - 8) + 'px';
+    });
+    tipBar.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+
     // ---------- math ----------
     const pniFactor = (r, n) => r === 0 ? 1 / n : r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
     function compute() {
@@ -693,7 +714,7 @@
       const floors = [0, 25000, 50000, 100000];
       const bi = floors.findIndex((f, i) => needed >= f && (i === 3 || needed < floors[i + 1]));
       $('bracket-bar').innerHTML = br.map((b, i) => `
-        <div style="flex:${b.share};background:${RAMP4[i]}">
+        <div data-tip="${b.label} — ${fmtPct(b.share)} of households${i === bi ? ' · the required income falls in this bracket' : ''}" style="flex:${b.share};background:${RAMP4[i]}">
           <span class="pc-pct${i < 2 ? ' pc-dk' : ''}">${b.share >= 0.08 ? fmtPct(b.share) : ''}</span>
           ${i === bi ? `<span style="position:absolute;left:0;top:-6px;bottom:-6px;width:2.5px;background:#BA1A1A"></span>` : ''}
         </div>`).join('');
@@ -716,7 +737,7 @@
         in 2019. Upper-income buyers grew from ${fmtPct(h.incomeMix2019Upper)}
         of borrowers in 2019 to ${fmtPct(h.incomeMix2324[3].share)} in 2023–24, and buying remains almost evenly
         split between African American and Hispanic homebuyers.`;
-      const isLight = col => col === '#D3DCEF' || col === '#A8BCE0' || col === '#C4C6D0' || col === '#91AAD4';
+      const isLight = col => col === '#E2E9F8' || col === '#D3DCEF' || col === '#A8BCE0' || col === '#C4C6D0' || col === '#91AAD4';
       const bar = (rows, colors) => rows.map((r, i) => `
         <div style="flex:${Math.max(r.share, 0.001)};background:${colors[i]}">
           <span class="pc-pct${isLight(colors[i]) ? ' pc-dk' : ''}">${r.share >= 0.09 ? fmtPct(r.share) : ''}</span>
