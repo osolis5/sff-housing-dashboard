@@ -178,7 +178,11 @@
 
 .pc-profiles { margin-top: 18px; display: grid; gap: 10px; }
 .pc-profile {
-  display: grid; grid-template-columns: minmax(150px, 1.3fr) 1fr 1fr 1fr auto; gap: 8px 14px;
+  /* content-independent tracks (2026-08-19): every row resolves the same
+     column widths — minmax(0,1fr) metrics wrap within their column, and the
+     pill column is fixed — so columns align across rows instead of shifting
+     with pill/text width */
+  display: grid; grid-template-columns: minmax(150px, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 150px; gap: 8px 14px;
   align-items: center;
   background: #FFF; border: 1px solid var(--pc-outline-variant); border-radius: 12px; padding: 12px 16px;
 }
