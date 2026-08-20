@@ -171,7 +171,9 @@
   /* --- hero: typeset text in black over the halftone background art
      (vendor/hero-bg.webp, decorative — 2026-08-20; parallax removed) --- */
   .hero { background: #FFFFFF; }
-  .hero-inner { max-width: 1500px; margin: 0 auto; padding: 28px 24px 64px; position: relative; overflow: hidden; }
+  /* min() keeps a real gutter at every window size — the 1500px cap alone
+     left the hero art flush to the edge on sub-1500px screens */
+  .hero-inner { max-width: min(1500px, 100% - 48px); margin: 0 auto; padding: 28px 24px 64px; position: relative; overflow: hidden; }
   .hero-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .hero-inner > :not(.hero-art) { position: relative; z-index: 1; }
   .hero-top {
@@ -230,7 +232,7 @@
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
   }
   md-tabs {
-    max-width: 1500px; margin: 0 auto; --md-sys-color-surface: transparent;
+    max-width: min(1500px, 100% - 48px); margin: 0 auto; --md-sys-color-surface: transparent;
     --md-primary-tab-label-text-font: 'IBM Plex Mono', 'Rethink Sans', monospace;
     --md-primary-tab-label-text-color: #000000;
     --md-primary-tab-active-label-text-color: #000000;
@@ -251,7 +253,7 @@
     color: var(--md-sys-color-primary);
     border-bottom-color: var(--md-sys-color-primary);
   }
-  .wrap { max-width: 1500px; margin: 0 auto; padding: 20px 24px 40px; }
+  .wrap { max-width: min(1500px, 100% - 48px); margin: 0 auto; padding: 20px 24px 40px; }
   /* --- KPI cards (M3 elevated card) --- */
   .kpis {
     display: grid;
@@ -345,7 +347,7 @@
     padding: 56px 24px 28px;
   }
   .site-footer-inner {
-    max-width: 1500px; margin: 0 auto;
+    max-width: min(1500px, 100% - 48px); margin: 0 auto;
     display: grid;
     grid-template-columns: 1.2fr 1.3fr 1fr;
     gap: 48px;
