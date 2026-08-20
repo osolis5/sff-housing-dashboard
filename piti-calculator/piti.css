@@ -64,9 +64,14 @@
 
 /* fields */
 .pc-field { margin-top: 20px; }
-.pc-field .pc-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+/* one-line control rows: the value is pinned to the right edge and never
+   drops to a second row (2026-08-19 — values were hopping between rows as
+   their width changed); a long label shrinks and wraps inside its own box */
+.pc-field .pc-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: nowrap; }
+.pc-field .pc-row label { flex: 0 1 auto; min-width: 0; }
+.pc-field .pc-row .pc-badge { flex: 0 0 auto; }
 .pc-field label { font-size: 13px; font-weight: 500; color: var(--pc-on-surface); }
-.pc-field .pc-val { margin-left: auto; font-size: 14px; font-weight: 700; color: var(--pc-navy); font-variant-numeric: tabular-nums; }
+.pc-field .pc-val { margin-left: auto; flex: 0 0 auto; white-space: nowrap; font-size: 14px; font-weight: 700; color: var(--pc-navy); font-variant-numeric: tabular-nums; }
 .pc-badge {
   font-size: 10px; letter-spacing: .3px; text-transform: uppercase; font-weight: 500;
   padding: 2px 7px; border-radius: 999px; white-space: nowrap;
