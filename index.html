@@ -1288,7 +1288,8 @@ TABS.forEach((t, i) => {
     .attr("id", "tab-" + t.id)
     .attr("aria-controls", "panel-" + t.id)
     .text(t.label);
-  if (i === 0) tabBtn.attr("active", "");
+  /* the Gap Analysis tool is the landing tab (user 2026-08-20) */
+  if (t.id === "calculator") tabBtn.attr("active", "");
   /* explicit activation: never depend solely on the component's internals */
   tabBtn.on("click", () => {
     const el = document.getElementById("tabs");
@@ -1478,7 +1479,15 @@ function activate(id) {
     if (!this.dataset.rendered) { this.dataset.rendered = "1"; renderInto(d3.select(this)); }
   });
 }
-activate(TABS[0].id);
+/* land on the Gap Analysis tool; the strip's active state comes from the
+   tab's `active` attribute (set at build), which the component reads on
+   upgrade — the guard covers an already-upgraded component */
+activate("calculator");
+{
+  const t = document.getElementById("tabs");
+  if (typeof t.activeTabIndex === "number")
+    t.activeTabIndex = TABS.findIndex(x => x.id === "calculator");
+}
 
 </script>
 </body>
