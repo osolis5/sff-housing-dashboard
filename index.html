@@ -171,7 +171,7 @@
   .hero {
     background: var(--md-sys-color-primary);
   }
-  .hero-inner { max-width: 1200px; margin: 0 auto; padding: 28px 24px 64px; }
+  .hero-inner { max-width: 1500px; margin: 0 auto; padding: 28px 24px 64px; }
   .hero-top {
     display: flex; justify-content: flex-end; align-items: center;
     margin-bottom: 48px;
@@ -212,7 +212,7 @@
     background: var(--md-sys-color-surface);
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
   }
-  md-tabs { max-width: 1200px; margin: 0 auto; --md-sys-color-surface: transparent; }
+  md-tabs { max-width: 1500px; margin: 0 auto; --md-sys-color-surface: transparent; }
   /* fallback so the tab bar stays usable even if the component script fails:
      un-upgraded custom elements still receive clicks via the handlers below */
   md-tabs:not(:defined) { display: flex; }
@@ -227,7 +227,7 @@
     color: var(--md-sys-color-primary);
     border-bottom-color: var(--md-sys-color-primary);
   }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px 40px; }
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 20px 24px 40px; }
   /* --- KPI cards (M3 elevated card) --- */
   .kpis {
     display: grid;
@@ -317,7 +317,7 @@
     padding: 56px 24px 28px;
   }
   .site-footer-inner {
-    max-width: 1200px; margin: 0 auto;
+    max-width: 1500px; margin: 0 auto;
     display: grid;
     grid-template-columns: 1.2fr 1.3fr 1fr;
     gap: 48px;
@@ -350,7 +350,7 @@
   }
   .sf-links li a:hover { color: #FFFFFF; }
   .sf-meta {
-    max-width: 1200px; margin: 40px auto 0;
+    max-width: 1500px; margin: 40px auto 0;
     font: 400 12px/1.5 'Roboto';
     color: #8a8a8a;
   }
@@ -1296,8 +1296,8 @@ TABS.forEach((t, i) => {
   } else if (t.custom === "calculator") {
     /* PITI calculator renders natively (shared component from piti-calculator/
        piti.js + piti.css) \u2014 the same three-panel Gap Analysis layout as the
-       standalone page (dashboard: true). Its own KPI cards act as this tab's
-       top-level cards (the global KPI strip is hidden here \u2014 see activate()). */
+       standalone page (dashboard: true). The tab leads straight into the
+       panels; the global KPI strip is hidden here too \u2014 see activate(). */
     const mount = panel.append("div").attr("id", "piti-mount").node();
     PITI.render(mount, JSON.parse(document.getElementById("piti-data").textContent),
       { dashboard: true, repoBase: "piti-calculator/" });
@@ -1427,8 +1427,9 @@ function activate(id) {
       if (f && f.contentWindow) f.contentWindow.dispatchEvent(new f.contentWindow.Event("resize"));
     } catch (err) { /* cross-origin (file://) — child self-heal covers it */ }
   });
-  /* the calculator tab leads with its own dataset stat cards, so the global
-     KPI strip (different indicators & vintages) is hidden there */
+  /* the Gap Analysis tab goes straight into the calculator (its KPI cards
+     were removed 2026-08-19), and the global KPI strip (different indicators
+     & vintages) stays hidden there */
   d3.select("#kpis").style("display", id === "calculator" ? "none" : null);
   /* render charts the first time their tab is shown, so entry animations play */
   d3.selectAll("#panel-" + id + " .card[data-chart]").each(function() {

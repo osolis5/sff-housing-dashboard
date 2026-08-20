@@ -36,9 +36,10 @@
       [D.hmda.loans2024, 'home-purchase loans, 2024'],
       [fmt$(D.homebuyerIncomes2024.nl), 'median North Lawndale homebuyer income, 2024']
     ];
-    /* carded + dashboard modes mirror the dashboard KPI cards (label above
-       value); the legacy flat mode keeps the value-first stat tiles */
-    const stats = carded || opts.dashboard
+    /* carded mode mirrors the dashboard KPI cards (label above value); the
+       legacy flat mode keeps the value-first stat tiles. The dashboard layout
+       carries no stat strip (KPI cards removed 2026-08-19, user request). */
+    const stats = carded
       ? statData.map(([v, l]) => `<div class="pc-stat"><p class="pc-kpi-label">${l}</p><p class="pc-kpi-value">${v}</p></div>`).join('')
       : statData.map(([v, l]) => `<div class="pc-stat"><div class="pc-v">${v}</div><div class="pc-l">${l}</div></div>`).join('');
 
@@ -266,8 +267,6 @@
      holding the benchmark-income inputs and the income-share threshold. */
   function dashLayout(D, opts, stats, repoHref) {
     return `
-  <div class="pc-stats pc-kpis">${stats}</div>
-
   <div class="pc-dash">
     <aside class="pc-rail pc-rail-housing" aria-label="Housing inputs">
       <h2 class="pc-railtitle">Housing</h2>
