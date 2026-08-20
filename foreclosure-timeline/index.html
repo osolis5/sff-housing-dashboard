@@ -10,6 +10,15 @@
 <!-- self-contained UMD build of the timelines chart; needs no network -->
 <script src="vendor/timelines-chart.min.js?v=2"></script>
 <style>
+  /* self-hosted site faces, shared from the calculator's fonts dir */
+  @font-face {
+    font-family: 'Rethink Sans'; font-style: normal; font-weight: 400 800;
+    font-display: swap; src: url('../piti-calculator/fonts/rethink-sans-400-800.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400;
+    font-display: swap; src: url('../piti-calculator/fonts/ibm-plex-sans-400.woff2') format('woff2');
+  }
   /* Material Design 3 tokens — copied from index.html so this POC matches the
      production dashboard's light navy scheme and Roboto type scale. */
   :root {
@@ -41,7 +50,7 @@
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font: 400 14px/1.5 'Roboto', system-ui, sans-serif;
+    font: 400 14px/1.5 'Rethink Sans', system-ui, sans-serif;
     letter-spacing: .015em;
     color: var(--md-sys-color-on-surface);
     background: #FFFFFF;
@@ -90,17 +99,17 @@
 
   /* data (segment) tooltip: white rectangle, black border, black text */
   .chart-tooltip.segment-tooltip {
-    font-family: 'Roboto', system-ui, sans-serif !important;
+    font-family: 'IBM Plex Sans', 'Rethink Sans', system-ui, sans-serif !important;
     font-size: 12.5px !important;
     background: #FFFFFF !important; color: #000000 !important;
-    border: 1px solid #000000 !important; border-radius: 0 !important;
+    border: 1px solid #000000 !important; border-radius: 6px !important;
     padding: 8px 10px !important; box-shadow: none !important;
   }
   /* disable the redundant group-label and neighborhood (row-label) tooltips */
   .chart-tooltip.group-tooltip,
   .chart-tooltip.line-tooltip { display: none !important; }
-  .timelines-chart text { font-family: 'Roboto', system-ui, sans-serif !important; }
-  .reset-zoom-btn { font-family: 'Roboto', system-ui, sans-serif !important; }
+  .timelines-chart text { font-family: 'Rethink Sans', system-ui, sans-serif !important; }
+  .reset-zoom-btn { font-family: 'Rethink Sans', system-ui, sans-serif !important; }
 
   /* --- time slider: white track (inactive) with a grey, dithered active window;
          the handle rectangles are transparent with a stroked outline --- */

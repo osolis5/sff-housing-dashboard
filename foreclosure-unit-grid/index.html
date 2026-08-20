@@ -7,6 +7,15 @@
 <link rel="stylesheet" href="vendor/fonts.css">
 <script src="vendor/d3.v7.min.js"></script>
 <style>
+  /* self-hosted site faces, shared from the calculator's fonts dir */
+  @font-face {
+    font-family: 'Rethink Sans'; font-style: normal; font-weight: 400 800;
+    font-display: swap; src: url('../piti-calculator/fonts/rethink-sans-400-800.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400;
+    font-display: swap; src: url('../piti-calculator/fonts/ibm-plex-sans-400.woff2') format('woff2');
+  }
   :root {
     --navy: #33518A;
     --navy-mid: #5578AE;
@@ -25,7 +34,7 @@
   body {
     background: #FFFFFF;
     color: var(--on-surface);
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Rethink Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
   .wrap { max-width: 860px; margin: 0 auto; padding: 48px 24px 64px; }
@@ -37,7 +46,7 @@
                                             the caveat notes stay visible */
 
   header h1 {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Rethink Sans', sans-serif;
     font-weight: 700;
     font-size: 30px;
     line-height: 1.2;
@@ -74,14 +83,14 @@
   }
   .controls label.select-label { font-size: 13px; color: var(--on-surface-variant); }
   select {
-    font-family: 'Roboto', sans-serif; font-size: 14px; color: var(--on-surface);
+    font-family: 'Rethink Sans', sans-serif; font-size: 14px; color: var(--on-surface);
     padding: 8px 12px; border: 1px solid var(--outline); border-radius: 8px;
     background: #FFF; cursor: pointer;
   }
   .spacer { flex: 1; }
   .toggle { display: inline-flex; border: 1px solid var(--outline); border-radius: 999px; overflow: hidden; }
   .toggle button {
-    font-family: 'Roboto', sans-serif; font-size: 13px; padding: 8px 16px;
+    font-family: 'Rethink Sans', sans-serif; font-size: 13px; padding: 8px 16px;
     border: none; background: #FFF; color: var(--on-surface-variant); cursor: pointer;
   }
   .toggle button.on { background: var(--secondary-container); color: var(--on-secondary-container); font-weight: 500; }
@@ -91,7 +100,7 @@
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .chip {
     display: inline-flex; align-items: center; gap: 7px;
-    font-family: 'Roboto', sans-serif; font-size: 13px;
+    font-family: 'Rethink Sans', sans-serif; font-size: 13px;
     padding: 7px 14px; border: 1px solid var(--outline); border-radius: 999px;
     background: #FFF; color: var(--on-surface); cursor: pointer;
     transition: opacity .15s;
@@ -110,11 +119,12 @@
   /* tooltip */
   #tip {
     position: absolute; pointer-events: none; z-index: 5; display: none;
-    background: #2E3036; color: #F0F0F7;
-    font-size: 12px; line-height: 1.5; padding: 8px 12px; border-radius: 8px;
+    background: #FFFFFF; color: #000000; border: 1px solid #000000;
+    font-family: 'IBM Plex Sans', 'Rethink Sans', sans-serif;
+    font-size: 12px; line-height: 1.5; padding: 8px 11px; border-radius: 6px;
     max-width: 230px;
   }
-  #tip b { color: #FFF; }
+  #tip b { color: #000; }
 
   footer { margin-top: 40px; border-top: 1px solid var(--outline-variant); padding-top: 16px; }
   footer p { font-size: 12px; font-weight: 300; color: var(--outline); line-height: 1.6; max-width: 680px; }

@@ -75,7 +75,7 @@
 @font-face {
   font-family: 'Rethink Sans';
   font-style: normal;
-  font-weight: 700 800;      /* variable file covers the heading weights */
+  font-weight: 400 800;      /* variable file: the whole site's weight range */
   font-display: swap;
-  src: url('fonts/RethinkSans-700-800.woff2') format('woff2');
+  src: url('fonts/RethinkSans-400-800.woff2') format('woff2');
 }

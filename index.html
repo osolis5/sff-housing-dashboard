@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Housing Dashboard | Steans Family Foundation</title>
 <script src="vendor/d3.v7.min.js"></script>
-<link rel="stylesheet" href="vendor/fonts.css?v=20260819a">
+<link rel="stylesheet" href="vendor/fonts.css?v=20260820a">
 <script type="module" src="vendor/material-tabs.min.js"></script>
 <!-- ?v= busts the browser's asset cache; bump it whenever piti.css/piti.js change -->
-<link rel="stylesheet" href="piti-calculator/piti.css?v=20260819c">
-<script src="piti-calculator/piti.js?v=20260819c"></script>
+<link rel="stylesheet" href="piti-calculator/piti.css?v=20260820a">
+<script src="piti-calculator/piti.js?v=20260820a"></script>
 <script id="piti-data" type="application/json">
 {
   "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx (July 2026 data repository) except where a block names another source. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
@@ -163,7 +163,7 @@
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font: 400 14px/1.5 'Roboto', system-ui, sans-serif;
+    font: 400 14px/1.5 'Rethink Sans', 'Roboto', sans-serif, system-ui, sans-serif;
     letter-spacing: .015em;
     color: var(--md-sys-color-on-surface);
     background: var(--md-sys-color-surface);
@@ -179,7 +179,7 @@
     margin-bottom: 48px;
   }
   .hero-date {
-    font: 500 12px/1 'Roboto';
+    font: 500 12px/1 'Rethink Sans', 'Roboto', sans-serif;
     color: var(--md-sys-color-on-surface);
     background: rgba(255, 255, 255, 0.88);
     border: 1px solid var(--md-sys-color-outline-variant);
@@ -189,9 +189,9 @@
   }
   .hero-kicker {
     margin: 0 0 14px;
-    font: 700 13px/1 'Roboto';
+    font: 700 13px/1 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: .18em; text-transform: uppercase;
-    color: rgba(0, 0, 0, 0.78);
+    color: rgba(0, 0, 0, 0.88);
   }
   .hero h1 {
     margin: 0 0 12px;
@@ -202,9 +202,10 @@
   }
   .hero p {
     margin: 0;
-    font: 300 clamp(16px, 1.6vw, 19px)/1.5 'Roboto';
+    /* medium weight + near-solid ink so the subtitle reads over the halftone */
+    font: 500 clamp(16px, 1.6vw, 19px)/1.5 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: .01em;
-    color: rgba(0, 0, 0, 0.82);
+    color: rgba(0, 0, 0, 0.92);
     max-width: 56ch;
   }
   /* --- tabs (md-tabs component) --- */
@@ -213,14 +214,17 @@
     background: var(--md-sys-color-surface);
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
   }
-  md-tabs { max-width: 1500px; margin: 0 auto; --md-sys-color-surface: transparent; }
+  md-tabs {
+    max-width: 1500px; margin: 0 auto; --md-sys-color-surface: transparent;
+    --md-primary-tab-label-text-font: 'Rethink Sans', 'Roboto', sans-serif;
+  }
   /* fallback so the tab bar stays usable even if the component script fails:
      un-upgraded custom elements still receive clicks via the handlers below */
   md-tabs:not(:defined) { display: flex; }
   md-primary-tab:not(:defined) {
     display: inline-block; cursor: pointer;
     padding: 16px 16px 13px;
-    font: 500 14px/1 'Roboto';
+    font: 500 14px/1 'Rethink Sans', 'Roboto', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
     border-bottom: 3px solid transparent;
   }
@@ -244,16 +248,16 @@
   }
   .kpi-label {
     margin: 0 0 10px;
-    font: 500 11px/1.4 'Roboto';
+    font: 500 11px/1.4 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: .05em; text-transform: uppercase;
     color: var(--md-sys-color-on-surface-variant);
   }
   .kpi-value {
     margin: 0 0 4px;
-    font: 400 30px/1 'Roboto';
+    font: 400 30px/1 'Rethink Sans', 'Roboto', sans-serif;
     color: var(--md-sys-color-on-surface);
   }
-  .kpi-delta { margin: 0; font: 500 12px/1.3 'Roboto'; }
+  .kpi-delta { margin: 0; font: 500 12px/1.3 'Rethink Sans', 'Roboto', sans-serif; }
   .kpi-delta.pos { color: var(--pos); }
   .kpi-delta.neg { color: var(--neg); }
   /* --- chart cards (M3 outlined card) --- */
@@ -268,7 +272,7 @@
   .card.wide { grid-column: 1 / -1; }
   .chip {
     display: inline-block;
-    font: 500 11px/1 'Roboto';
+    font: 500 11px/1 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: .06em;
     color: var(--md-sys-color-on-secondary-container);
     background: var(--md-sys-color-secondary-container);
@@ -288,7 +292,7 @@
   .panel { display: none; }
   .panel.active { display: block; }
   .appendix-intro { max-width: 860px; margin: 4px 0 18px; color: var(--md-sys-color-on-surface-variant); }
-  .source { font: 400 12px/1.4 'Roboto'; color: var(--md-sys-color-on-surface-variant); margin: 10px 0 2px; }
+  .source { font: 400 12px/1.4 'Rethink Sans', 'Roboto', sans-serif; color: var(--md-sys-color-on-surface-variant); margin: 10px 0 2px; }
   svg { display: block; width: 100%; height: auto; }
   .chart-holder { min-height: 240px; }
   /* charts draw at the card's width with a fixed authored height (viewBox
@@ -298,16 +302,16 @@
   /* embedded interactive subpages (foreclosure timeline / unit grid); height
      is set from each page's posted content height — never scrolls internally */
   .fc-embed { display: block; width: 100%; border: 0; height: 640px; }
-  .bar-label { font-size: 14.5px; font-weight: 500; fill: var(--md-sys-color-on-surface-variant); font-family: 'Roboto'; }
+  .bar-label { font-size: 14.5px; font-weight: 500; fill: var(--md-sys-color-on-surface-variant); font-family: 'Rethink Sans', 'Roboto', sans-serif; }
   .bar-label.sm { font-size: 12px; }
-  .seg-label { font-size: 12px; font-weight: 500; fill: #fff; font-family: 'Roboto'; }
-  .axis text { font-size: 12.5px; fill: var(--md-sys-color-on-surface-variant); font-weight: 400; font-family: 'Roboto'; }
+  .seg-label { font-size: 12px; font-weight: 500; fill: #fff; font-family: 'Rethink Sans', 'Roboto', sans-serif; }
+  .axis text { font-size: 12.5px; fill: var(--md-sys-color-on-surface-variant); font-weight: 400; font-family: 'Rethink Sans', 'Roboto', sans-serif; }
   .axis-x text { font-size: 11px; letter-spacing: .04em; }
   .axis path, .axis line { stroke: var(--md-sys-color-outline-variant); }
   .zero-line { stroke: var(--md-sys-color-outline); stroke-width: 1.2; }
-  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 2px 0 6px; font: 400 12.5px/1.4 'Roboto'; color: var(--md-sys-color-on-surface-variant); }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 2px 0 6px; font: 400 12.5px/1.4 'Rethink Sans', 'Roboto', sans-serif; color: var(--md-sys-color-on-surface-variant); }
   .legend .swatch { display: inline-block; width: 13px; height: 13px; margin-right: 6px; vertical-align: -2px; border-radius: 4px; }
-  table.data { border-collapse: collapse; width: 100%; margin: 4px 0 2px; font: 400 13px/1.45 'Roboto'; }
+  table.data { border-collapse: collapse; width: 100%; margin: 4px 0 2px; font: 400 13px/1.45 'Rethink Sans', 'Roboto', sans-serif; }
   table.data thead { background: var(--md-sys-color-surface-container); }
   table.data th { font-weight: 500; color: var(--md-sys-color-on-surface-variant); }
   table.data th, table.data td { padding: 8px 10px; border-bottom: 1px solid var(--md-sys-color-outline-variant); text-align: left; }
@@ -332,7 +336,7 @@
   .sf-brand img { width: 300px; max-width: 100%; height: auto; display: block; }
   .sf-info {
     display: flex; gap: 44px; flex-wrap: wrap;
-    font: 300 15px/1.7 'Roboto';
+    font: 300 15px/1.7 'Rethink Sans', 'Roboto', sans-serif;
     color: #9a9a9a;
   }
   .sf-info address { font-style: normal; }
@@ -340,7 +344,7 @@
   .sf-copy { margin: 0; }
   .sf-links h4 {
     margin: 0 0 14px;
-    font: 700 14px/1 'Roboto';
+    font: 700 14px/1 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: .08em; text-transform: uppercase;
     color: #FFFFFF;
   }
@@ -349,32 +353,34 @@
   .sf-links li a {
     display: block;
     padding: 12px 0;
-    font: 700 12px/1.2 'Roboto';
+    font: 700 12px/1.2 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: .08em; text-transform: uppercase;
     color: #bdbdbd; text-decoration: none;
   }
   .sf-links li a:hover { color: #FFFFFF; }
   .sf-meta {
     max-width: 1500px; margin: 40px auto 0;
-    font: 400 12px/1.5 'Roboto';
+    font: 400 12px/1.5 'Rethink Sans', 'Roboto', sans-serif;
     color: #8a8a8a;
   }
   .sf-meta a { color: #bdbdbd; text-decoration: none; }
   .sf-meta a:hover { color: #fff; }
   /* --- tooltip (M3 inverse surface, like rich tooltips) --- */
+  /* chart tooltip: white box, black outline, black IBM Plex — the sitewide
+     tooltip recipe (matches the calculator's .pc-tip), user 2026-08-20 */
   .tooltip {
     position: absolute;
     pointer-events: none;
-    background: var(--md-sys-color-inverse-surface);
-    color: var(--md-sys-color-inverse-on-surface);
-    font: 400 12.5px/1.45 'Roboto';
-    padding: 8px 12px;
-    border-radius: 8px;
+    background: #FFFFFF;
+    color: #000000;
+    border: 1px solid #000000;
+    font: 400 12.5px/1.45 'IBM Plex Sans', 'Rethink Sans', sans-serif;
+    padding: 8px 11px;
+    border-radius: 6px;
     opacity: 0;
     transition: opacity .12s;
     max-width: 260px;
     z-index: 10;
-    box-shadow: var(--elev-2);
   }
   .tooltip strong { font-weight: 500; font-size: 13px; }
 </style>
