@@ -172,8 +172,10 @@
      2026-08-19 — vendor/hero-title.webp carries the title art); the real
      heading stays in the DOM for screen readers and SEO --- */
   .hero { background: #FFFFFF; }
-  .hero-inner { max-width: 1500px; margin: 0 auto; position: relative; }
-  .hero-art { display: block; width: 100%; height: auto; }
+  /* the hero shows the top half of the art (aspect-ratio = half the image's
+     4800/2702 … i.e. 2400/1351 halved) and the art pans on scroll (below) */
+  .hero-inner { max-width: 1500px; margin: 0 auto; position: relative; overflow: hidden; aspect-ratio: 4800 / 1351; }
+  .hero-art { display: block; width: 100%; height: auto; will-change: transform; }
   .hero-date {
     position: absolute; top: 16px; right: 24px;
     font: 500 12px/1 'Roboto';
@@ -1446,6 +1448,20 @@ function activate(id) {
   });
 }
 activate(TABS[0].id);
+
+/* hero parallax: the art pans through its hidden lower half as the page
+   scrolls (0.5x), clamped so it never runs past the artwork; disabled for
+   prefers-reduced-motion */
+const heroArt = document.querySelector(".hero-art");
+if (heroArt && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const pan = () => {
+    const hidden = Math.max(0, heroArt.clientHeight - heroArt.parentElement.clientHeight);
+    heroArt.style.transform = `translateY(${-Math.min(scrollY * 0.5, hidden)}px)`;
+  };
+  addEventListener("scroll", () => requestAnimationFrame(pan), { passive: true });
+  heroArt.addEventListener("load", pan);
+  pan();
+}
 </script>
 </body>
 </html>
