@@ -257,11 +257,12 @@
    weight (outline-variant) so hierarchy comes from type, not chrome. */
 .pc-dash {
   display: grid;
-  grid-template-columns: 296px minmax(0, 1fr) 272px;
+  /* equal rails, slimmer gutters (2026-08-20 — was 296/272 with 24px pads) */
+  grid-template-columns: 280px minmax(0, 1fr) 280px;
   grid-template-areas: "housing center people";
   align-items: stretch;
 }
-.pc-rail { background: #FFF; padding: 22px 24px 56px; min-width: 0; }
+.pc-rail { background: #FFF; padding: 22px 16px 56px; min-width: 0; }
 .pc-rail-housing { grid-area: housing; border-right: 1px solid var(--pc-outline-variant); }
 .pc-rail-people  { grid-area: people;  border-left: 1px solid var(--pc-outline-variant); }
 .pc-canvas {
@@ -273,7 +274,7 @@
 }
 .pc-railtitle {
   font-size: 20px; font-weight: 700; letter-spacing: -0.2px; color: var(--pc-on-surface);
-  margin: 0 -24px 18px; padding: 0 24px 14px;      /* rule bleeds to the panel edges */
+  margin: 0 -16px 18px; padding: 0 16px 14px;      /* rule bleeds to the panel edges */
   border-bottom: 1px solid var(--pc-outline-variant);
 }
 .pc-rail .pc-field { margin-top: 22px; }
