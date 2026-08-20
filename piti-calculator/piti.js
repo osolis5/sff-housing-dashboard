@@ -142,16 +142,16 @@
     return `<div class="pc-profiles" id="profiles"></div>`;
   }
 
-  /* lead=true keeps the flat/carded bold lead-in sentence; the dashboard card
-     carries the title in its caption instead (and the ratio slider lives in
-     the People rail, not "above") */
+  /* lead=true keeps the flat/carded bold lead-in + explainer paragraph; the
+     dashboard card shows just the chart under its caption (explainer removed
+     2026-08-19, user request) */
   function gapBox(lead) {
     return `
   <div class="pc-dist" id="gap-viz">
-    <p class="pc-sub"${lead ? ' style="margin-top:26px"' : ''}>${lead ? '<strong>The affordability gap, drawn to scale.</strong> ' : ''}Each dot is
-      the most that household could afford at the income share set ${lead ? 'above' : 'in the People panel'}; the red line is this home's price. The
+    ${lead ? `<p class="pc-sub" style="margin-top:26px"><strong>The affordability gap, drawn to scale.</strong> Each dot is
+      the most that household could afford at the income share set above; the red line is this home's price. The
       bar between them is the gap — <span class="pc-gleg-neg">shortfall</span> or
-      <span class="pc-gleg-pos">headroom</span> — and it moves with every control ${lead ? 'above' : 'on this page'}.</p>
+      <span class="pc-gleg-pos">headroom</span> — and it moves with every control above.</p>` : ''}
     <svg class="pc-ladder" id="gapchart" viewBox="0 0 760 204" role="img"
       aria-label="Gap between what each benchmark household could afford and this home's price"></svg>
   </div>`;
@@ -282,7 +282,7 @@
       </div>
 
       <div class="pc-card pc-panel">
-        <div class="pc-cap">The affordability gap, drawn to scale</div>
+        <div class="pc-cap">The affordability gap</div>
         ${gapBox(false)}
       </div>
 
