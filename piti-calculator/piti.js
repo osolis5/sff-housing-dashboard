@@ -551,22 +551,24 @@
       syncInputs(); recalc();
     });
 
-    /* bracket-bar tooltip: simple white box with a black outline, follows the
-       cursor. Listeners sit on the (persistent) bar; the segments carry
-       data-tip and are rebuilt on every recalc. */
+    /* hover tooltips (bracket bar + benchmark-household rows): simple white
+       box with a black outline, follows the cursor. Listeners sit on the
+       persistent containers; children carry data-tip, rebuilt on recalc. */
     const tip = document.createElement('div');
     tip.className = 'pc-tip';
     mount.appendChild(tip);
-    const tipBar = $('bracket-bar');
-    tipBar.addEventListener('mousemove', e => {
+    const tipMove = e => {
       const seg = e.target.closest('[data-tip]');
       if (!seg) { tip.style.display = 'none'; return; }
       tip.textContent = seg.dataset.tip;
       tip.style.display = 'block';
       tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
       tip.style.top = Math.min(e.clientY + 12, innerHeight - tip.offsetHeight - 8) + 'px';
+    };
+    [$('bracket-bar'), $('profiles')].forEach(el => {
+      el.addEventListener('mousemove', tipMove);
+      el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
     });
-    tipBar.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
 
     // ---------- math ----------
     const pniFactor = (r, n) => r === 0 ? 1 / n : r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
@@ -667,11 +669,12 @@
         const mp = maxPrice(p.inc, c);
         return { ...p, burden, mp, gap: mp - S.price };
       });
+      /* the income/context line lives in the row's hover tooltip (2026-08-19) */
       $('profiles').innerHTML = rows.map(p => {
         const cls = p.burden <= 0.30 ? 'pc-ok' : p.burden <= 0.50 ? 'pc-warn' : 'pc-bad';
         const lab = p.burden <= 0.30 ? 'Affordable' : p.burden <= 0.50 ? 'Cost-burdened' : 'Severely burdened';
-        return `<div class="pc-profile">
-          <div class="pc-who">${p.who}<small>${fmt$(p.inc)} /yr · ${p.note}</small></div>
+        return `<div class="pc-profile" data-tip="${fmt$(p.inc)} /yr · ${p.note}">
+          <div class="pc-who">${p.who}</div>
           <div class="pc-m"><b>${fmtPct(p.burden)}</b>of income on this payment</div>
           <div class="pc-m"><b>${p.mp > 1000 ? fmtK(p.mp) : '—'}</b>max price at ${S.ratio}%</div>
           <div class="pc-m"><b class="${p.gap >= 0 ? 'pc-gpos' : 'pc-gneg'}">${p.gap >= 0 ? '+' : '−'}${fmtK(Math.abs(p.gap))}</b>gap vs. this price</div>
