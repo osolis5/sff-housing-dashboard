@@ -204,17 +204,17 @@
     /* the h1's display-size line box rises ~20px above its block edge — the
        larger margin keeps the white strips separated, halftone between.
        (.hero .hero-kicker so the margin beats the later `.hero p` reset) */
-    margin: 0 0 34px;
+    margin: 0 0 22px;
     font: 500 13px/1.4 'IBM Plex Mono', 'Rethink Sans', monospace;
     letter-spacing: .1em; text-transform: uppercase;
     color: #000000;
   }
   .hero h1 {
     margin: 0 0 30px;
-    /* display scale sized to run the full content width on one line at
-       desktop, matching the title-card art; wraps to banded lines below */
-    /* leading opened so each wrapped line's cloned band clears the line above */
-    font: 700 clamp(36px, 5.5vw, 80px)/1.28 'Rethink Sans', 'Roboto', sans-serif;
+    /* sized so the full title stays on ONE line: it measures ~30.4x its
+       font-size, so 3vw tracks the window and 46px is the cap the 1452px
+       content column allows (60px would need ~1800px). Wraps only on phones. */
+    font: 700 clamp(26px, 3vw, 46px)/1.15 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: -0.02em;
     color: #000000;
   }
