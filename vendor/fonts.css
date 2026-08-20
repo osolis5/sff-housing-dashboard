@@ -79,3 +79,18 @@
   font-display: swap;
   src: url('fonts/RethinkSans-400-800.woff2') format('woff2');
 }
+/* metadata layer (labels, sources, captions, ticks) */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/IBMPlexMono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/IBMPlexMono-500.woff2') format('woff2');
+}
