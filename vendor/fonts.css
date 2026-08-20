@@ -72,3 +72,10 @@
   font-display: swap;
   src: url('fonts/Roboto-700.woff2') format('woff2');
 }
+@font-face {
+  font-family: 'Rethink Sans';
+  font-style: normal;
+  font-weight: 700 800;      /* variable file covers the heading weights */
+  font-display: swap;
+  src: url('fonts/RethinkSans-700-800.woff2') format('woff2');
+}
