@@ -69,7 +69,9 @@
    their width changed); a long label shrinks and wraps inside its own box */
 .pc-field .pc-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: nowrap; }
 .pc-field .pc-row label { flex: 0 1 auto; min-width: 0; }
-.pc-field .pc-row .pc-badge { flex: 0 0 auto; }
+/* badges live on their own line between the label row and the control
+   (2026-08-19 — in-row pills overlapped a squeezed label when space ran out) */
+.pc-field > .pc-badge { display: inline-block; margin: 3px 0 1px; }
 .pc-field label { font-size: 13px; font-weight: 500; color: var(--pc-on-surface); }
 .pc-field .pc-val { margin-left: auto; flex: 0 0 auto; white-space: nowrap; font-size: 14px; font-weight: 700; color: var(--pc-navy); font-variant-numeric: tabular-nums; }
 .pc-badge {

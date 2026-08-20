@@ -65,9 +65,9 @@
       <div class="pc-field">
         <div class="pc-row">
           <label for="price">Purchase price</label>
-          <span class="pc-badge pc-data" id="price-badge">dataset · 2024 median</span>
           <span class="pc-val" id="price-val"></span>
         </div>
+        <span class="pc-badge pc-data" id="price-badge">dataset · 2024 median</span>
         <input type="range" id="price" min="25000" max="800000" step="1250" aria-label="Purchase price">
       </div>
 
@@ -95,8 +95,8 @@
       <div class="pc-field">
         <div class="pc-row">
           <label for="tax">Property taxes / year</label>
-          <span class="pc-badge pc-assume" id="tax-badge"></span>
         </div>
+        <span class="pc-badge pc-assume" id="tax-badge"></span>
         <div class="pc-money"><span>$</span><input type="text" id="tax" inputmode="numeric" aria-label="Annual property taxes"></div>
         <p class="pc-fine" id="tax-note"></p>
       </div>
@@ -313,8 +313,8 @@
       <div class="pc-field pc-field-first">
         <div class="pc-row">
           <label for="inc-renter">Median NL renter income</label>
-          <span class="pc-badge pc-data" id="inc-renter-badge">dataset · 2024</span>
         </div>
+        <span class="pc-badge pc-data" id="inc-renter-badge">dataset · 2024</span>
         <div class="pc-money"><span>$</span><input type="text" id="inc-renter" inputmode="numeric" aria-label="Median North Lawndale renter household income"></div>
         <p class="pc-fine" id="inc-renter-note"></p>
       </div>
@@ -322,8 +322,8 @@
       <div class="pc-field">
         <div class="pc-row">
           <label for="inc-chi-renter">Median Chicago renter income</label>
-          <span class="pc-badge pc-data" id="inc-chi-renter-badge">dataset · 2024</span>
         </div>
+        <span class="pc-badge pc-data" id="inc-chi-renter-badge">dataset · 2024</span>
         <div class="pc-money"><span>$</span><input type="text" id="inc-chi-renter" inputmode="numeric" aria-label="Median Chicago renter household income"></div>
         <p class="pc-fine" id="inc-chi-renter-note"></p>
       </div>
@@ -331,8 +331,8 @@
       <div class="pc-field">
         <div class="pc-row">
           <label for="inc-buyer">Median NL homebuyer income</label>
-          <span class="pc-badge pc-data" id="inc-buyer-badge">dataset · 2024</span>
         </div>
+        <span class="pc-badge pc-data" id="inc-buyer-badge">dataset · 2024</span>
         <div class="pc-money"><span>$</span><input type="text" id="inc-buyer" inputmode="numeric" aria-label="Median North Lawndale homebuyer income"></div>
         <p class="pc-fine" id="inc-buyer-note"></p>
       </div>
@@ -340,8 +340,8 @@
       <div class="pc-field">
         <div class="pc-row">
           <label for="inc-chi-buyer">Median Chicago homebuyer income</label>
-          <span class="pc-badge pc-data" id="inc-chi-buyer-badge">dataset · 2024</span>
         </div>
+        <span class="pc-badge pc-data" id="inc-chi-buyer-badge">dataset · 2024</span>
         <div class="pc-money"><span>$</span><input type="text" id="inc-chi-buyer" inputmode="numeric" aria-label="Median Chicago homebuyer income"></div>
         <p class="pc-fine" id="inc-chi-buyer-note"></p>
       </div>
