@@ -566,7 +566,7 @@
       tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
       tip.style.top = Math.min(e.clientY + 12, innerHeight - tip.offsetHeight - 8) + 'px';
     };
-    [$('bracket-bar'), $('profiles'), $('piti-leg'), $('loan-kv')].forEach(el => {
+    [$('bracket-bar'), $('profiles')].forEach(el => {
       el.addEventListener('mousemove', tipMove);
       el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
     });
@@ -602,27 +602,17 @@
       ['pmi', 'Mortgage ins. (PMI)',  '#8A9297']
     ];
     function renderPayment(c) {
-      /* per-row "how was this calculated" tips, rebuilt with live values */
-      const TIPS = {
-        pi: `Amortized mortgage payment: the ${fmt$(c.loan)} loan repaid in equal monthly installments at ${S.ratePct}% APR over ${S.years} years.`,
-        tax: S.taxMode === 'rate'
-          ? `Estimated at a 1.5% effective tax rate on the purchase price (Civic Federation figure for Chicago): ${fmt$(S.taxAnnual)}/yr ÷ 12.`
-          : `Your custom annual tax amount: ${fmt$(S.taxAnnual)}/yr ÷ 12.`,
-        ins: `Annual homeowners insurance premium: ${fmt$(S.insAnnual)}/yr ÷ 12 (adjustable assumption).`,
-        pmi: `Private mortgage insurance at 0.75%/yr of the loan while the down payment is under 20% — drops off at 20% or more down.`
-      };
       $('piti-total').textContent = fmt$(c.piti);
       $('piti-bar').innerHTML = SEGS.filter(([k]) => c[k] > 0.5)
         .map(([k, , col]) => `<div style="flex:${c[k]};background:${col}"></div>`).join('');
       $('piti-leg').innerHTML = SEGS.filter(([k]) => k !== 'pmi' || c.pmi > 0.5)
-        .map(([k, nm, col]) => `<div class="pc-lr" data-tip="${TIPS[k]}"><span class="pc-sw" style="background:${col}"></span>
+        .map(([k, nm, col]) => `<div class="pc-lr"><span class="pc-sw" style="background:${col}"></span>
           <span class="pc-nm">${nm}</span><span class="pc-amt">${fmt$(c[k])}</span></div>`).join('');
       $('loan-kv').innerHTML = [
-        ['Loan amount', fmt$(c.loan), `Purchase price minus the down payment: ${fmt$(S.price)} − ${fmt$(c.down$)}.`],
-        ['Down payment', `${fmt$(c.down$)} (${S.downPct}%)`, `${S.downPct}% of the ${fmt$(S.price)} purchase price.`],
-        ['Income needed at ' + S.ratio + '%', fmt$(c.piti * 12 / (S.ratio / 100)) + ' /yr',
-         `The annual payment (12 × ${fmt$(c.piti)}) divided by the ${S.ratio}% housing share of income.`]
-      ].map(([l, v, tip]) => `<div class="pc-lr" data-tip="${tip}">${l}<span class="pc-amt">${v}</span></div>`).join('');
+        ['Loan amount', fmt$(c.loan)],
+        ['Down payment', `${fmt$(c.down$)} (${S.downPct}%)`],
+        ['Income needed at ' + S.ratio + '%', fmt$(c.piti * 12 / (S.ratio / 100)) + ' /yr']
+      ].map(([l, v]) => `<div class="pc-lr">${l}<span class="pc-amt">${v}</span></div>`).join('');
       $('down-val').textContent = S.downPct + '%';
       $('price-val').textContent = fmt$(S.price);
       $('rate-val').textContent = S.ratePct.toFixed(3).replace(/0+$/, '').replace(/\.$/, '') + '%';
