@@ -79,8 +79,8 @@
   font-size: 9.5px; letter-spacing: .3px; text-transform: uppercase; font-weight: 500;
   padding: 2px 7px; border-radius: 999px; white-space: nowrap;
 }
-.pc-badge.pc-data { background: var(--pc-primary-container); color: var(--pc-on-primary-container); }
-.pc-badge.pc-assume { background: #FFF; color: var(--pc-on-surface-variant); border: 1px solid var(--pc-outline-variant); }
+.pc-badge.pc-data { background: var(--pc-primary-container); color: #000000; }
+.pc-badge.pc-assume { background: #FFF; color: #000000; border: 1px solid var(--pc-outline-variant); }
 .pc-badge:empty { display: none; }  /* tax badge is blank until the amount is edited */
 
 .pc-root input[type="range"] {
@@ -117,7 +117,7 @@
 .pc-toggle button.pc-on { background: var(--pc-secondary-container); color: var(--pc-on-secondary-container); font-weight: 500; }
 .pc-toggle button + button { border-left: 1px solid var(--pc-outline-variant); }
 
-.pc-fine { margin-top: 8px; font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 11px; font-weight: 400; line-height: 1.5; color: var(--pc-on-surface-variant); }
+.pc-fine { margin-top: 8px; font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 11px; font-weight: 400; line-height: 1.5; color: #000000; }
 .pc-fine:empty { display: none; }   /* rail notes are blank until they hold a reset link */
 .pc-linkbtn {
   background: none; border: 0; padding: 0; cursor: pointer; font: inherit;
@@ -167,14 +167,14 @@
   background: #FFF;
   border: 1px solid #000;
   border-radius: 6px;
-  font: 400 12.5px/1.45 'IBM Plex Sans', 'Rethink Sans', 'Roboto', sans-serif;
+  font: 400 12px/1.5 'IBM Plex Mono', 'Rethink Sans', monospace;
   color: #000000;
   pointer-events: none;
   z-index: 50;
 }
 
 /* results card */
-.pc-cap { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-weight: 500; font-size: 10.5px; letter-spacing: .3px; text-transform: uppercase; color: var(--pc-on-surface-variant); }
+.pc-cap { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-weight: 500; font-size: 10.5px; letter-spacing: .3px; text-transform: uppercase; color: #000000; }
 .pc-piti { font-size: 40px; font-weight: 700; color: var(--pc-navy); letter-spacing: -0.5px; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .pc-piti small { font-size: 15px; font-weight: 400; color: var(--pc-on-surface-variant); letter-spacing: 0; }
 .pc-bar { display: flex; height: 22px; border-radius: 6px; overflow: hidden; margin-top: 14px; }
@@ -199,7 +199,7 @@
 .pc-ladder { display: block; width: 100%; height: auto; margin-top: 10px; }
 .pc-ladder text { font-family: 'Rethink Sans', 'Roboto', sans-serif; }
 .pc-ladder .pc-ax { stroke: var(--pc-outline-variant); stroke-width: 1; }
-.pc-ladder .pc-tick-lab { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 10.5px; fill: var(--pc-outline); font-weight: 400; }
+.pc-ladder .pc-tick-lab { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 10.5px; fill: #000000; font-weight: 400; }
 
 .pc-profiles { margin-top: 18px; display: grid; gap: 10px; }
 .pc-profile {
@@ -318,16 +318,16 @@
 .pc-panel > .pc-cap { margin-bottom: 10px; }
 .pc-panel .pc-need { margin-top: 10px; }
 .pc-dash .pc-panel .pc-sub { color: var(--pc-on-surface-variant); }
-.pc-dash .pc-fine { color: var(--pc-outline); }
+.pc-dash .pc-fine { color: #000000; }
 .pc-dash .pc-profiles { gap: 0; margin-top: 4px; }
 .pc-dash .pc-profile { background: transparent; border: none; border-radius: 0; padding: 14px 0; }
 .pc-dash .pc-profile + .pc-profile { border-top: 1px solid var(--pc-track); }
 /* dataset chips keep their fill (the one marker that must pop); assumption /
    edited labels drop the pill box and read as quiet micro-labels */
-.pc-dash .pc-badge.pc-assume { background: transparent; border: none; padding: 2px 0; color: var(--pc-outline); }
+.pc-dash .pc-badge.pc-assume { background: transparent; border: none; padding: 2px 0; color: #000000; }
 .pc-about p { font-size: 12px; font-weight: 400; color: var(--pc-on-surface-variant); line-height: 1.6; max-width: 760px; }
 .pc-about p + p { margin-top: 6px; }
-.pc-about #pc-src { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 11px; }
+.pc-about #pc-src { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 11px; color: #000000; }
 
 @media (max-width: 1080px) {
   .pc-dash { grid-template-columns: 1fr; grid-template-areas: "housing" "people" "center"; }

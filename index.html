@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Housing Dashboard | Steans Family Foundation</title>
 <script src="vendor/d3.v7.min.js"></script>
-<link rel="stylesheet" href="vendor/fonts.css?v=20260820b">
+<link rel="stylesheet" href="vendor/fonts.css?v=20260820c">
 <script type="module" src="vendor/material-tabs.min.js"></script>
 <!-- ?v= busts the browser's asset cache; bump it whenever piti.css/piti.js change -->
-<link rel="stylesheet" href="piti-calculator/piti.css?v=20260820b">
-<script src="piti-calculator/piti.js?v=20260820b"></script>
+<link rel="stylesheet" href="piti-calculator/piti.css?v=20260820c">
+<script src="piti-calculator/piti.js?v=20260820c"></script>
 <script id="piti-data" type="application/json">
 {
   "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx (July 2026 data repository) except where a block names another source. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
@@ -180,7 +180,7 @@
   }
   .hero-date {
     font: 500 11.5px/1 'IBM Plex Mono', 'Rethink Sans', monospace;
-    color: var(--md-sys-color-on-surface);
+    color: #000000;
     background: rgba(255, 255, 255, 0.88);
     border: 1px solid var(--md-sys-color-outline-variant);
     border-radius: 8px;
@@ -205,7 +205,7 @@
     margin: 0 0 34px;
     font: 500 13px/1.4 'IBM Plex Mono', 'Rethink Sans', monospace;
     letter-spacing: .1em; text-transform: uppercase;
-    color: rgba(0, 0, 0, 0.88);
+    color: #000000;
   }
   .hero h1 {
     margin: 0 0 30px;
@@ -231,7 +231,11 @@
   }
   md-tabs {
     max-width: 1500px; margin: 0 auto; --md-sys-color-surface: transparent;
-    --md-primary-tab-label-text-font: 'Rethink Sans', 'Roboto', sans-serif;
+    --md-primary-tab-label-text-font: 'IBM Plex Mono', 'Rethink Sans', monospace;
+    --md-primary-tab-label-text-color: #000000;
+    --md-primary-tab-active-label-text-color: #000000;
+    --md-primary-tab-hover-label-text-color: #000000;
+    --md-primary-tab-focus-label-text-color: #000000;
   }
   /* fallback so the tab bar stays usable even if the component script fails:
      un-upgraded custom elements still receive clicks via the handlers below */
@@ -265,7 +269,7 @@
     margin: 0 0 10px;
     font: 500 10.5px/1.4 'IBM Plex Mono', 'Rethink Sans', monospace;
     letter-spacing: .02em; text-transform: uppercase;
-    color: var(--md-sys-color-on-surface-variant);
+    color: #000000;
   }
   .kpi-value {
     margin: 0 0 4px;
@@ -289,7 +293,7 @@
     display: inline-block;
     font: 500 11px/1 'IBM Plex Mono', 'Rethink Sans', monospace;
     letter-spacing: .02em;
-    color: var(--md-sys-color-on-secondary-container);
+    color: #000000;
     background: var(--md-sys-color-secondary-container);
     border-radius: 8px;
     padding: 6px 10px;
@@ -307,7 +311,7 @@
   .panel { display: none; }
   .panel.active { display: block; }
   .appendix-intro { max-width: 860px; margin: 4px 0 18px; color: var(--md-sys-color-on-surface-variant); }
-  .source { font: 400 11.5px/1.5 'IBM Plex Mono', 'Rethink Sans', monospace; color: var(--md-sys-color-on-surface-variant); margin: 10px 0 2px; }
+  .source { font: 400 11.5px/1.5 'IBM Plex Mono', 'Rethink Sans', monospace; color: #000000; margin: 10px 0 2px; }
   svg { display: block; width: 100%; height: auto; }
   .chart-holder { min-height: 240px; }
   /* charts draw at the card's width with a fixed authored height (viewBox
@@ -320,7 +324,7 @@
   .bar-label { font-size: 14.5px; font-weight: 500; fill: var(--md-sys-color-on-surface-variant); font-family: 'Rethink Sans', 'Roboto', sans-serif; }
   .bar-label.sm { font-size: 12px; }
   .seg-label { font-size: 12px; font-weight: 500; fill: #fff; font-family: 'Rethink Sans', 'Roboto', sans-serif; }
-  .axis text { font-size: 12px; fill: var(--md-sys-color-on-surface-variant); font-weight: 400; font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; }
+  .axis text { font-size: 12px; fill: #000000; font-weight: 400; font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; }
   .axis-x text { font-size: 11px; letter-spacing: .04em; }
   .axis path, .axis line { stroke: var(--md-sys-color-outline-variant); }
   .zero-line { stroke: var(--md-sys-color-outline); stroke-width: 1.2; }
@@ -389,7 +393,7 @@
     background: #FFFFFF;
     color: #000000;
     border: 1px solid #000000;
-    font: 400 12.5px/1.45 'IBM Plex Sans', 'Rethink Sans', sans-serif;
+    font: 400 12px/1.5 'IBM Plex Mono', 'Rethink Sans', monospace;
     padding: 8px 11px;
     border-radius: 6px;
     opacity: 0;
