@@ -187,14 +187,28 @@
     padding: 8px 12px;
     white-space: nowrap;
   }
-  .hero-kicker {
-    margin: 0 0 14px;
-    font: 700 13px/1 'Rethink Sans', 'Roboto', sans-serif;
+  /* white highlight bands behind each text line (the original title-card
+     treatment): the band hugs the text, wrapped lines each get their own
+     strip via box-decoration-break, and the negative margin keeps the text
+     column optically aligned while the band outdents */
+  .hero-hl {
+    background: #FFFFFF;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding: 0.14em 0.45em;
+    margin-left: -0.45em;
+  }
+  .hero .hero-kicker {
+    /* the h1's display-size line box rises ~20px above its block edge — the
+       larger margin keeps the white strips separated, halftone between.
+       (.hero .hero-kicker so the margin beats the later `.hero p` reset) */
+    margin: 0 0 34px;
+    font: 700 13px/1.4 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: .18em; text-transform: uppercase;
     color: rgba(0, 0, 0, 0.88);
   }
   .hero h1 {
-    margin: 0 0 12px;
+    margin: 0 0 20px;
     font: 800 clamp(34px, 4.4vw, 54px)/1.08 'Rethink Sans', 'Roboto', sans-serif;
     letter-spacing: -0.015em;
     color: #000000;
@@ -392,9 +406,9 @@
     <div class="hero-top">
       <span class="hero-date">Baseline Data &middot; May 21, 2026</span>
     </div>
-    <p class="hero-kicker">Steans Family Foundation</p>
-    <h1>Housing Dashboard</h1>
-    <p>Housing affordability and trends in North Lawndale and West Side communities</p>
+    <p class="hero-kicker"><span class="hero-hl">Steans Family Foundation</span></p>
+    <h1><span class="hero-hl">Housing Dashboard</span></h1>
+    <p><span class="hero-hl">Housing affordability and trends in North Lawndale and West Side communities</span></p>
   </div>
 </div>
 <nav class="tabs-sticky"><md-tabs id="tabs" aria-label="Dashboard sections"></md-tabs></nav>
