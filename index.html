@@ -291,10 +291,10 @@
   .source { font: 400 12px/1.4 'Roboto'; color: var(--md-sys-color-on-surface-variant); margin: 10px 0 2px; }
   svg { display: block; width: 100%; height: auto; }
   .chart-holder { min-height: 240px; }
-  /* charts scale with the card but stop at a sane height and never outgrow
-     the window (2026-08-19 — at the 1500px wrap they overflowed shorter
-     screens); the drawing letterboxes centered inside the capped box */
-  .chart-holder svg { display: block; width: 100%; height: auto; max-height: min(600px, 65vh); margin: 0 auto; }
+  /* charts draw at the card's width with a fixed authored height (viewBox
+     width is measured at render time), so they fill the card without
+     letterboxing and never outgrow the window */
+  .chart-holder svg { display: block; width: 100%; height: auto; }
   /* embedded interactive subpages (foreclosure timeline / unit grid); height
      is set from each page's posted content height — never scrolls internally */
   .fc-embed { display: block; width: 100%; border: 0; height: 640px; }
@@ -721,12 +721,17 @@ function xAxisLabels(g) {
 const W = 980, H = 560;
 const margin = { top: 46, right: 20, bottom: 84, left: 70 };
 
-function chartWidth(c) { return c.half ? 620 : W; }
+function chartWidth(c) { return c._w || (c.half ? 620 : W); }
 function renderInto(card) {
   const c = CHARTS.find(ch => ch.id === card.attr("data-chart"));
   const legend = card.select(".legend");
   const holder = card.select(".chart-holder");
   holder.selectAll("*").remove();
+  /* draw at the card's real width (floored at the authored width, so narrow
+     screens downscale proportionally) — wide cards fill edge-to-edge at the
+     authored height instead of letterboxing a fixed-aspect drawing */
+  const measured = Math.floor(holder.node().getBoundingClientRect().width);
+  c._w = Math.max(c.half ? 620 : W, measured || 0);
   const svg = holder.append("svg").attr("viewBox", `0 0 ${chartWidth(c)} ${H}`);
   if (c.type === "ranked") renderRanked(svg, c, legend);
   else if (c.type === "grouped") renderGrouped(svg, c, legend);
