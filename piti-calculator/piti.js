@@ -293,6 +293,7 @@
       <div class="pc-card pc-panel">
         <div class="pc-cap">Share of North Lawndale's ${D.households2024.total.toLocaleString()} households by income bracket (2024)</div>
         ${bracketBox(D, false)}
+        <a class="pc-jump" href="${repoHref}" target="_blank" rel="noopener" data-jump="appendix-households">Data Appendix ↗</a>
       </div>
 
       <div class="pc-card pc-panel">

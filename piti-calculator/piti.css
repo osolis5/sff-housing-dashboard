@@ -367,6 +367,9 @@
 }
 .pc-jump { color: #415F91; text-decoration: none; font-weight: 500; white-space: nowrap; }
 .pc-jump:hover { text-decoration: underline; }
+/* card-bottom appendix link (dashboard layout): the host page intercepts
+   data-jump to jump in-page; standalone falls through to data.html */
+.pc-panel > .pc-jump { display: inline-block; margin-top: 12px; font-size: 13px; }
 /* "About these numbers" card: fine print */
 .pc-root.pc-embedded #pc-card-4 p { font: 400 12.5px/1.6 'Roboto'; color: var(--pc-on-surface-variant); max-width: 760px; }
 .pc-root.pc-embedded #pc-card-4 p + p { margin-top: 6px; }

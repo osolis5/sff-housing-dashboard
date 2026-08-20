@@ -1301,6 +1301,13 @@ TABS.forEach((t, i) => {
     const mount = panel.append("div").attr("id", "piti-mount").node();
     PITI.render(mount, JSON.parse(document.getElementById("piti-data").textContent),
       { dashboard: true, repoBase: "piti-calculator/" });
+    /* the bracket card's "Data Appendix" link jumps to the appendix table
+       in-page; on the standalone page (no appendix tab, no listener) the
+       same link falls through to piti-calculator/data.html */
+    mount.addEventListener("click", event => {
+      const a = event.target.closest("[data-jump]");
+      if (a) { event.preventDefault(); jumpTo("appendix", a.dataset.jump); }
+    });
   } else {
     TABS.filter(x => x.charts).forEach(x => x.charts.forEach(id => {
       const c = CHARTS.find(ch => ch.id === id);
@@ -1348,6 +1355,17 @@ TABS.forEach((t, i) => {
       "property-tax rate (Civic Federation), and the income-share threshold are user-adjustable assumptions " +
       "labeled in the tool \u2014 not workbook values. All dataset values are re-extracted and verified " +
       "programmatically against the workbook by cell address.");
+    /* the bracket-bar's data table (linked from the calculator card) */
+    const hb = JSON.parse(document.getElementById("piti-data").textContent).households2024;
+    pc.append("p").attr("class", "source").attr("id", "appendix-households").style("margin", "12px 0 4px").html(
+      "<b>Share of North Lawndale's " + hb.total.toLocaleString() + " households by income bracket (2024)</b> — " +
+      "the calculator's bracket bar. A.Demographic_Socioeconomic, table 4 “Composition of Households by " +
+      "Income”, North Lawndale row (ACS 5-year estimates); shares are of all " + hb.total.toLocaleString() +
+      " households — owners and renters, family and non-family.");
+    pc.append("div").html(
+      '<table class="data"><thead><tr><th>Income bracket</th><th class="num">Share of households</th></tr></thead><tbody>' +
+      hb.incomeBrackets.map(b => `<tr><td>${b.label}</td><td class="num">${(b.share * 100).toFixed(1)}%</td></tr>`).join("") +
+      `<tr><td><b>Total households</b></td><td class="num"><b>${hb.total.toLocaleString()}</b></td></tr></tbody></table>`);
     const plinks = pc.append("p").attr("class", "source");
     plinks.append("a").attr("class", "xref").attr("href", "piti-calculator/data.html")
       .attr("target", "_blank").attr("rel", "noopener").text("Cell-by-cell data repository & methods \u2197");
