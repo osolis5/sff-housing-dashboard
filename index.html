@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="vendor/fonts.css?v=20260820f">
 <script type="module" src="vendor/material-tabs.min.js"></script>
 <!-- ?v= busts the browser's asset cache; bump it whenever piti.css/piti.js change -->
-<link rel="stylesheet" href="piti-calculator/piti.css?v=20260904a">
-<script src="piti-calculator/piti.js?v=20260904a"></script>
+<link rel="stylesheet" href="piti-calculator/piti.css?v=20260904b">
+<script src="piti-calculator/piti.js?v=20260904b"></script>
 <script id="piti-data" type="application/json">
 {
   "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx (July 2026 data repository) except where a block names another source. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
@@ -517,11 +517,11 @@ const CHARTS = [
   {
     id:"foreclosure", type:"ranked", format:"pct", deckPage:12,
     headline:"Many West Side communities heavily impacted by foreclosure",
-    sub:"Share of Residential Parcels with at Least One Foreclosure Filing Since 2005, 2024",
+    sub:"Share of Residential Parcels with at Least One Foreclosure Filing Since 2005, 2025",
     source:IHS_DC,
-    values:{ "West Garfield Park":52.2, "North Lawndale":46.9, "East Garfield Park":45.6,
-             "Humboldt Park":43.1, "Austin":39.8, "South Lawndale":26.1, "City of Chicago":22.2,
-             "Lower West Side":16.8, "West Town":12.7, "Near West Side":12.1 }
+    values:{ "West Garfield Park":53.3, "North Lawndale":47.3, "East Garfield Park":45.7,
+             "Humboldt Park":43.3, "Austin":40.4, "South Lawndale":26.4, "City of Chicago":22.4,
+             "Lower West Side":16.8, "West Town":12.8, "Near West Side":12.2 }
   },
   {
     id:"vacantland", type:"dumbbell", format:"pct", deckPage:13,
@@ -643,7 +643,7 @@ const CHARTS = [
 const WB_REFS = {
   occ:             "A.Demographic_Socioeconomic, table 8 (Housing Units by Occupancy Type) — Occupied Housing Units, Pct Chng 2010–2024",
   units:           "A.Demographic_Socioeconomic, table 8 (Housing Units by Occupancy Type) — Total Housing Units, Pct Chng 2010–2024",
-  foreclosure:     "D.Foreclosures, table 2 — deck/2024 vintage; the 07/02/2026 workbook publishes 2025 shares instead (North Lawndale 47.3%, city 22.4%)",
+  foreclosure:     "D.Foreclosures, table 2 (Share of Residential Parcels with at Least One Foreclosure Filing, 2005–2025) — 2025 column of the 07/02/2026 workbook, which supersedes the deck's 2005–2024 shares",
   vacantland:      "C.Housing_Stock, table 3 (Privately-Held and City-Owned Vacant Land) — share columns",
   salesprice:      "E.Property_Sales, table 23 (Median Sales Prices for 1 to 4 Unit Buildings) — 2012 / 2019 / 2024 columns",
   pricechange:     "E.Property_Sales, table 23 — computed from the 2019 and 2024 columns",
@@ -1221,7 +1221,7 @@ const KPIS = [
   { label:"Total housing units, 2010\u201324", value:"\u22121.0%", delta:"City +6.6%", dir:"neg" },
   { label:"Median sale price, 2024", value:"$260K", delta:"+85.7% since 2019", dir:"pos" },
   { label:"Sales bought by businesses, 2024", value:"32.3%", delta:"City 21.3%", dir:"neg" },
-  { label:"Parcels w/ foreclosure filing since 2005", value:"46.9%", delta:"City 22.2%", dir:"neg" },
+  { label:"Parcels w/ foreclosure filing since 2005", value:"47.3%", delta:"City 22.4%", dir:"neg" },
   { label:"Median homebuyer income, 2024", value:"$90K", delta:"$61K in 2019", dir:"pos" },
 ];
 d3.select("#kpis").selectAll("div").data(KPIS).join("div").attr("class", "kpi").html(d =>
@@ -1268,7 +1268,7 @@ function appendixTable(c) {
   let cols, rows;
   if (c.type === "ranked") {
     cols = ["Community", c.format === "pct" ? (signed ? "Percent change" : "Share") : "Value"];
-    rows = Object.entries(c.values).map(([k, v]) => `<tr><td>${k}</td>${tdVal(v, c.format, true)}</tr>`);
+    rows = Object.entries(c.values).map(([k, v]) => `<tr><td>${k}</td>${tdVal(v, c.format, signed)}</tr>`);
   } else if (c.type === "dots") {
     cols = ["Year", ...c.series.map(s => s.name)];
     const years = c.series[0].points.map(p => p[0]);
@@ -1386,7 +1386,7 @@ TABS.forEach((t, i) => {
       "Table A.1 · total housing-unit change (−1.0%) — Chart 2.1 / Table A.6 · " +
       "2024 median 1–4 unit sale price ($260K; +85.7% since 2019) — Charts 2.4–2.5 / Tables " +
       "A.9–A.10 · share of 2024 sales bought by businesses (32.3%) — Chart 2.6 / Table A.11 · " +
-      "share of parcels with a foreclosure filing since 2005 (46.9%, 2024 vintage) — Chart 2.2 / Table A.7 · " +
+      "share of parcels with a foreclosure filing since 2005 (47.3%, through 2025) — Chart 2.2 / Table A.7 · " +
       "median homebuyer income ($90K in 2024 vs $61K in 2019) — Chart 1.5 / Table A.5. " +
       "City-of-Chicago comparison figures come from the same tables. All values verified against " +
       "“Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx” (July 2026 data repository) " +
