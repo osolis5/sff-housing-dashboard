@@ -273,7 +273,14 @@
     </aside>
 
     <div class="pc-canvas">
-      <div class="pc-card pc-results">${resultsInner()}
+      <div class="pc-row2">
+        <div class="pc-card pc-results">${resultsInner()}
+        </div>
+
+        <div class="pc-card pc-panel">
+          <div class="pc-cap">Benchmark households</div>
+          ${profilesBox()}
+        </div>
       </div>
 
       <div class="pc-card pc-panel">
@@ -284,11 +291,6 @@
       <div class="pc-card pc-panel">
         <div class="pc-cap">The affordability gap</div>
         ${gapBox(false)}
-      </div>
-
-      <div class="pc-card pc-panel">
-        <div class="pc-cap">Benchmark households</div>
-        ${profilesBox()}
       </div>
 
       <div class="pc-card pc-panel">
@@ -729,16 +731,19 @@
         const mp = maxPrice(p.inc, c);
         return { ...p, burden, mp, gap: mp - S.price };
       });
-      /* the income/context line lives in the row's hover tooltip (2026-08-19) */
+      /* the income/context line lives in the row's hover tooltip (2026-08-19).
+         Condensed typology rows (2026-09-04): status-tinted card, head line
+         (who + status) over two inline metrics; the gap column moved out of
+         the rows — the gap chart below carries it at full size */
       $('profiles').innerHTML = rows.map(p => {
         const cls = p.burden <= 0.30 ? 'pc-ok' : p.burden <= 0.50 ? 'pc-warn' : 'pc-bad';
         const lab = p.burden <= 0.30 ? 'Affordable' : p.burden <= 0.50 ? 'Cost-burdened' : 'Severely burdened';
-        return `<div class="pc-profile" ${p.tipkey ? `data-tipkey="${p.tipkey}"` : `data-tip="${fmt$(p.inc)} /yr · ${p.note}"`}>
-          <div class="pc-who">${p.who}</div>
-          <div class="pc-m"><b>${fmtPct(p.burden)}</b>of income on this payment</div>
-          <div class="pc-m"><b>${p.mp > 1000 ? fmtK(p.mp) : '—'}</b>max price at ${S.ratio}%</div>
-          <div class="pc-m"><b class="${p.gap >= 0 ? 'pc-gpos' : 'pc-gneg'}">${p.gap >= 0 ? '+' : '−'}${fmtK(Math.abs(p.gap))}</b>gap vs. this price</div>
-          <span class="pc-pill ${cls}">${lab}</span>
+        return `<div class="pc-profile ${cls}" ${p.tipkey ? `data-tipkey="${p.tipkey}"` : `data-tip="${fmt$(p.inc)} /yr · ${p.note}"`}>
+          <div class="pc-t-head"><span class="pc-who">${p.who}</span><span class="pc-t-status">${lab}</span></div>
+          <div class="pc-t-metrics">
+            <span class="pc-m"><b>${fmtPct(p.burden)}</b> of income on this payment</span>
+            <span class="pc-m"><b>${p.mp > 1000 ? fmtK(p.mp) : '—'}</b> max price at ${S.ratio}%</span>
+          </div>
         </div>`;
       }).join('');
 
