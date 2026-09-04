@@ -173,6 +173,21 @@
   z-index: 50;
 }
 
+/* renter-distribution tooltip (supplemental renters-by-income workbook):
+   lead line, mono-caps header, six label/bar/share rows, fine footnote */
+.pc-tip-lead { font-weight: 500; }
+.pc-tip-cap { font-weight: 500; font-size: 10px; letter-spacing: .3px; text-transform: uppercase; margin: 7px 0 4px; padding-top: 7px; border-top: 1px solid #E2E2E9; }
+.pc-trow { display: flex; align-items: center; gap: 7px; padding: 1px 0; white-space: nowrap; }
+.pc-trow-lab { flex: none; width: 98px; }
+.pc-trow-track { flex: 1 1 74px; min-width: 74px; height: 7px; border-radius: 2px; background: #F0F0F4; overflow: hidden; }
+.pc-trow-bar { display: block; height: 100%; border-radius: 2px; background: #91AAD4; }
+.pc-trow-on .pc-trow-bar { background: #1E3567; }
+.pc-trow-on .pc-trow-lab, .pc-trow-on .pc-trow-pct { font-weight: 500; }
+.pc-trow-pct { flex: none; width: 38px; text-align: right; font-variant-numeric: tabular-nums; }
+.pc-tip-note { margin-top: 6px; padding-top: 6px; border-top: 1px solid #E2E2E9; font-size: 11px; white-space: normal; }
+/* the People-rail renter labels carry the same tooltip — dotted cue */
+.pc-hastip { text-decoration: underline dotted #74777F 1px; text-underline-offset: 3px; cursor: help; }
+
 /* results card */
 .pc-cap { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-weight: 500; font-size: 10.5px; letter-spacing: .3px; text-transform: uppercase; color: #000000; }
 .pc-piti { font-size: 40px; font-weight: 700; color: var(--pc-navy); letter-spacing: -0.5px; font-variant-numeric: tabular-nums; margin-top: 2px; }

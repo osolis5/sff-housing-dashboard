@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="vendor/fonts.css?v=20260820f">
 <script type="module" src="vendor/material-tabs.min.js"></script>
 <!-- ?v= busts the browser's asset cache; bump it whenever piti.css/piti.js change -->
-<link rel="stylesheet" href="piti-calculator/piti.css?v=20260820f">
-<script src="piti-calculator/piti.js?v=20260820f"></script>
+<link rel="stylesheet" href="piti-calculator/piti.css?v=20260904a">
+<script src="piti-calculator/piti.js?v=20260904a"></script>
 <script id="piti-data" type="application/json">
 {
   "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx (July 2026 data repository) except where a block names another source. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
@@ -73,6 +73,32 @@
     "nlOwner": 92765,
     "chicagoMedian": 80487,
     "chicagoRenter": 59634
+  },
+  "renterIncomes2024": {
+    "_source": "Supplemental workbook \"North Lawndale and Chicago Renters by Income Group 2024.xlsx\" (September 2026), Sheet1 rows 3–4: renter households by household income group, North Lawndale and City of Chicago, 2024 (ACS tenure-by-income buckets). Counts verbatim; each geography's eleven raw groups sum exactly to its total. The workbook's H2 header repeats \"$20K–$24,999\" — that column is the $25,000–$34,999 bucket (standard ACS sequence, confirmed by the exact sums). Display groups combine everything under $35K per client direction; shares are computed from these counts at render time.",
+    "nlTotal": 9030,
+    "chicagoTotal": 626003,
+    "groups": [
+      { "label": "Under $35K", "floor": 0, "nl": 4455, "chicago": 218302 },
+      { "label": "$35K–$50K", "floor": 35000, "nl": 1455, "chicago": 71324 },
+      { "label": "$50K–$75K", "floor": 50000, "nl": 1363, "chicago": 96117 },
+      { "label": "$75K–$100K", "floor": 75000, "nl": 767, "chicago": 71322 },
+      { "label": "$100K–$150K", "floor": 100000, "nl": 737, "chicago": 87360 },
+      { "label": "$150K or more", "floor": 150000, "nl": 253, "chicago": 81578 }
+    ],
+    "raw": [
+      { "label": "Less than $5,000", "nl": 835, "chicago": 43125 },
+      { "label": "$5,000–$9,999", "nl": 390, "chicago": 19584 },
+      { "label": "$10,000–$14,999", "nl": 1079, "chicago": 45253 },
+      { "label": "$15,000–$19,999", "nl": 653, "chicago": 27564 },
+      { "label": "$20,000–$24,999", "nl": 816, "chicago": 29572 },
+      { "label": "$25,000–$34,999", "nl": 682, "chicago": 53204 },
+      { "label": "$35,000–$49,999", "nl": 1455, "chicago": 71324 },
+      { "label": "$50,000–$74,999", "nl": 1363, "chicago": 96117 },
+      { "label": "$75,000–$99,999", "nl": 767, "chicago": 71322 },
+      { "label": "$100,000–$149,999", "nl": 737, "chicago": 87360 },
+      { "label": "$150,000 or more", "nl": 253, "chicago": 81578 }
+    ]
   },
   "homebuyerIncomes2024": {
     "_source": "IHS baseline data presentation (May 2026), slide 21 — Median Homebuyer Incomes in Select West Side Communities (HMDA): North Lawndale and City of Chicago, 2024 series, with 2019 for context. Not published in the indicator workbook; values read from the slide's chart data.",
@@ -1375,7 +1401,9 @@ TABS.forEach((t, i) => {
       "<b>B.Taxpayer_Characteristics</b> tables 1\u20134 (TY2024 &amp; TY2023 median tax bills; homeowner &amp; senior exemption take-up) \u00b7 " +
       "<b>A.Demographic_Socioeconomic</b> tables 4, 5 &amp; 7 (2024 household &amp; renter incomes, income brackets, tenure) \u00b7 " +
       "<b>E.Property_Sales</b> tables 7\u201314 (2024 all-sales medians &amp; counts) \u00b7 " +
-      "median homebuyer incomes from the IHS baseline data presentation, slide 21 (HMDA). " +
+      "median homebuyer incomes from the IHS baseline data presentation, slide 21 (HMDA) \u00b7 " +
+      "renter households by income group from the supplemental workbook \u201cNorth Lawndale and Chicago " +
+      "Renters by Income Group 2024.xlsx\u201d (ACS tenure-by-income counts, behind the renter-benchmark hover tooltips). " +
       "North Lawndale rows throughout. Interest rate, down payment, insurance, PMI, the 1.5% effective " +
       "property-tax rate (Civic Federation), and the income-share threshold are user-adjustable assumptions " +
       "labeled in the tool \u2014 not workbook values. All dataset values are re-extracted and verified " +
@@ -1391,6 +1419,24 @@ TABS.forEach((t, i) => {
       '<table class="data"><thead><tr><th>Income bracket</th><th class="num">Share of households</th></tr></thead><tbody>' +
       hb.incomeBrackets.map(b => `<tr><td>${b.label}</td><td class="num">${(b.share * 100).toFixed(1)}%</td></tr>`).join("") +
       `<tr><td><b>Total households</b></td><td class="num"><b>${hb.total.toLocaleString()}</b></td></tr></tbody></table>`);
+    /* renter households by income group (supplemental workbook) — the
+       distribution behind the calculator's renter-benchmark hover tooltips */
+    const rr = JSON.parse(document.getElementById("piti-data").textContent).renterIncomes2024;
+    if (rr) {
+      pc.append("p").attr("class", "source").attr("id", "appendix-renters").style("margin", "12px 0 4px").html(
+        "<b>Renter households by income group (2024)</b> — the distribution shown when hovering the renter " +
+        "benchmarks in the calculator. “North Lawndale and Chicago Renters by Income Group 2024.xlsx” " +
+        "(ACS tenure-by-income counts); groups under $35K are combined, and the workbook's full eleven-group " +
+        "detail is preserved in the machine-readable data.json.");
+      pc.append("div").html(
+        '<table class="data"><thead><tr><th>Income group</th><th class="num">North Lawndale</th><th class="num">Share</th>' +
+        '<th class="num">City of Chicago</th><th class="num">Share</th></tr></thead><tbody>' +
+        rr.groups.map(g => `<tr><td>${g.label}</td><td class="num">${g.nl.toLocaleString()}</td>` +
+          `<td class="num">${(g.nl / rr.nlTotal * 100).toFixed(1)}%</td><td class="num">${g.chicago.toLocaleString()}</td>` +
+          `<td class="num">${(g.chicago / rr.chicagoTotal * 100).toFixed(1)}%</td></tr>`).join("") +
+        `<tr><td><b>All renter households</b></td><td class="num"><b>${rr.nlTotal.toLocaleString()}</b></td><td class="num"><b>100%</b></td>` +
+        `<td class="num"><b>${rr.chicagoTotal.toLocaleString()}</b></td><td class="num"><b>100%</b></td></tr></tbody></table>`);
+    }
     const plinks = pc.append("p").attr("class", "source");
     plinks.append("a").attr("class", "xref").attr("href", "piti-calculator/data.html")
       .attr("target", "_blank").attr("rel", "noopener").text("Cell-by-cell data repository & methods \u2197");

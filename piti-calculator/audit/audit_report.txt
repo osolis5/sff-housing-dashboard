@@ -1,14 +1,15 @@
 PITI CALCULATOR — VERIFICATION REPORT
-Run: 2026-08-18 12:47 CDT
+Run: 2026-09-04 01:43 CDT
 Workbook: Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx
 Presentation: IHS_NLawndale_Dashboard_Presentation_05182026.pptx (slide 21)
+Supplemental: North Lawndale and Chicago Renters by Income Group 2024.xlsx (renter income groups)
 
 ================ AUDIT 1+2: dataset cells, cross-foots, amortization ================
 == INLINE DATA BLOCK: PASS — PITI-Calculator/index.html matches data.json ==
 == INLINE DATA BLOCK: PASS — baseline-data-tool/index.html matches data.json ==
 == INLINE DATA BLOCK: PASS — baseline-data-tool/piti-calculator/index.html matches data.json ==
 
-== DATASET AUDIT: 60 value checks, 60 PASS, 0 FAIL ==
+== DATASET AUDIT: 84 value checks, 84 PASS, 0 FAIL ==
   PASS  tier typical (2024 HMDA median)            G.Mortgage_Lending!G19           xlsx=325000  json=325000
   PASS  tier lower (75% placeholder)               G.Mortgage_Lending!I19           xlsx=243750  json=243750
   PASS  tier higher (125% placeholder)             G.Mortgage_Lending!J19           xlsx=406250  json=406250
@@ -40,6 +41,30 @@ Presentation: IHS_NLawndale_Dashboard_Presentation_05182026.pptx (slide 21)
   PASS  bracket 100K+ share                        A.Demographic_Socioeconomic!O67  xlsx=0.185016657186967  json=0.185017
   PASS  NL owner share 2024                        A.Demographic_Socioeconomic!I116 xlsx=0.266271227756561  json=0.266271
   PASS  NL renter share 2024                       A.Demographic_Socioeconomic!O116 xlsx=0.733728772243439  json=0.733729
+  PASS  NL renter households total                 Renters!B3                       xlsx=9030  json=9030
+  PASS  Chicago renter households total            Renters!B4                       xlsx=626003  json=626003
+  PASS  NL renters Less than $5,000                Renters!C3                       xlsx=835  json=835
+  PASS  Chicago renters Less than $5,000           Renters!C4                       xlsx=43125  json=43125
+  PASS  NL renters $5,000–$9,999                   Renters!D3                       xlsx=390  json=390
+  PASS  Chicago renters $5,000–$9,999              Renters!D4                       xlsx=19584  json=19584
+  PASS  NL renters $10,000–$14,999                 Renters!E3                       xlsx=1079  json=1079
+  PASS  Chicago renters $10,000–$14,999            Renters!E4                       xlsx=45253  json=45253
+  PASS  NL renters $15,000–$19,999                 Renters!F3                       xlsx=653  json=653
+  PASS  Chicago renters $15,000–$19,999            Renters!F4                       xlsx=27564  json=27564
+  PASS  NL renters $20,000–$24,999                 Renters!G3                       xlsx=816  json=816
+  PASS  Chicago renters $20,000–$24,999            Renters!G4                       xlsx=29572  json=29572
+  PASS  NL renters $25,000–$34,999                 Renters!H3                       xlsx=682  json=682
+  PASS  Chicago renters $25,000–$34,999            Renters!H4                       xlsx=53204  json=53204
+  PASS  NL renters $35,000–$49,999                 Renters!I3                       xlsx=1455  json=1455
+  PASS  Chicago renters $35,000–$49,999            Renters!I4                       xlsx=71324  json=71324
+  PASS  NL renters $50,000–$74,999                 Renters!J3                       xlsx=1363  json=1363
+  PASS  Chicago renters $50,000–$74,999            Renters!J4                       xlsx=96117  json=96117
+  PASS  NL renters $75,000–$99,999                 Renters!K3                       xlsx=767  json=767
+  PASS  Chicago renters $75,000–$99,999            Renters!K4                       xlsx=71322  json=71322
+  PASS  NL renters $100,000–$149,999               Renters!L3                       xlsx=737  json=737
+  PASS  Chicago renters $100,000–$149,999          Renters!L4                       xlsx=87360  json=87360
+  PASS  NL renters $150,000 or more                Renters!M3                       xlsx=253  json=253
+  PASS  Chicago renters $150,000 or more           Renters!M4                       xlsx=81578  json=81578
   PASS  HMDA loans2019                             G.Mortgage_Lending!B19           xlsx=124  json=124
   PASS  HMDA medianValue2019                       G.Mortgage_Lending!C19           xlsx=205000  json=205000
   PASS  HMDA loans2023                             G.Mortgage_Lending!D19           xlsx=119  json=119
@@ -81,6 +106,22 @@ Presentation: IHS_NLawndale_Dashboard_Presentation_05182026.pptx (slide 21)
   PASS  owner+renter households = total                      12307 vs 12307
   PASS  2019 HMDA income counts sum = 2019 loans             124 vs 124
   PASS  SF tax-bill change TY2023→TY2024 ≈ +73% (About-card claim) 0.73 vs 0.73
+  PASS  renter raw buckets sum = total (nl)                  9030 vs 9030
+  PASS  renter display groups sum = total (nl)               9030 vs 9030
+  PASS  renter under-$35K group = six raw buckets (nl)       4455 vs 4455
+  PASS  renter group $35K–$50K = raw bucket (nl)             1455 vs 1455
+  PASS  renter group $50K–$75K = raw bucket (nl)             1363 vs 1363
+  PASS  renter group $75K–$100K = raw bucket (nl)            767 vs 767
+  PASS  renter group $100K–$150K = raw bucket (nl)           737 vs 737
+  PASS  renter group $150K or more = raw bucket (nl)         253 vs 253
+  PASS  renter raw buckets sum = total (chicago)             626003 vs 626003
+  PASS  renter display groups sum = total (chicago)          626003 vs 626003
+  PASS  renter under-$35K group = six raw buckets (chicago)  218302 vs 218302
+  PASS  renter group $35K–$50K = raw bucket (chicago)        71324 vs 71324
+  PASS  renter group $50K–$75K = raw bucket (chicago)        96117 vs 96117
+  PASS  renter group $75K–$100K = raw bucket (chicago)       71322 vs 71322
+  PASS  renter group $100K–$150K = raw bucket (chicago)      87360 vs 87360
+  PASS  renter group $150K or more = raw bucket (chicago)    81578 vs 81578
 
 == FORMULA: closed-form vs 360-payment simulation (ending balance ~ $0) ==
   PASS  $  100,000 @ 6.0% 30yr -> M=$599.55, end balance $-0.000000

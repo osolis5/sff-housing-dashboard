@@ -311,8 +311,8 @@
       <h2 class="pc-railtitle">People</h2>
 
       <div class="pc-field pc-field-first">
-        <div class="pc-row">
-          <label for="inc-renter">Median NL renter income</label>
+        <div class="pc-row"${D.renterIncomes2024 ? ' data-tipkey="renters-nl"' : ''}>
+          <label for="inc-renter"${D.renterIncomes2024 ? ' class="pc-hastip"' : ''}>Median NL renter income</label>
         </div>
         <span class="pc-badge pc-data" id="inc-renter-badge">dataset · 2024</span>
         <div class="pc-money"><span>$</span><input type="text" id="inc-renter" inputmode="numeric" aria-label="Median North Lawndale renter household income"></div>
@@ -320,8 +320,8 @@
       </div>
 
       <div class="pc-field">
-        <div class="pc-row">
-          <label for="inc-chi-renter">Median Chicago renter income</label>
+        <div class="pc-row"${D.renterIncomes2024 ? ' data-tipkey="renters-chi"' : ''}>
+          <label for="inc-chi-renter"${D.renterIncomes2024 ? ' class="pc-hastip"' : ''}>Median Chicago renter income</label>
         </div>
         <span class="pc-badge pc-data" id="inc-chi-renter-badge">dataset · 2024</span>
         <div class="pc-money"><span>$</span><input type="text" id="inc-chi-renter" inputmode="numeric" aria-label="Median Chicago renter household income"></div>
@@ -552,23 +552,50 @@
       syncInputs(); recalc();
     });
 
-    /* hover tooltips (bracket bar + benchmark-household rows): simple white
-       box with a black outline, follows the cursor. Listeners sit on the
-       persistent containers; children carry data-tip, rebuilt on recalc. */
+    /* hover tooltips (bracket bar + benchmark-household rows + People-rail
+       renter labels): simple white box with a black outline, follows the
+       cursor. Listeners sit on the persistent containers; children carry
+       data-tip (plain text) or data-tipkey (built rich content), rebuilt on
+       recalc. */
     const tip = document.createElement('div');
     tip.className = 'pc-tip';
     mount.appendChild(tip);
+    /* renter-distribution tooltips: the supplemental renters-by-income-group
+       counts (six display groups, under-$35K combined). Built at hover time so
+       the highlighted group follows an edited benchmark income. */
+    const renterTip = (geo, inc, lead) => {
+      const R = D.renterIncomes2024;
+      const total = geo === 'nl' ? R.nlTotal : R.chicagoTotal;
+      const gs = R.groups.map(g => ({ label: g.label, floor: g.floor, share: (geo === 'nl' ? g.nl : g.chicago) / total }));
+      const hi = gs.reduce((a, g, i) => inc >= g.floor ? i : a, 0);
+      const max = Math.max(...gs.map(g => g.share));
+      return `<div class="pc-tip-lead">${lead}</div>
+        <div class="pc-tip-cap">${geo === 'nl' ? 'North Lawndale' : 'Chicago'} renters by income · 2024</div>
+        ${gs.map((g, i) => `<div class="pc-trow${i === hi ? ' pc-trow-on' : ''}">
+          <span class="pc-trow-lab">${g.label}</span>
+          <span class="pc-trow-track"><span class="pc-trow-bar" style="width:${(g.share / max * 100).toFixed(1)}%"></span></span>
+          <span class="pc-trow-pct">${fmtPct(g.share)}</span></div>`).join('')}
+        <div class="pc-tip-note">This income falls in the <b>${gs[hi].label}</b> group of the ${geo === 'nl' ? "neighborhood's" : "city's"} ${total.toLocaleString('en-US')} renter households.</div>`;
+    };
+    const TIPS = {
+      'renters-nl':  () => renterTip('nl',  S.incRenter,    `${fmt$(S.incRenter)} /yr · 73% of NL households rent`),
+      'renters-chi': () => renterTip('chi', S.incChiRenter, `${fmt$(S.incChiRenter)} /yr · citywide renter benchmark`)
+    };
     const tipMove = e => {
-      const seg = e.target.closest('[data-tip]');
-      if (!seg) { tip.style.display = 'none'; return; }
-      tip.textContent = seg.dataset.tip;
+      const seg = e.target.closest('[data-tip],[data-tipkey]');
+      if (!seg) { tip.style.display = 'none'; tip._for = null; return; }
+      if (tip._for !== seg) {           /* rebuild only when the target changes */
+        tip._for = seg;
+        if (seg.dataset.tipkey && TIPS[seg.dataset.tipkey]) tip.innerHTML = TIPS[seg.dataset.tipkey]();
+        else tip.textContent = seg.dataset.tip;
+      }
       tip.style.display = 'block';
       tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
       tip.style.top = Math.min(e.clientY + 12, innerHeight - tip.offsetHeight - 8) + 'px';
     };
-    [$('bracket-bar'), $('profiles')].forEach(el => {
+    [$('bracket-bar'), $('profiles'), mount.querySelector('.pc-rail-people')].filter(Boolean).forEach(el => {
       el.addEventListener('mousemove', tipMove);
-      el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+      el.addEventListener('mouseleave', () => { tip.style.display = 'none'; tip._for = null; });
     });
 
     // ---------- math ----------
@@ -629,8 +656,8 @@
        slide 21 (HMDA); renter medians: workbook A!I83 / A!I88. The NL pair
        reads from state so the People rail can adjust it (dataset defaults). */
     const profiles = () => [
-      { inc: S.incRenter,    who: 'Median NL renter household',      short: 'NL renter',         note: '73% of NL households rent' },
-      { inc: S.incChiRenter, who: 'Median Chicago renter household', short: 'Chicago renter',    note: 'citywide renter benchmark' },
+      { inc: S.incRenter,    who: 'Median NL renter household',      short: 'NL renter',         note: '73% of NL households rent',  tipkey: D.renterIncomes2024 && 'renters-nl' },
+      { inc: S.incChiRenter, who: 'Median Chicago renter household', short: 'Chicago renter',    note: 'citywide renter benchmark',  tipkey: D.renterIncomes2024 && 'renters-chi' },
       { inc: S.incBuyer,     who: 'Median NL homebuyer',             short: 'NL homebuyer',      note: `HMDA · ${D.hmda.loans2024} NL purchases in 2024` },
       { inc: S.incChiBuyer,  who: 'Median Chicago homebuyer',        short: 'Chicago homebuyer', note: 'citywide homebuyer benchmark' }
     ];
@@ -674,7 +701,7 @@
       $('profiles').innerHTML = rows.map(p => {
         const cls = p.burden <= 0.30 ? 'pc-ok' : p.burden <= 0.50 ? 'pc-warn' : 'pc-bad';
         const lab = p.burden <= 0.30 ? 'Affordable' : p.burden <= 0.50 ? 'Cost-burdened' : 'Severely burdened';
-        return `<div class="pc-profile" data-tip="${fmt$(p.inc)} /yr · ${p.note}">
+        return `<div class="pc-profile" ${p.tipkey ? `data-tipkey="${p.tipkey}"` : `data-tip="${fmt$(p.inc)} /yr · ${p.note}"`}>
           <div class="pc-who">${p.who}</div>
           <div class="pc-m"><b>${fmtPct(p.burden)}</b>of income on this payment</div>
           <div class="pc-m"><b>${p.mp > 1000 ? fmtK(p.mp) : '—'}</b>max price at ${S.ratio}%</div>

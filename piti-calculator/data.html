@@ -163,6 +163,25 @@
   <p class="note">Income figures are American Community Survey 5-year estimates as compiled in the workbook
     (2024 vintage) and are rounded to the nearest dollar for display. Bracket shares sum to exactly 100%.</p>
 
+  <h3>Renters by income group — supplemental workbook</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Income group</th><th>North Lawndale</th><th>Share</th><th>City of Chicago</th><th>Share</th></tr>
+    <tr><td>Under $35K</td><td class="v">4,455</td><td>49.3%</td><td class="v">218,302</td><td>34.9%</td></tr>
+    <tr><td>$35K–$50K</td><td class="v">1,455</td><td>16.1%</td><td class="v">71,324</td><td>11.4%</td></tr>
+    <tr><td>$50K–$75K</td><td class="v">1,363</td><td>15.1%</td><td class="v">96,117</td><td>15.4%</td></tr>
+    <tr><td>$75K–$100K</td><td class="v">767</td><td>8.5%</td><td class="v">71,322</td><td>11.4%</td></tr>
+    <tr><td>$100K–$150K</td><td class="v">737</td><td>8.2%</td><td class="v">87,360</td><td>14.0%</td></tr>
+    <tr><td>$150K or more</td><td class="v">253</td><td>2.8%</td><td class="v">81,578</td><td>13.0%</td></tr>
+    <tr><td><b>All renter households</b></td><td class="v"><b>9,030</b></td><td><b>100%</b></td><td class="v"><b>626,003</b></td><td><b>100%</b></td></tr>
+  </table></div>
+  <p class="note">Source: “North Lawndale and Chicago Renters by Income Group 2024.xlsx” (September 2026) —
+    renter households by household income group, 2024 (ACS tenure-by-income buckets). These counts feed the
+    hover tooltips on the two renter benchmarks (People rail and the benchmark-household rows). The workbook
+    carries eleven raw groups (its second “$20K–$24,999” header is the $25,000–$34,999 bucket — the standard
+    ACS sequence, confirmed because each geography's groups sum exactly to its total); everything under $35K
+    is combined for display, and the five upper groups are used as published. The full eleven-group detail is
+    preserved in <span class="cell">data.json → renterIncomes2024.raw</span>.</p>
+
   <h3>Median homebuyer incomes — IHS baseline data presentation, slide 21</h3>
   <div class="tbl-scroll"><table>
     <tr><th>Value</th><th>Used for</th><th>Source</th><th>Cell</th></tr>

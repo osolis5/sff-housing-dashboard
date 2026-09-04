@@ -76,6 +76,26 @@ check('bracket 100K+ share',   'A.Demographic_Socioeconomic', 'O67', br[3]['shar
 check('NL owner share 2024',  'A.Demographic_Socioeconomic', 'I116', D['households2024']['ownerShare'], 1e-6)
 check('NL renter share 2024', 'A.Demographic_Socioeconomic', 'O116', D['households2024']['renterShare'], 1e-6)
 
+# ---- Supplemental workbook: renter households by income group (2024) ----
+# "North Lawndale and Chicago Renters by Income Group 2024.xlsx", Sheet1 —
+# North Lawndale row 3, City of Chicago row 4; col B totals, cols C–M the
+# eleven ACS tenure-by-income buckets. NOTE: the workbook's H2 header repeats
+# "$20K–$24,999"; column H is the $25,000–$34,999 bucket (the standard ACS
+# sequence — confirmed by the cross-foots below: each row's eleven buckets
+# sum exactly to its total).
+RENTERS_XLSX = '/Users/oscarsolis/Desktop/SFF/North Lawndale and Chicago Renters by Income Group 2024.xlsx'
+rws = openpyxl.load_workbook(RENTERS_XLSX, data_only=True)['Sheet1']
+R = D['renterIncomes2024']
+def rcheck(label, cell, expected):
+    actual = rws[cell].value
+    ok = actual is not None and expected is not None and float(actual) == float(expected)
+    results.append((ok, label, f'Renters!{cell}', actual, expected))
+rcheck('NL renter households total',      'B3', R['nlTotal'])
+rcheck('Chicago renter households total', 'B4', R['chicagoTotal'])
+for i, col in enumerate('CDEFGHIJKLM'):
+    rcheck(f'NL renters {R["raw"][i]["label"]}',      f'{col}3', R['raw'][i]['nl'])
+    rcheck(f'Chicago renters {R["raw"][i]["label"]}', f'{col}4', R['raw'][i]['chicago'])
+
 # ---- G. Mortgage_Lending: loans, values, borrower mixes ----
 for cell, key in [('B19','loans2019'), ('C19','medianValue2019'), ('D19','loans2023'),
                   ('E19','medianValue2023'), ('F19','loans2024'), ('G19','medianValue2024')]:
@@ -135,6 +155,17 @@ xf.append(('2019 HMDA income counts sum = 2019 loans',
 q18 = wb['B.Taxpayer_Characteristics']['Q18'].value   # TY2023→TY2024 pct change, SF
 xf.append(('SF tax-bill change TY2023→TY2024 ≈ +73% (About-card claim)',
            round(q18, 2), 0.73))
+# renter income groups: raw buckets and display groups both foot to the
+# totals, and each display group is exactly its raw composition (under-$35K
+# = the six lowest buckets; the five upper groups pass through unchanged)
+for geo, tot in (('nl', R['nlTotal']), ('chicago', R['chicagoTotal'])):
+    xf.append((f'renter raw buckets sum = total ({geo})', sum(r[geo] for r in R['raw']), tot))
+    xf.append((f'renter display groups sum = total ({geo})', sum(g[geo] for g in R['groups']), tot))
+    xf.append((f'renter under-$35K group = six raw buckets ({geo})',
+               R['groups'][0][geo], sum(r[geo] for r in R['raw'][:6])))
+    for gi in range(1, 6):
+        xf.append((f'renter group {R["groups"][gi]["label"]} = raw bucket ({geo})',
+                   R['groups'][gi][geo], R['raw'][gi + 5][geo]))
 
 # ---- Audit 2: amortization formula vs independent iterative simulation ----
 def pni_closed(loan, apr, years):

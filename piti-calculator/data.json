@@ -61,6 +61,32 @@
     "chicagoMedian": 80487,
     "chicagoRenter": 59634
   },
+  "renterIncomes2024": {
+    "_source": "Supplemental workbook \"North Lawndale and Chicago Renters by Income Group 2024.xlsx\" (September 2026), Sheet1 rows 3–4: renter households by household income group, North Lawndale and City of Chicago, 2024 (ACS tenure-by-income buckets). Counts verbatim; each geography's eleven raw groups sum exactly to its total. The workbook's H2 header repeats \"$20K–$24,999\" — that column is the $25,000–$34,999 bucket (standard ACS sequence, confirmed by the exact sums). Display groups combine everything under $35K per client direction; shares are computed from these counts at render time.",
+    "nlTotal": 9030,
+    "chicagoTotal": 626003,
+    "groups": [
+      { "label": "Under $35K", "floor": 0, "nl": 4455, "chicago": 218302 },
+      { "label": "$35K–$50K", "floor": 35000, "nl": 1455, "chicago": 71324 },
+      { "label": "$50K–$75K", "floor": 50000, "nl": 1363, "chicago": 96117 },
+      { "label": "$75K–$100K", "floor": 75000, "nl": 767, "chicago": 71322 },
+      { "label": "$100K–$150K", "floor": 100000, "nl": 737, "chicago": 87360 },
+      { "label": "$150K or more", "floor": 150000, "nl": 253, "chicago": 81578 }
+    ],
+    "raw": [
+      { "label": "Less than $5,000", "nl": 835, "chicago": 43125 },
+      { "label": "$5,000–$9,999", "nl": 390, "chicago": 19584 },
+      { "label": "$10,000–$14,999", "nl": 1079, "chicago": 45253 },
+      { "label": "$15,000–$19,999", "nl": 653, "chicago": 27564 },
+      { "label": "$20,000–$24,999", "nl": 816, "chicago": 29572 },
+      { "label": "$25,000–$34,999", "nl": 682, "chicago": 53204 },
+      { "label": "$35,000–$49,999", "nl": 1455, "chicago": 71324 },
+      { "label": "$50,000–$74,999", "nl": 1363, "chicago": 96117 },
+      { "label": "$75,000–$99,999", "nl": 767, "chicago": 71322 },
+      { "label": "$100,000–$149,999", "nl": 737, "chicago": 87360 },
+      { "label": "$150,000 or more", "nl": 253, "chicago": 81578 }
+    ]
+  },
   "homebuyerIncomes2024": {
     "_source": "IHS baseline data presentation (May 2026), slide 21 — Median Homebuyer Incomes in Select West Side Communities (HMDA): North Lawndale and City of Chicago, 2024 series, with 2019 for context. Not published in the indicator workbook; values read from the slide's chart data.",
     "nl": 90000,
