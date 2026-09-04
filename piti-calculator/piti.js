@@ -231,8 +231,8 @@
       `<p>Interest rate, down payment, insurance, PMI (0.75%/yr of the loan when the down payment is under 20%),
        the 1.5% effective tax rate, and the income-share threshold are adjustable assumptions, not dataset values.
        ${dash ? `The four benchmark incomes in the People panel default to dataset values and are adjustable
-       for what-if scenarios; the optional custom benchmark (hollow dot) joins the charts only when you enter
-       a value and is never a dataset figure. ` : ''}Payment status uses standard cost-burden definitions: over 30% of income = cost-burdened, over 50% = severely burdened.
+       for what-if scenarios; the optional custom benchmark (dashed marker) joins the charts only when you
+       enter a value and is never a dataset figure. ` : ''}Payment status uses standard cost-burden definitions: over 30% of income = cost-burdened, over 50% = severely burdened.
        Mortgage activity is from HMDA: first-lien, owner-occupied, 1-to-4-unit home purchase loans; borrower income
        categories (low / moderate / middle / upper) are as defined in the source data relative to area median income.
        Median homebuyer incomes come from the IHS baseline data presentation (slide 21, HMDA).</p>`,
@@ -281,11 +281,6 @@
           <div class="pc-cap">Renter/buyer typologies</div>
           ${profilesBox()}
         </div>
-      </div>
-
-      <div class="pc-card pc-panel">
-        <div class="pc-cap">Who could afford that payment?</div>
-        ${needLadder()}
       </div>
 
       <div class="pc-card pc-panel">
@@ -698,6 +693,10 @@
       if (S.incCustom > 0) PROFILES.push({ inc: S.incCustom, who: 'Custom benchmark',
         short: 'Custom', note: 'your custom benchmark', custom: true });
       const needed = c.piti * 12 / (S.ratio / 100);
+      /* the "Who could afford" ladder panel left the dashboard layout
+         (2026-09-04, experiments) — its elements exist only in the flat
+         legacy layout now, so both renders are guarded */
+      if ($('need-line')) {
       $('need-line').innerHTML = `This payment takes a household income of about <b>${fmt$(needed)} a year</b>
         to stay under ${S.ratio}% of income — in a neighborhood where the median renter household earns
         ${fmt$(S.incRenter)} and the median 2024 homebuyer earned ${fmt$(S.incBuyer)}.`;
@@ -724,6 +723,7 @@
             <text x="${Math.min(Math.max(nx, 78), R - 84)}" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="#BA1A1A">income needed ${over ? '≥ $150K →' : fmtK(needed)}</text>
             <circle cx="${nx}" cy="${AXY}" r="4.5" fill="#BA1A1A" stroke="#FFF" stroke-width="1.5"/>`;
       $('ladder').innerHTML = t;
+      }
 
       // profile rows: burden %, max price, gap to this scenario's price, pill
       const rows = PROFILES.map(p => {
@@ -771,7 +771,7 @@
           if (Math.abs(ax - px) > 2)
             g += `<line x1="${ax}" y1="${y}" x2="${px}" y2="${y}" stroke="${col}" stroke-width="4.5" stroke-linecap="round"/>`;
           g += `<text x="${mx}" y="${y - 9}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${col}">${p.gap >= 0 ? '+' : '−'}${fmtK(Math.abs(p.gap))}</text>
-                <circle cx="${ax}" cy="${y}" r="5.5" fill="${p.custom ? '#FFF' : '#33518A'}" stroke="${p.custom ? '#33518A' : '#FFF'}" stroke-width="${p.custom ? 2 : 1.5}"/>
+                <line x1="${ax}" y1="${y - 9}" x2="${ax}" y2="${y + 9}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"${p.custom ? ' stroke-dasharray="3.5 2.5"' : ''}/>
                 ${over ? `<text x="${GR + 7}" y="${y + 4}" font-size="11" fill="#74777F">→</text>` : ''}`;
         });
         g += `<line x1="${px}" y1="30" x2="${px}" y2="${GY}" stroke="#BA1A1A" stroke-width="2"/>
