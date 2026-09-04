@@ -89,15 +89,16 @@
 }
 .pc-root input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--pc-sl, var(--pc-track)); }
 .pc-root input[type="range"]::-webkit-slider-thumb {
+  /* V2 hollow ring (user pick 2026-09-04): white knob, gap-dot blue ring */
   -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
-  background: var(--pc-navy); margin-top: -7px; border: 2.5px solid #FFF;
-  box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  background: #FFF; margin-top: -7px; border: 3px solid #2B5CE6;
+  box-shadow: 0 1px 3px rgba(16,24,40,.22);
 }
 .pc-root input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--pc-track); }
-.pc-root input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--pc-navy); }
+.pc-root input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: #2B5CE6; }
 .pc-root input[type="range"]::-moz-range-thumb {
-  width: 13px; height: 13px; border-radius: 50%; background: var(--pc-navy);
-  border: 2.5px solid #FFF; box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  width: 13px; height: 13px; border-radius: 50%; background: #FFF;
+  border: 3px solid #2B5CE6; box-shadow: 0 1px 3px rgba(16,24,40,.22);
 }
 
 .pc-money { display: flex; align-items: center; gap: 0; margin-top: 8px; max-width: 190px; border: 1px solid var(--pc-outline); border-radius: 8px; overflow: hidden; background: #FFF; }
@@ -191,7 +192,7 @@
 
 /* results card */
 .pc-cap { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-weight: 500; font-size: 10.5px; letter-spacing: .3px; text-transform: uppercase; color: #000000; }
-.pc-piti { font-size: 40px; font-weight: 700; color: var(--pc-navy); letter-spacing: -0.5px; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.pc-piti { font-size: 40px; font-weight: 700; color: var(--pc2); letter-spacing: -0.5px; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .pc-piti small { font-size: 15px; font-weight: 400; color: var(--pc-on-surface-variant); letter-spacing: 0; }
 .pc-bar { display: flex; height: 22px; border-radius: 6px; overflow: hidden; margin-top: 14px; }
 .pc-bar > div { min-width: 0; }
@@ -463,3 +464,115 @@
 .pc-root.pc-embedded .pc-foot p { font-size: 12.5px; }
 .pc-root.pc-embedded .pc-calc { grid-template-columns: 1fr 340px; }
 @media (max-width: 720px) { .pc-root.pc-embedded .pc-calc { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   EXPERIMENT 2026-09-04 · "civic analytics" reference reskin
+   Bright royal-blue accent, white rounded cards on a cool gray
+   canvas, inline dataset/assumption chips, 2x2 typology stress
+   grid, dashed target + dot markers. Typography unchanged:
+   Rethink Sans + IBM Plex Mono. Scoped to .pc-dash so the
+   legacy flat layout keeps working.
+   ============================================================ */
+.pc-root { --pc2: #2B5CE6; --pc2-tint: #EAF0FE; --pc2-line: #C9D8FB; --pc2-card: #E4E8F0; --pc2-red: #D92D20; }
+
+.pc-dash { background: #F0F2F7; padding: 24px; column-gap: 24px; }
+.pc-dash .pc-rail { background: #FFF; border: 1px solid var(--pc2-card); border-radius: 18px; padding: 20px; align-self: start; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+.pc-dash .pc-rail-housing { border-right: 1px solid var(--pc2-card); }
+.pc-dash .pc-rail-people { border-left: 1px solid var(--pc2-card); }
+.pc-dash .pc-canvas { background: transparent; padding: 0; }
+.pc-dash .pc-card { border-radius: 18px; border: 1px solid var(--pc2-card); box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+
+.pc-railhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1px solid var(--pc2-card); padding-bottom: 14px; margin-bottom: 4px; }
+.pc-dash .pc-railtitle { border: 0; margin: 0; padding: 0; font-size: 22px; letter-spacing: -0.3px; }
+.pc-railsub { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #5B6472; margin-top: 4px; }
+.pc-pill { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; font-weight: 500; letter-spacing: .6px; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
+.pc-pill-blue  { background: var(--pc2-tint); color: var(--pc2); border: 1px solid var(--pc2-line); }
+.pc-pill-green { background: #E5F6EC; color: #067647; border: 1px solid #BFE8D2; }
+
+/* inline chips inside label rows */
+.pc-dash .pc-row .pc-badge { margin-left: 8px; }
+.pc-dash .pc-row .pc-badge:last-child { margin-left: auto; }
+.pc-dash .pc-row .pc-val { margin-left: auto; }
+.pc-dash .pc-badge.pc-data { background: var(--pc2-tint); color: var(--pc2); border: 1px solid var(--pc2-line); }
+.pc-dash .pc-val { color: var(--pc2); }
+.pc-dash .pc-field .pc-row { flex-wrap: wrap; }
+
+.pc-hl { background: #F3F7FE; border: 1px solid var(--pc2-line); border-radius: 12px; padding: 12px 14px; }
+.pc-scale { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #7A8494; margin-top: 5px; }
+.pc-info { background: #F3F7FE; border: 1px solid var(--pc2-line); border-radius: 12px; padding: 12px 14px; font-size: 12.5px; line-height: 1.55; color: #223055; margin-top: 20px; }
+.pc-info b { color: #16233F; }
+.pc-take { background: #FFF; border: 1px solid var(--pc2-card); color: var(--pc-on-surface-variant); }
+.pc-sevrow { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--pc2-card); margin-top: 14px; padding-top: 12px; font-size: 12.5px; color: var(--pc-on-surface-variant); }
+.pc-sevrow b { color: var(--pc2-red); }
+.pc-earn { font-size: 11.5px; color: #7A8494; margin-top: 4px; }
+.pc-subrow { margin-top: 2px; }
+.pc-railsub2 { font-size: 11.5px; color: #7A8494; }
+
+/* payment card head */
+.pc-payhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.pc-paychips { display: flex; gap: 8px; flex-wrap: wrap; }
+.pc-chip2 { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; padding: 6px 11px; border-radius: 9px; background: #F1F3F8; border: 1px solid var(--pc2-card); color: #33405A; white-space: nowrap; }
+.pc-chip2-blue { background: var(--pc2-tint); border-color: var(--pc2-line); color: var(--pc2); }
+.pc-chip2-red  { background: #FDECEC; border-color: #F6C9C5; color: var(--pc2-red); }
+.pc-dash .pc-piti { margin-top: 8px; }
+.pc-dash .pc-leg { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.pc-div2 { border-top: 1px solid var(--pc2-card); margin: 20px 0 16px; }
+.pc-typo-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.pc-bench { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #7A8494; }
+
+/* typology stress grid */
+.pc-dash .pc-profiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+@media (max-width: 900px) { .pc-dash .pc-profiles { grid-template-columns: 1fr; } }
+.pc-profile { border: 1px solid transparent; }
+.pc-profile.pc-ok   { background: #EAF8F0; border-color: #BFE8D2; }
+.pc-profile.pc-warn { background: #FEF7E6; border-color: #F2DFA0; }
+.pc-profile.pc-bad  { background: #FDEDEC; border-color: #F6C9C5; }
+.pc-t-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.pc-t-block { font-size: 11.5px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; padding: 5px 10px; border-radius: 7px; white-space: nowrap; }
+.pc-profile.pc-bad  .pc-t-block { background: #FAD1CD; color: #C11414; }
+.pc-profile.pc-warn .pc-t-block { background: #FBE7A2; color: #92400E; }
+.pc-profile.pc-ok   .pc-t-block { background: #C7F1DC; color: #067647; }
+.pc-t-metrics { display: flex; align-items: baseline; gap: 4px 14px; flex-wrap: wrap; margin-top: 9px; }
+.pc-m2 { font-size: 12.5px; color: var(--pc-on-surface-variant); }
+.pc-m2 b { font-size: 17px; font-weight: 800; margin-right: 2px; font-variant-numeric: tabular-nums; }
+.pc-profile.pc-bad  .pc-m2 b { color: #C11414; }
+.pc-profile.pc-warn .pc-m2 b { color: #92400E; }
+.pc-profile.pc-ok   .pc-m2 b { color: #067647; }
+.pc-m2g { font-size: 12px; color: #7A8494; }
+
+/* gap + bracket section chrome */
+.pc-gap-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.pc-h2 { font-size: 15px; font-weight: 700; letter-spacing: -0.1px; }
+.pc-sub2 { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #7A8494; margin-top: 4px; }
+.pc-h2 + .pc-sub2 { margin-bottom: 10px; }
+.pc-reqchip { position: absolute; top: -26px; transform: translateX(-50%); background: var(--pc2-red); color: #FFF; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .4px; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+
+/* controls refresh */
+.pc-dash .pc-money input, .pc-dash .pc-money { border-radius: 10px; }
+.pc-dash .pc-toggle button { border-radius: 10px; }
+.pc-dash .pc-toggle button.pc-on { background: var(--pc2-tint); color: var(--pc2); border-color: var(--pc2-line); }
+
+/* Gap-Analysis-Local: payment and typologies as side-by-side cards; the
+   typology cards stack single-column inside the half-width card */
+.pc-dash .pc-row2 .pc-profiles { grid-template-columns: 1fr; }
+
+/* narrative mode (Gap-Analysis-Local): header toggle adds short context
+   notes to each section; notes animate in like a theme transition */
+.pc-nar {
+  max-height: 0; opacity: 0; overflow: hidden;
+  margin: 0; padding: 0; background: transparent;
+  border: 0 solid var(--pc2-card); border-bottom-width: 0;
+  color: #000000; line-height: 1.6;
+  font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 12px;
+  transition: max-height .35s ease, opacity .35s ease, margin .35s ease, padding .35s ease;
+}
+.pc-nar b, .pc-nar strong { font-weight: 500; }
+body.pc-narrative .pc-nar {
+  max-height: 420px; opacity: 1; margin: 14px 0 18px;
+  padding-bottom: 14px; border-bottom-width: 1px;
+}
+/* recovered narrative details: header dek width, live required-income line,
+   local red for its bold figures */
+.dek { max-width: 880px; }
+.pc-nar .pc-need { display: block; margin-top: 8px; font-size: inherit; }
+.pc-nar .pc-need b { color: #D92D20; }
