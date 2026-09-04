@@ -6,7 +6,7 @@
 <title>Gap Analysis Calculator — North Lawndale</title>
 <link rel="stylesheet" href="vendor/fonts.css">
 <!-- ?v= busts the browser's asset cache; bump it whenever piti.css/piti.js change -->
-<link rel="stylesheet" href="piti.css?v=20260904n">
+<link rel="stylesheet" href="piti.css?v=20260904o">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -17,7 +17,7 @@
   }
   /* reference shell (2026-09-04 experiment): white app bar with breadcrumb
      over the card canvas, methodology footer below */
-  .wrap { max-width: min(1500px, 100% - 48px); margin: 0 auto; }
+  .wrap { width: 100%; margin: 0; }
   header { background: #FFF; border-bottom: 1px solid #E4E8F0; padding: 14px 24px; }
   header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   .mode-toggle { display: flex; gap: 0; border: 1px solid #C9D8FB; border-radius: 999px; overflow: hidden; }
@@ -196,7 +196,7 @@
     try { if (localStorage.getItem('gapNarrative') === '1') setMode(true); } catch (e) {}
   })();
 </script>
-<script src="piti.js?v=20260904n"></script>
+<script src="piti.js?v=20260904o"></script>
 <script>
   PITI.render(
     document.getElementById('piti-mount'),

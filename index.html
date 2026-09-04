@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="vendor/fonts.css?v=20260820f">
 <script type="module" src="vendor/material-tabs.min.js"></script>
 <!-- ?v= busts the browser's asset cache; bump it whenever piti.css/piti.js change -->
-<link rel="stylesheet" href="piti-calculator/piti.css?v=20260904n">
-<script src="piti-calculator/piti.js?v=20260904n"></script>
+<link rel="stylesheet" href="piti-calculator/piti.css?v=20260904o">
+<script src="piti-calculator/piti.js?v=20260904o"></script>
 <script id="piti-data" type="application/json">
 {
   "_about": "All values extracted verbatim from Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx (July 2026 data repository) except where a block names another source. Every block lists its sheet + table. No synthetic values: fields that the dataset does not cover are null and the UI must label their defaults as user assumptions.",
@@ -275,7 +275,13 @@
   .wrap { max-width: min(1500px, 100% - 48px); margin: 0 auto; padding: 20px 24px 40px; }
   /* the Gap Analysis three-panel block runs gutter-to-gutter like the hero —
      the wrap's side padding otherwise doubles the white beside the rails */
-  #panel-calculator #piti-mount { margin-left: -24px; margin-right: -24px; }
+  body { overflow-x: clip; }
+  /* the calculator escapes the centered wrap and spans the full viewport */
+  #panel-calculator #piti-mount, .mode-row { width: 100vw; margin-left: calc(50% - 50vw); }
+  .mode-row { display: flex; justify-content: flex-end; padding: 18px 24px 0; }
+  .mode-toggle { display: flex; border: 1px solid #C9D8FB; border-radius: 999px; overflow: hidden; }
+  .mode-toggle button { font: 500 11px/1 'IBM Plex Mono', monospace; letter-spacing: .5px; text-transform: uppercase; padding: 8px 14px; border: 0; background: #FFF; color: #5B6472; cursor: pointer; transition: background .25s, color .25s; }
+  .mode-toggle button.on { background: #2B5CE6; color: #FFF; }
   /* --- KPI cards (M3 elevated card) --- */
   .kpis {
     display: grid;
@@ -1349,6 +1355,24 @@ TABS.forEach((t, i) => {
        piti.js + piti.css) \u2014 the same three-panel Gap Analysis layout as the
        standalone page (dashboard: true). The tab leads straight into the
        panels; the global KPI strip is hidden here too \u2014 see activate(). */
+    /* Calculator/Narrative toggle (same behavior + stored choice as the
+       standalone page) */
+    const modeRow = panel.append("div").attr("class", "mode-row");
+    const modeToggle = modeRow.append("div").attr("class", "mode-toggle")
+      .attr("role", "group").attr("aria-label", "View mode");
+    const calcBtn = modeToggle.append("button").attr("type", "button")
+      .attr("class", "on").attr("aria-pressed", "true").text("Calculator");
+    const narBtn = modeToggle.append("button").attr("type", "button")
+      .attr("aria-pressed", "false").text("Narrative");
+    const setMode = narrative => {
+      document.body.classList.toggle("pc-narrative", narrative);
+      calcBtn.classed("on", !narrative).attr("aria-pressed", String(!narrative));
+      narBtn.classed("on", narrative).attr("aria-pressed", String(narrative));
+      try { localStorage.setItem("gapNarrative", narrative ? "1" : "0"); } catch (e) {}
+    };
+    calcBtn.on("click", () => setMode(false));
+    narBtn.on("click", () => setMode(true));
+    try { if (localStorage.getItem("gapNarrative") === "1") setMode(true); } catch (e) {}
     const mount = panel.append("div").attr("id", "piti-mount").node();
     PITI.render(mount, JSON.parse(document.getElementById("piti-data").textContent),
       { dashboard: true, repoBase: "piti-calculator/" });
