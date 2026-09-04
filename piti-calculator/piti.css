@@ -255,6 +255,12 @@
   font-size: 12.5px; font-weight: 500; color: #FFF; white-space: nowrap; overflow: hidden;
 }
 .pc-dist .pc-pct.pc-dk { color: var(--pc-on-surface); }
+/* bracket card sub-bars (2026-09-04): mono micro-labels over each bar;
+   the renter sub-bar sits shorter than the all-households bar */
+.pc-bar-lab { margin-top: 14px; font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 10px; font-weight: 500; letter-spacing: .3px; text-transform: uppercase; color: #000000; }
+#bracket-dist .pc-bar { margin-top: 6px; }
+.pc-bar.pc-bar-sub { height: 20px; }
+.pc-bar.pc-bar-sub .pc-pct { font-size: 11px; }
 .pc-dist .pc-leg { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 10px; }
 .pc-dist .pc-lr { display: flex; align-items: center; gap: 7px; font-size: 12.5px; padding: 0; }
 .pc-dist .pc-lr .pc-nm { color: var(--pc-on-surface-variant); }

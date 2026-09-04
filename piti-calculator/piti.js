@@ -160,7 +160,11 @@
   <div class="pc-dist" id="bracket-dist">
     ${lead ? `<p class="pc-sub" style="margin-top:26px"><strong>Where the required income lands.</strong> Share of North Lawndale's
       ${D.households2024.total.toLocaleString()} households by income bracket (2024):</p>` : ''}
+    <div class="pc-bar-lab">All households · ${D.households2024.total.toLocaleString('en-US')}</div>
     <div class="pc-bar" id="bracket-bar"></div>
+    ${D.renterIncomes2024 ? `
+    <div class="pc-bar-lab">Renter households · ${D.renterIncomes2024.nlTotal.toLocaleString('en-US')}</div>
+    <div class="pc-bar pc-bar-sub" id="bracket-bar-r"></div>` : ''}
     <div class="pc-leg" id="bracket-leg"></div>
     <p class="pc-marker-note" id="bracket-note"></p>
   </div>`;
@@ -618,7 +622,7 @@
       tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
       tip.style.top = Math.min(e.clientY + 12, innerHeight - tip.offsetHeight - 8) + 'px';
     };
-    [$('bracket-bar'), $('profiles'), mount.querySelector('.pc-rail-people')].filter(Boolean).forEach(el => {
+    [$('bracket-bar'), $('bracket-bar-r'), $('profiles'), mount.querySelector('.pc-rail-people')].filter(Boolean).forEach(el => {
       el.addEventListener('mousemove', tipMove);
       el.addEventListener('mouseleave', () => { tip.style.display = 'none'; tip._for = null; });
     });
@@ -785,18 +789,36 @@
       const floors = [0, 25000, 50000, 100000];
       const bi = floors.findIndex((f, i) => needed >= f && (i === 3 || needed < floors[i + 1]));
       $('bracket-bar').innerHTML = br.map((b, i) => `
-        <div data-tip="${b.label} — ${fmtPct(b.share)} of households${i === bi ? ' · the required income falls in this bracket' : ''}" style="flex:${b.share};background:${RAMP4[i]}">
+        <div data-tip="${b.label} — ${fmtPct(b.share)} of all households${i === bi ? ' · the required income falls in this bracket' : ''}" style="flex:${b.share};background:${RAMP4[i]}">
           <span class="pc-pct${i < 2 ? ' pc-dk' : ''}">${b.share >= 0.08 ? fmtPct(b.share) : ''}</span>
           ${i === bi ? `<span style="position:absolute;left:0;top:-6px;bottom:-6px;width:2.5px;background:#BA1A1A"></span>` : ''}
         </div>`).join('');
+      /* renter sub-bar (2026-09-04): the supplemental renters-by-income raw
+         buckets regrouped into the SAME four sections — indices 0–4 <$25K,
+         5–6 $25–50K, 7–8 $50–100K, 9–10 $100K+ (arithmetic on audited
+         counts; boundaries align exactly with the ACS bucket edges) */
+      const rBarEl = $('bracket-bar-r');
+      let rSect = null, rTot = 0;
+      if (rBarEl && D.renterIncomes2024) {
+        const raw = D.renterIncomes2024.raw;
+        rTot = D.renterIncomes2024.nlTotal;
+        rSect = [[0, 5], [5, 7], [7, 9], [9, 11]].map(([a, z]) => raw.slice(a, z).reduce((s, x) => s + x.nl, 0));
+        rBarEl.innerHTML = rSect.map((n, i) => { const sh = n / rTot; return `
+        <div data-tip="${br[i].label} — ${fmtPct(sh)} of renter households (${n.toLocaleString('en-US')} of ${rTot.toLocaleString('en-US')})${i === bi ? ' · the required income falls in this bracket' : ''}" style="flex:${sh};background:${RAMP4[i]}">
+          <span class="pc-pct${i < 2 ? ' pc-dk' : ''}">${sh >= 0.08 ? fmtPct(sh) : ''}</span>
+          ${i === bi ? `<span style="position:absolute;left:0;top:-6px;bottom:-6px;width:2.5px;background:#BA1A1A"></span>` : ''}
+        </div>`; }).join('');
+      }
+      /* both bars carry their own in-segment shares — the legend keys color to bracket only */
       $('bracket-leg').innerHTML = br.map((b, i) => `<div class="pc-lr">
-        <span class="pc-sw" style="background:${RAMP4[i]}"></span><span class="pc-nm">${b.label}</span>
-        <b>&nbsp;${fmtPct(b.share)}</b></div>`).join('');
+        <span class="pc-sw" style="background:${RAMP4[i]}"></span><span class="pc-nm">${b.label}</span></div>`).join('');
       const floorLab = bi === 0 ? 'every income bracket' : `the ${br[bi].label} bracket`;
       $('bracket-note').innerHTML = `The required income (<b>${fmt$(needed)}</b>) falls in ${floorLab}.
         Households earning ${bi === 0 ? 'any amount' : fmtK(floors[bi]) + ' or more'} — the brackets that could plausibly reach it —
         make up <b>${fmtPct(br.slice(bi).reduce((s, b) => s + b.share, 0))}</b> of North Lawndale's ${D.households2024.total.toLocaleString()} households.
-        <b>${fmtPct(D.households2024.renterShare)}</b> of the neighborhood's households currently rent.`;
+        <b>${fmtPct(D.households2024.renterShare)}</b> of the neighborhood's households currently rent${rSect
+          ? ` — and among its ${rTot.toLocaleString('en-US')} renter households, <b>${fmtPct(rSect.slice(bi).reduce((s, n) => s + n, 0) / rTot)}</b> are in those brackets`
+          : ''}.`;
     }
 
     // ---------- render: who buys (static) ----------
