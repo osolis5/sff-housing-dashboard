@@ -832,13 +832,13 @@
         <span class="pc-sw" style="background:${RAMP4[i]}"></span><span class="pc-nm">${b.label}</span></div>`).join('');
       const floorLab = bi === 0 ? 'every income bracket' : `the ${br[bi].label} bracket`;
       $('bracket-note').innerHTML = `The required income (<b>${fmt$(needed)}</b>) falls in ${floorLab}.
-        Households earning ${bi === 0 ? 'any amount' : fmtK(floors[bi]) + ' or more'} — the brackets that could plausibly reach it —
+        Households earning ${bi === 0 ? 'any amount' : fmtK(floors[bi]) + ' or more'}
         make up <b>${fmtPct(br.slice(bi).reduce((s, b) => s + b.share, 0))}</b> of North Lawndale's ${D.households2024.total.toLocaleString()} households.
         <b>${fmtPct(D.households2024.renterShare)}</b> of the neighborhood's households currently rent${rSect && oSect
           ? `: <b>${fmtPct(rSect.slice(bi).reduce((s, n) => s + n, 0) / rTot)}</b> of its ${rTot.toLocaleString('en-US')} renter households
              are in those brackets, versus <b>${fmtPct(oSect.slice(bi).reduce((s, n) => s + n, 0) / oTot)}</b> of its ${oTot.toLocaleString('en-US')} owner households`
           : rSect
-          ? ` — and among its ${rTot.toLocaleString('en-US')} renter households, <b>${fmtPct(rSect.slice(bi).reduce((s, n) => s + n, 0) / rTot)}</b> are in those brackets`
+          ? `. Among its ${rTot.toLocaleString('en-US')} renter households, <b>${fmtPct(rSect.slice(bi).reduce((s, n) => s + n, 0) / rTot)}</b> are in those brackets`
           : ''}.`;
     }
 
