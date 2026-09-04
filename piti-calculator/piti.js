@@ -278,7 +278,7 @@
         </div>
 
         <div class="pc-card pc-panel">
-          <div class="pc-cap">Benchmark households</div>
+          <div class="pc-cap">Renter/buyer typologies</div>
           ${profilesBox()}
         </div>
       </div>
