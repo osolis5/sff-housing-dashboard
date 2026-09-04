@@ -164,7 +164,9 @@
     <div class="pc-bar" id="bracket-bar"></div>
     ${D.renterIncomes2024 ? `
     <div class="pc-bar-lab">Renter households · ${D.renterIncomes2024.nlTotal.toLocaleString('en-US')}</div>
-    <div class="pc-bar pc-bar-sub" id="bracket-bar-r"></div>` : ''}
+    <div class="pc-bar pc-bar-sub" id="bracket-bar-r"></div>
+    <div class="pc-bar-lab">Owner households · ${(D.households2024.total - D.renterIncomes2024.nlTotal).toLocaleString('en-US')} · derived</div>
+    <div class="pc-bar pc-bar-sub" id="bracket-bar-o"></div>` : ''}
     <div class="pc-leg" id="bracket-leg"></div>
     <p class="pc-marker-note" id="bracket-note"></p>
   </div>`;
@@ -622,7 +624,7 @@
       tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
       tip.style.top = Math.min(e.clientY + 12, innerHeight - tip.offsetHeight - 8) + 'px';
     };
-    [$('bracket-bar'), $('bracket-bar-r'), $('profiles'), mount.querySelector('.pc-rail-people')].filter(Boolean).forEach(el => {
+    [$('bracket-bar'), $('bracket-bar-r'), $('bracket-bar-o'), $('profiles'), mount.querySelector('.pc-rail-people')].filter(Boolean).forEach(el => {
       el.addEventListener('mousemove', tipMove);
       el.addEventListener('mouseleave', () => { tip.style.display = 'none'; tip._for = null; });
     });
@@ -809,6 +811,22 @@
           ${i === bi ? `<span style="position:absolute;left:0;top:-6px;bottom:-6px;width:2.5px;background:#BA1A1A"></span>` : ''}
         </div>`; }).join('');
       }
+      /* owner sub-bar — DERIVED, not a published table: exact bracket shares ×
+         the household total give integer all-household counts; subtracting the
+         renter counts recovers the owner half of the same ACS tenure-by-income
+         universe (foots to the published 3,277 owner total; audit cross-checks) */
+      const oBarEl = $('bracket-bar-o');
+      let oSect = null, oTot = 0;
+      if (oBarEl && rSect) {
+        const allC = br.map(b => Math.round(b.share * D.households2024.total));
+        oSect = allC.map((a, i) => a - rSect[i]);
+        oTot = oSect.reduce((s, n) => s + n, 0);
+        oBarEl.innerHTML = oSect.map((n, i) => { const sh = n / oTot; return `
+        <div data-tip="${br[i].label} — ${fmtPct(sh)} of owner households (${n.toLocaleString('en-US')} of ${oTot.toLocaleString('en-US')}) · derived: all households minus renters${i === bi ? ' · the required income falls in this bracket' : ''}" style="flex:${sh};background:${RAMP4[i]}">
+          <span class="pc-pct${i < 2 ? ' pc-dk' : ''}">${sh >= 0.08 ? fmtPct(sh) : ''}</span>
+          ${i === bi ? `<span style="position:absolute;left:0;top:-6px;bottom:-6px;width:2.5px;background:#BA1A1A"></span>` : ''}
+        </div>`; }).join('');
+      }
       /* both bars carry their own in-segment shares — the legend keys color to bracket only */
       $('bracket-leg').innerHTML = br.map((b, i) => `<div class="pc-lr">
         <span class="pc-sw" style="background:${RAMP4[i]}"></span><span class="pc-nm">${b.label}</span></div>`).join('');
@@ -816,7 +834,10 @@
       $('bracket-note').innerHTML = `The required income (<b>${fmt$(needed)}</b>) falls in ${floorLab}.
         Households earning ${bi === 0 ? 'any amount' : fmtK(floors[bi]) + ' or more'} — the brackets that could plausibly reach it —
         make up <b>${fmtPct(br.slice(bi).reduce((s, b) => s + b.share, 0))}</b> of North Lawndale's ${D.households2024.total.toLocaleString()} households.
-        <b>${fmtPct(D.households2024.renterShare)}</b> of the neighborhood's households currently rent${rSect
+        <b>${fmtPct(D.households2024.renterShare)}</b> of the neighborhood's households currently rent${rSect && oSect
+          ? `: <b>${fmtPct(rSect.slice(bi).reduce((s, n) => s + n, 0) / rTot)}</b> of its ${rTot.toLocaleString('en-US')} renter households
+             are in those brackets, versus <b>${fmtPct(oSect.slice(bi).reduce((s, n) => s + n, 0) / oTot)}</b> of its ${oTot.toLocaleString('en-US')} owner households`
+          : rSect
           ? ` — and among its ${rTot.toLocaleString('en-US')} renter households, <b>${fmtPct(rSect.slice(bi).reduce((s, n) => s + n, 0) / rTot)}</b> are in those brackets`
           : ''}.`;
     }

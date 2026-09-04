@@ -1,5 +1,5 @@
 PITI CALCULATOR — VERIFICATION REPORT
-Run: 2026-09-04 01:43 CDT
+Run: 2026-09-04 03:10 CDT
 Workbook: Chicago Community Areas_2026_SFF_Indicators_07022026.xlsx
 Presentation: IHS_NLawndale_Dashboard_Presentation_05182026.pptx (slide 21)
 Supplemental: North Lawndale and Chicago Renters by Income Group 2024.xlsx (renter income groups)
@@ -122,6 +122,12 @@ Supplemental: North Lawndale and Chicago Renters by Income Group 2024.xlsx (rent
   PASS  renter group $75K–$100K = raw bucket (chicago)       71322 vs 71322
   PASS  renter group $100K–$150K = raw bucket (chicago)      87360 vs 87360
   PASS  renter group $150K or more = raw bucket (chicago)    81578 vs 81578
+  PASS  bracket share x total rounds cleanly (Under $25K)    0.0 vs 0
+  PASS  bracket share x total rounds cleanly ($25K–$50K)     0.0 vs 0
+  PASS  bracket share x total rounds cleanly ($50K–$100K)    0.0 vs 0
+  PASS  bracket share x total rounds cleanly ($100K or more) 0.0 vs 0
+  PASS  derived owner sections sum = published owner total (A!F116) 3277 vs 3277
+  PASS  derived owner sections all non-negative              0 vs 0
 
 == FORMULA: closed-form vs 360-payment simulation (ending balance ~ $0) ==
   PASS  $  100,000 @ 6.0% 30yr -> M=$599.55, end balance $-0.000000

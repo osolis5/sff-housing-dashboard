@@ -166,6 +166,18 @@ for geo, tot in (('nl', R['nlTotal']), ('chicago', R['chicagoTotal'])):
     for gi in range(1, 6):
         xf.append((f'renter group {R["groups"][gi]["label"]} = raw bucket ({geo})',
                    R['groups'][gi][geo], R['raw'][gi + 5][geo]))
+# derived owner distribution (bracket card owner sub-bar): exact table-4
+# shares x household total must give integers, and all-minus-renters must
+# recover the published owner total with no negative sections
+_all = [round(b['share'] * D['households2024']['total']) for b in D['households2024']['incomeBrackets']]
+for i, b in enumerate(D['households2024']['incomeBrackets']):
+    xf.append((f'bracket share x total rounds cleanly ({b["label"]})',
+               round(abs(b['share'] * D['households2024']['total'] - _all[i]), 1), 0))
+_rsect = [sum(r['nl'] for r in R['raw'][a:z]) for a, z in ((0, 5), (5, 7), (7, 9), (9, 11))]
+_own = [a - r for a, r in zip(_all, _rsect)]
+xf.append(('derived owner sections sum = published owner total (A!F116)',
+           sum(_own), wb['A.Demographic_Socioeconomic']['F116'].value))
+xf.append(('derived owner sections all non-negative', sum(1 for n in _own if n < 0), 0))
 
 # ---- Audit 2: amortization formula vs independent iterative simulation ----
 def pni_closed(loan, apr, years):
