@@ -6,27 +6,40 @@
 <title>Gap Analysis Calculator — North Lawndale</title>
 <link rel="stylesheet" href="vendor/fonts.css">
 <!-- ?v= busts the browser's asset cache; bump it whenever piti.css/piti.js change -->
-<link rel="stylesheet" href="piti.css?v=20260904j">
+<link rel="stylesheet" href="piti.css?v=20260904m">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #FFFFFF;
+    background: #F0F2F7;
     color: #191C20;
     font-family: 'Rethink Sans', 'Roboto', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  /* dashboard shell: slim header band over the three-panel layout */
+  /* reference shell (2026-09-04 experiment): white app bar with breadcrumb
+     over the card canvas, methodology footer below */
   .wrap { max-width: min(1500px, 100% - 48px); margin: 0 auto; }
-  header { padding: 26px 24px 18px; border-bottom: 1px solid #C4C6D0; }
-  header h1 { font-weight: 700; font-size: 26px; line-height: 1.2; letter-spacing: -0.2px; }
+  header { background: #FFF; border-bottom: 1px solid #E4E8F0; padding: 14px 24px; }
+  .crumb { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .4px; color: #7A8494; }
+  .crumb b { color: #191C20; font-weight: 500; }
+  header h1 { font-weight: 700; font-size: 21px; line-height: 1.25; letter-spacing: -0.2px; margin-top: 3px; }
+  footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 24px 30px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #7A8494; }
+  footer button { font: inherit; color: #2B5CE6; background: none; border: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; padding: 0; }
 </style>
 </head>
 <body>
+<header>
+  <div class="wrap">
+    <div class="crumb">Steans Family Foundation / Chicago community areas / <b>North Lawndale</b></div>
+    <h1>Housing Affordability &amp; Gap Analysis Calculator</h1>
+  </div>
+</header>
 <div class="wrap">
-  <header>
-    <h1>Gap Analysis Calculator</h1>
-  </header>
   <div id="piti-mount"></div>
+  <footer>
+    <span>North Lawndale housing strategy · Gap Analysis Calculator</span>
+    <span>Methodology: 28% housing-share default (adjustable) · ACS 5-year · HMDA ·
+      <button type="button" onclick="var r=document.getElementById('pc-reset'); if (r) r.click();">Reset to default</button></span>
+  </footer>
 </div>
 
 <script id="piti-data" type="application/json">
@@ -161,7 +174,7 @@
   }
 }
 </script>
-<script src="piti.js?v=20260904j"></script>
+<script src="piti.js?v=20260904m"></script>
 <script>
   PITI.render(
     document.getElementById('piti-mount'),
