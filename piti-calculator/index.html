@@ -6,7 +6,7 @@
 <title>Gap Analysis Calculator — North Lawndale</title>
 <link rel="stylesheet" href="vendor/fonts.css">
 <!-- ?v= busts the browser's asset cache; bump it whenever piti.css/piti.js change -->
-<link rel="stylesheet" href="piti.css?v=20260904m">
+<link rel="stylesheet" href="piti.css?v=20260904n">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -19,6 +19,10 @@
      over the card canvas, methodology footer below */
   .wrap { max-width: min(1500px, 100% - 48px); margin: 0 auto; }
   header { background: #FFF; border-bottom: 1px solid #E4E8F0; padding: 14px 24px; }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .mode-toggle { display: flex; gap: 0; border: 1px solid #C9D8FB; border-radius: 999px; overflow: hidden; }
+  .mode-toggle button { font: 500 11px/1 'IBM Plex Mono', monospace; letter-spacing: .5px; text-transform: uppercase; padding: 8px 14px; border: 0; background: #FFF; color: #5B6472; cursor: pointer; transition: background .25s, color .25s; }
+  .mode-toggle button.on { background: #2B5CE6; color: #FFF; }
   .crumb { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .4px; color: #7A8494; }
   .crumb b { color: #191C20; font-weight: 500; }
   header h1 { font-weight: 700; font-size: 21px; line-height: 1.25; letter-spacing: -0.2px; margin-top: 3px; }
@@ -29,17 +33,20 @@
 <body>
 <header>
   <div class="wrap">
-    <div class="crumb">Steans Family Foundation / Chicago community areas / <b>North Lawndale</b></div>
-    <h1>Housing Affordability &amp; Gap Analysis Calculator</h1>
+    <div>
+      <h1>Gap Analysis Calculator</h1>
+      <p class="pc-nar dek">Calculates the monthly cost of buying a North Lawndale home (principal, interest,
+        taxes, insurance) and compares the income that cost requires with what North Lawndale renters and
+        homebuyers earn. Prices and incomes are 2024 values from the SFF indicator dataset, ACS, and HMDA.</p>
+    </div>
+    <div class="mode-toggle" role="group" aria-label="View mode">
+      <button type="button" id="mode-calc" class="on" aria-pressed="true">Calculator</button>
+      <button type="button" id="mode-nar" aria-pressed="false">Narrative</button>
+    </div>
   </div>
 </header>
 <div class="wrap">
   <div id="piti-mount"></div>
-  <footer>
-    <span>North Lawndale housing strategy · Gap Analysis Calculator</span>
-    <span>Methodology: 28% housing-share default (adjustable) · ACS 5-year · HMDA ·
-      <button type="button" onclick="var r=document.getElementById('pc-reset'); if (r) r.click();">Reset to default</button></span>
-  </footer>
 </div>
 
 <script id="piti-data" type="application/json">
@@ -174,7 +181,22 @@
   }
 }
 </script>
-<script src="piti.js?v=20260904m"></script>
+<script>
+  /* narrative mode toggle: body class + remembered choice */
+  (function () {
+    var calc = document.getElementById('mode-calc'), nar = document.getElementById('mode-nar');
+    function setMode(narrative) {
+      document.body.classList.toggle('pc-narrative', narrative);
+      calc.classList.toggle('on', !narrative); nar.classList.toggle('on', narrative);
+      calc.setAttribute('aria-pressed', String(!narrative)); nar.setAttribute('aria-pressed', String(narrative));
+      try { localStorage.setItem('gapNarrative', narrative ? '1' : '0'); } catch (e) {}
+    }
+    calc.addEventListener('click', function () { setMode(false); });
+    nar.addEventListener('click', function () { setMode(true); });
+    try { if (localStorage.getItem('gapNarrative') === '1') setMode(true); } catch (e) {}
+  })();
+</script>
+<script src="piti.js?v=20260904n"></script>
 <script>
   PITI.render(
     document.getElementById('piti-mount'),

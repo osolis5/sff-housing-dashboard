@@ -89,15 +89,16 @@
 }
 .pc-root input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--pc-sl, var(--pc-track)); }
 .pc-root input[type="range"]::-webkit-slider-thumb {
+  /* V2 hollow ring (user pick 2026-09-04): white knob, gap-dot blue ring */
   -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
-  background: var(--pc-navy); margin-top: -7px; border: 2.5px solid #FFF;
-  box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  background: #FFF; margin-top: -7px; border: 3px solid #2B5CE6;
+  box-shadow: 0 1px 3px rgba(16,24,40,.22);
 }
 .pc-root input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--pc-track); }
-.pc-root input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--pc-navy); }
+.pc-root input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: #2B5CE6; }
 .pc-root input[type="range"]::-moz-range-thumb {
-  width: 13px; height: 13px; border-radius: 50%; background: var(--pc-navy);
-  border: 2.5px solid #FFF; box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  width: 13px; height: 13px; border-radius: 50%; background: #FFF;
+  border: 3px solid #2B5CE6; box-shadow: 0 1px 3px rgba(16,24,40,.22);
 }
 
 .pc-money { display: flex; align-items: center; gap: 0; margin-top: 8px; max-width: 190px; border: 1px solid var(--pc-outline); border-radius: 8px; overflow: hidden; background: #FFF; }
@@ -191,7 +192,7 @@
 
 /* results card */
 .pc-cap { font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-weight: 500; font-size: 10.5px; letter-spacing: .3px; text-transform: uppercase; color: #000000; }
-.pc-piti { font-size: 40px; font-weight: 700; color: var(--pc-navy); letter-spacing: -0.5px; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.pc-piti { font-size: 40px; font-weight: 700; color: var(--pc2); letter-spacing: -0.5px; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .pc-piti small { font-size: 15px; font-weight: 400; color: var(--pc-on-surface-variant); letter-spacing: 0; }
 .pc-bar { display: flex; height: 22px; border-radius: 6px; overflow: hidden; margin-top: 14px; }
 .pc-bar > div { min-width: 0; }
@@ -550,3 +551,28 @@
 .pc-dash .pc-money input, .pc-dash .pc-money { border-radius: 10px; }
 .pc-dash .pc-toggle button { border-radius: 10px; }
 .pc-dash .pc-toggle button.pc-on { background: var(--pc2-tint); color: var(--pc2); border-color: var(--pc2-line); }
+
+/* Gap-Analysis-Local: payment and typologies as side-by-side cards; the
+   typology cards stack single-column inside the half-width card */
+.pc-dash .pc-row2 .pc-profiles { grid-template-columns: 1fr; }
+
+/* narrative mode (Gap-Analysis-Local): header toggle adds short context
+   notes to each section; notes animate in like a theme transition */
+.pc-nar {
+  max-height: 0; opacity: 0; overflow: hidden;
+  margin: 0; padding: 0; background: transparent;
+  border: 0 solid var(--pc2-card); border-bottom-width: 0;
+  color: #000000; line-height: 1.6;
+  font-family: 'IBM Plex Mono', 'Rethink Sans', monospace; font-size: 12px;
+  transition: max-height .35s ease, opacity .35s ease, margin .35s ease, padding .35s ease;
+}
+.pc-nar b, .pc-nar strong { font-weight: 500; }
+body.pc-narrative .pc-nar {
+  max-height: 420px; opacity: 1; margin: 14px 0 18px;
+  padding-bottom: 14px; border-bottom-width: 1px;
+}
+/* recovered narrative details: header dek width, live required-income line,
+   local red for its bold figures */
+.dek { max-width: 880px; }
+.pc-nar .pc-need { display: block; margin-top: 8px; font-size: inherit; }
+.pc-nar .pc-need b { color: #D92D20; }
