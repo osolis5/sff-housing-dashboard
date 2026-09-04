@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gap Analysis — Compare</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { display: flex; flex-direction: column; background: #E9EBF1; font-family: system-ui, -apple-system, sans-serif; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; background: #FFF; border-bottom: 1px solid #DDE1EA; padding: 10px 18px; }
+  h1 { font-size: 14.5px; font-weight: 700; }
+  .mode { display: flex; gap: 6px; }
+  .mode button { font: 600 12px/1 system-ui, sans-serif; padding: 8px 14px; border-radius: 8px; border: 1px solid #C9CFDD; background: #FFF; cursor: pointer; color: #333; }
+  .mode button.on { background: #16233F; border-color: #16233F; color: #FFF; }
+  main { flex: 1; display: flex; min-height: 0; gap: 10px; padding: 10px; }
+  .pane { flex: 1; min-width: 0; display: flex; flex-direction: column; background: #FFF; border: 1px solid #DDE1EA; border-radius: 10px; overflow: hidden; }
+  .pane .tag { font: 500 10.5px/1 ui-monospace, "SF Mono", monospace; letter-spacing: .6px; text-transform: uppercase; padding: 8px 12px; border-bottom: 1px solid #DDE1EA; color: #5B6472; }
+  .pane .tag b { color: #16233F; }
+  .pane iframe { flex: 1; width: 100%; border: 0; }
+  body.flip #pane-a.hide, body.flip #pane-b.hide { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Gap Analysis Calculator: current vs experimental</h1>
+  <div class="mode" role="group" aria-label="Compare mode">
+    <button id="btn-split" class="on" type="button">Split view</button>
+    <button id="btn-a" type="button">Current only</button>
+    <button id="btn-b" type="button">Experimental only</button>
+  </div>
+</header>
+<main>
+  <div class="pane" id="pane-a">
+    <div class="tag"><b>Current</b> · live site</div>
+    <iframe src="../piti-calculator/index.html" title="Current Gap Analysis Calculator"></iframe>
+  </div>
+  <div class="pane" id="pane-b">
+    <div class="tag"><b>Experimental</b> · civic-analytics preview</div>
+    <iframe src="./index.html" title="Experimental Gap Analysis Calculator"></iframe>
+  </div>
+</main>
+<script>
+  var a = document.getElementById('pane-a'), b = document.getElementById('pane-b');
+  var btns = { 'btn-split': [false, false], 'btn-a': [false, true], 'btn-b': [true, false] };
+  Object.keys(btns).forEach(function (id) {
+    document.getElementById(id).addEventListener('click', function () {
+      a.classList.toggle('hide', btns[id][0]);
+      b.classList.toggle('hide', btns[id][1]);
+      a.style.display = btns[id][0] ? 'none' : '';
+      b.style.display = btns[id][1] ? 'none' : '';
+      document.querySelectorAll('.mode button').forEach(function (x) { x.classList.toggle('on', x.id === id); });
+    });
+  });
+</script>
+</body>
+</html>
