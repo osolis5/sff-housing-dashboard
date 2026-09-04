@@ -231,7 +231,8 @@
       `<p>Interest rate, down payment, insurance, PMI (0.75%/yr of the loan when the down payment is under 20%),
        the 1.5% effective tax rate, and the income-share threshold are adjustable assumptions, not dataset values.
        ${dash ? `The four benchmark incomes in the People panel default to dataset values and are adjustable
-       for what-if scenarios. ` : ''}Payment status uses standard cost-burden definitions: over 30% of income = cost-burdened, over 50% = severely burdened.
+       for what-if scenarios; the optional custom benchmark (hollow dot) joins the charts only when you enter
+       a value and is never a dataset figure. ` : ''}Payment status uses standard cost-burden definitions: over 30% of income = cost-burdened, over 50% = severely burdened.
        Mortgage activity is from HMDA: first-lien, owner-occupied, 1-to-4-unit home purchase loans; borrower income
        categories (low / moderate / middle / upper) are as defined in the source data relative to area median income.
        Median homebuyer incomes come from the IHS baseline data presentation (slide 21, HMDA).</p>`,
@@ -347,6 +348,15 @@
       </div>
 
       <div class="pc-field">
+        <div class="pc-row">
+          <label for="inc-custom">Custom benchmark</label>
+        </div>
+        <span class="pc-badge pc-assume" id="inc-custom-badge"></span>
+        <div class="pc-money"><span>$</span><input type="text" id="inc-custom" inputmode="numeric" placeholder="Add annual income" aria-label="Custom benchmark annual income"></div>
+        <p class="pc-fine" id="inc-custom-note"></p>
+      </div>
+
+      <div class="pc-field">
         <div class="pc-row"><label for="ratio">Housing share of income</label></div>
         <input type="range" id="ratio" min="20" max="45" step="1" aria-label="Housing share of income">
         <div class="pc-row pc-row-after">
@@ -409,7 +419,9 @@
       incRenter: D.incomes2024.nlRenter,
       incBuyer: D.homebuyerIncomes2024.nl,
       incChiRenter: D.incomes2024.chicagoRenter,
-      incChiBuyer: D.homebuyerIncomes2024.chicago
+      incChiBuyer: D.homebuyerIncomes2024.chicago,
+      /* optional fifth benchmark, user-entered — 0 = none (field empty) */
+      incCustom: 0
     });
     const S = initState();
     S.taxAnnual = effTax();
@@ -448,6 +460,9 @@
       { key: 'incChiBuyer', def: D.homebuyerIncomes2024.chicago, el: $('inc-chi-buyer'),
         badge: $('inc-chi-buyer-badge'), note: $('inc-chi-buyer-note'), reset: 'inc-chi-buyer-reset' }
     ] : null;
+    /* custom benchmark (dashboard rail only): empty by default — a value adds
+       a fifth benchmark to the ladder, gap chart, and household rows */
+    const customEl = $('inc-custom');
 
     function paintSlider(el, min, max, v) {
       const p = ((v - min) / (max - min)) * 100;
@@ -491,6 +506,12 @@
           ? `Custom amount. <button type="button" class="pc-linkbtn" id="${m.reset}">Reset to the dataset value (${fmt$(m.def)})</button>`
           : '';
       });
+      if (customEl) {
+        $('inc-custom-badge').textContent = S.incCustom > 0 ? 'custom' : '';
+        $('inc-custom-note').innerHTML = S.incCustom > 0
+          ? `Benchmarked below. <button type="button" class="pc-linkbtn" id="inc-custom-clear">Clear</button>`
+          : '';
+      }
     }
     function syncInputs() {
       priceEl.value = Math.min(S.price, 800000);
@@ -498,6 +519,7 @@
       taxEl.value = Math.round(S.taxAnnual).toLocaleString('en-US');
       insEl.value = Math.round(S.insAnnual).toLocaleString('en-US');
       if (INCOMES) INCOMES.forEach(m => { m.el.value = Math.round(S[m.key]).toLocaleString('en-US'); });
+      if (customEl) customEl.value = S.incCustom > 0 ? Math.round(S.incCustom).toLocaleString('en-US') : '';
       syncBadges();
     }
 
@@ -524,6 +546,11 @@
       m.el.addEventListener('input', () => { S[m.key] = Math.max(1, parseMoney(m.el.value)); syncIncomeMeta(); recalc(); });
       m.el.addEventListener('change', () => { syncInputs(); recalc(); });
     });
+    if (customEl) {
+      /* 0 (emptied field) = no custom benchmark */
+      customEl.addEventListener('input', () => { S.incCustom = parseMoney(customEl.value); syncIncomeMeta(); recalc(); });
+      customEl.addEventListener('change', () => { syncInputs(); recalc(); });
+    }
     /* reset links live inside notes (rebuilt on every sync) — delegate */
     mount.addEventListener('click', e => {
       if (e.target.closest('#tax-reset')) {
@@ -533,6 +560,7 @@
       if (INCOMES) INCOMES.forEach(m => {
         if (e.target.closest('#' + m.reset)) { S[m.key] = m.def; syncInputs(); recalc(); }
       });
+      if (customEl && e.target.closest('#inc-custom-clear')) { S.incCustom = 0; syncInputs(); recalc(); }
     });
 
     $('term').addEventListener('click', e => {
@@ -663,6 +691,10 @@
     ];
     function renderAfford(c) {
       const PROFILES = profiles();
+      /* the optional custom benchmark joins every affordability visual;
+         hollow dots mark it as user-entered rather than a dataset value */
+      if (S.incCustom > 0) PROFILES.push({ inc: S.incCustom, who: 'Custom benchmark',
+        short: 'Custom', note: 'your custom benchmark', custom: true });
       const needed = c.piti * 12 / (S.ratio / 100);
       $('need-line').innerHTML = `This payment takes a household income of about <b>${fmt$(needed)} a year</b>
         to stay under ${S.ratio}% of income — in a neighborhood where the median renter household earns
@@ -681,7 +713,7 @@
         const v = p.inc, px = x(v);
         const y2 = AXY + 38 + (i % 2) * 27;
         t += `<line x1="${px}" y1="${AXY}" x2="${px}" y2="${y2 - 20}" stroke="#8A9297" stroke-width="1"/>
-              <circle cx="${px}" cy="${AXY}" r="4" fill="#5578AE" stroke="#FFF" stroke-width="1.5"/>
+              <circle cx="${px}" cy="${AXY}" r="4" fill="${p.custom ? '#FFF' : '#5578AE'}" stroke="${p.custom ? '#33518A' : '#FFF'}" stroke-width="1.5"/>
               <text x="${px}" y="${y2 - 8}" text-anchor="middle" font-size="11" fill="#44474E" font-weight="500">${p.short}</text>
               <text x="${px}" y="${y2 + 5}" text-anchor="middle" font-size="10.5" fill="#74777F">${fmtK(v)}</text>`;
       });
@@ -714,7 +746,10 @@
       // navy dot = max affordable price, red line = this home's price, the
       // filled span between them = the gap (green headroom / red shortfall)
       {
-        const GL = 134, GR = 746, GY = 182, GMAX = 600000;
+        const GL = 134, GR = 746, GMAX = 600000;
+        /* the axis drops to fit a fifth row when the custom benchmark is set */
+        const GY = 46 + rows.length * 34;
+        $('gapchart').setAttribute('viewBox', `0 0 760 ${GY + 22}`);
         const gx = v => GL + Math.min(v, GMAX) / GMAX * (GR - GL);
         const px = gx(S.price);
         let g = `<line class="pc-ax" x1="${GL}" y1="${GY}" x2="${GR}" y2="${GY}"/>`;
@@ -731,7 +766,7 @@
           if (Math.abs(ax - px) > 2)
             g += `<line x1="${ax}" y1="${y}" x2="${px}" y2="${y}" stroke="${col}" stroke-width="4.5" stroke-linecap="round"/>`;
           g += `<text x="${mx}" y="${y - 9}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${col}">${p.gap >= 0 ? '+' : '−'}${fmtK(Math.abs(p.gap))}</text>
-                <circle cx="${ax}" cy="${y}" r="5.5" fill="#33518A" stroke="#FFF" stroke-width="1.5"/>
+                <circle cx="${ax}" cy="${y}" r="5.5" fill="${p.custom ? '#FFF' : '#33518A'}" stroke="${p.custom ? '#33518A' : '#FFF'}" stroke-width="${p.custom ? 2 : 1.5}"/>
                 ${over ? `<text x="${GR + 7}" y="${y + 4}" font-size="11" fill="#74777F">→</text>` : ''}`;
         });
         g += `<line x1="${px}" y1="30" x2="${px}" y2="${GY}" stroke="#BA1A1A" stroke-width="2"/>
