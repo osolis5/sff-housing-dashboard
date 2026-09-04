@@ -603,7 +603,7 @@
         <div class="pc-tip-note">This income falls in the <b>${gs[hi].label}</b> group of the ${geo === 'nl' ? "neighborhood's" : "city's"} ${total.toLocaleString('en-US')} renter households.</div>`;
     };
     const TIPS = {
-      'renters-nl':  () => renterTip('nl',  S.incRenter,    `${fmt$(S.incRenter)} /yr · 73% of NL households rent`),
+      'renters-nl':  () => renterTip('nl',  S.incRenter,    `${fmt$(S.incRenter)} /yr · neighborhood renter benchmark`),
       'renters-chi': () => renterTip('chi', S.incChiRenter, `${fmt$(S.incChiRenter)} /yr · citywide renter benchmark`)
     };
     const tipMove = e => {
@@ -681,7 +681,7 @@
        slide 21 (HMDA); renter medians: workbook A!I83 / A!I88. The NL pair
        reads from state so the People rail can adjust it (dataset defaults). */
     const profiles = () => [
-      { inc: S.incRenter,    who: 'Median NL renter household',      short: 'NL renter',         note: '73% of NL households rent',  tipkey: D.renterIncomes2024 && 'renters-nl' },
+      { inc: S.incRenter,    who: 'Median NL renter household',      short: 'NL renter',         note: 'neighborhood renter benchmark', tipkey: D.renterIncomes2024 && 'renters-nl' },
       { inc: S.incChiRenter, who: 'Median Chicago renter household', short: 'Chicago renter',    note: 'citywide renter benchmark',  tipkey: D.renterIncomes2024 && 'renters-chi' },
       { inc: S.incBuyer,     who: 'Median NL homebuyer',             short: 'NL homebuyer',      note: `HMDA · ${D.hmda.loans2024} NL purchases in 2024` },
       { inc: S.incChiBuyer,  who: 'Median Chicago homebuyer',        short: 'Chicago homebuyer', note: 'citywide homebuyer benchmark' }
@@ -795,7 +795,8 @@
       const floorLab = bi === 0 ? 'every income bracket' : `the ${br[bi].label} bracket`;
       $('bracket-note').innerHTML = `The required income (<b>${fmt$(needed)}</b>) falls in ${floorLab}.
         Households earning ${bi === 0 ? 'any amount' : fmtK(floors[bi]) + ' or more'} — the brackets that could plausibly reach it —
-        make up <b>${fmtPct(br.slice(bi).reduce((s, b) => s + b.share, 0))}</b> of North Lawndale's ${D.households2024.total.toLocaleString()} households.`;
+        make up <b>${fmtPct(br.slice(bi).reduce((s, b) => s + b.share, 0))}</b> of North Lawndale's ${D.households2024.total.toLocaleString()} households.
+        <b>${fmtPct(D.households2024.renterShare)}</b> of the neighborhood's households currently rent.`;
     }
 
     // ---------- render: who buys (static) ----------
