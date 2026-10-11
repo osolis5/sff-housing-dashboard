@@ -22,9 +22,20 @@
   /* income-bracket ramp: ends stretched (2026-08-19) so adjacent steps read
      apart at a glance — near-white tint → mid-light → navy → deep navy */
   const RAMP4 = ['#DDE4FB', '#9DB0F5', '#3B62E0', '#101B3E'];
+  /* renter income groups: floors of the eleven ACS tenure-by-income buckets (raw[0..10]) */
+  const RG_FLOORS = [0, 5000, 10000, 15000, 20000, 25000, 35000, 50000, 75000, 100000, 150000];
   const RACE5 = ['#2B5CE6', '#6C8CF0', '#A9BCF7', '#D3DCEF', '#C4C6D0'];
   const PMI_RATE = 0.75;          // % of loan per year, assumption
   const INS_DEFAULT = 1700;       // $/yr, assumption
+  /* multi-unit mode (2026-10, SFF feedback 9/28): an owner-occupied 2-, 3- or 4-flat. Lenders count
+     rent from the units the buyer does not occupy at RENT_SHARE of gross rent and add it to the
+     buyer's income; the full payment stays a debt (HUD Handbook 4000.1 II.A.4.c.xii; Fannie Mae
+     B3-3.8-02; Freddie Mac 5306.1). The 25% not counted is the vacancy and upkeep allowance. */
+  const RENT_SHARE = 0.75;        // share of other-unit rent counted, assumption
+  /* the multi-unit building types (label, units, price tiers, sales count) come from the data
+     (D.multiUnit.types: Cook County Assessor sales by number of apartments); House is the original mode */
+  const HOUSE_TYPE = { key: 'house', units: 1, label: 'House', long: 'Single-family home' };
+  const MU_BEDROOMS = 2;          // HUD Fair Market Rent bedroom count used for the default rent
 
   const fmt$ = n => '$' + Math.round(n).toLocaleString('en-US');
   const fmtK = n => n >= 1000 ? '$' + Math.round(n / 1000) + 'K' : fmt$(n);
@@ -57,6 +68,10 @@
     return `
       ${seg
         ? `<div class="pc-field pc-field-first">
+        <div class="pc-row"><label>Property type</label></div>
+        <div class="pc-chips pc-seg" id="unit-chips" role="group" aria-label="Property type"></div>
+      </div>
+      <div class="pc-field">
         <div class="pc-row"><label>Housing cost</label></div>
         <div class="pc-chips pc-seg" id="tier-chips" role="group" aria-label="Price tier"></div>
       </div>`
@@ -69,6 +84,22 @@
         </div>
         <span class="pc-badge pc-data" id="price-badge">dataset · 2024 median</span>
         <input type="range" id="price" min="25000" max="800000" step="1250" aria-label="Purchase price">
+      </div>
+
+      <div class="pc-field pc-mu-off" id="rent-field">
+        <div class="pc-row">
+          <label for="rent">Rent from the other units / month</label>
+          <span class="pc-badge pc-data" id="rent-badge"></span>
+        </div>
+        <div class="pc-chips pc-seg" id="zip-chips" role="group" aria-label="ZIP code for the rent default"></div>
+        <div class="pc-money"><span>$</span><input type="text" id="rent" inputmode="numeric" aria-label="Monthly rent from the other units"></div>
+        <p class="pc-fine" id="rent-note"></p>
+        <div class="pc-row pc-row-after">
+          <label>Suggested rent per unit</label>
+          <span class="pc-val" id="rent-sugg-val"></span>
+        </div>
+        <p class="pc-fine" id="rent-sugg-note"></p>
+        <p class="pc-nar">The default rent is the HUD FY2027 Small Area Fair Market Rent for a 2-bedroom unit in the chosen ZIP code (gross rent, utilities included), times the units the buyer does not occupy. Lenders count 75% of it as the buyer's income and the full payment stays a debt; the other 25% covers vacancies and upkeep. The suggested rent is the rent per unit at which the 75% lenders count would cover this whole monthly payment.<span class="pc-formula">Formulas: default rent = HUD 2-bedroom rent × (units in the building − 1). Counted by lenders = 75% × rent. Net monthly cost = payment − counted rent. Suggested rent per unit = payment ÷ 0.75 ÷ (units − 1).</span></p>
       </div>
 
       <div class="pc-field pc-hl">
@@ -114,7 +145,7 @@
   function resultsInner() {
     return `
       <div class="pc-cap">Estimated monthly payment</div>
-      <p class="pc-nar">The monthly cost of the home set at left: loan principal and interest, property taxes, insurance, and PMI when the down payment is under 20%. Every panel below is computed from this payment.</p>
+      <p class="pc-nar">The monthly cost of the home set at left: loan principal and interest, property taxes, insurance, and PMI when the down payment is under 20%. Every panel below is computed from this payment.<span class="pc-formula">Formulas: monthly payment = principal & interest + taxes ÷ 12 + insurance ÷ 12 + PMI. Principal & interest = loan × r(1 + r)ⁿ ÷ ((1 + r)ⁿ − 1), with r = annual rate ÷ 12 and n = years × 12. PMI = loan × 0.75% ÷ 12 while the down payment is under 20%. Income needed = (payment ÷ housing share − 75% of the rent from other units) × 12.</span></p>
       <div class="pc-piti" role="status"><span id="piti-total"></span><small> /mo</small></div>
       <div class="pc-bar" id="piti-bar" aria-hidden="true"></div>
       <div class="pc-leg" id="piti-leg"></div>
@@ -164,15 +195,36 @@
   <div class="pc-dist" id="bracket-dist">
     ${lead ? `<p class="pc-sub" style="margin-top:26px"><strong>Where the required income lands.</strong> Share of North Lawndale's
       ${D.households2024.total.toLocaleString()} households by income bracket (2024):</p>` : ''}
-    <div class="pc-bar-lab">All households · ${D.households2024.total.toLocaleString('en-US')}</div>
-    <div class="pc-bar" id="bracket-bar"></div>
     ${D.renterIncomes2024 ? `
     <div class="pc-bar-lab">Renter households · ${D.renterIncomes2024.nlTotal.toLocaleString('en-US')}</div>
     <div class="pc-bar pc-bar-sub" id="bracket-bar-r"></div>
     <div class="pc-bar-lab">Owner households · ${(D.households2024.total - D.renterIncomes2024.nlTotal).toLocaleString('en-US')} · derived</div>
-    <div class="pc-bar pc-bar-sub" id="bracket-bar-o"></div>` : ''}
+    <div class="pc-bar pc-bar-sub" id="bracket-bar-o"></div>` : `
+    <div class="pc-bar-lab">All households · ${D.households2024.total.toLocaleString('en-US')}</div>
+    <div class="pc-bar" id="bracket-bar"></div>`}
+    ${D.households2024.chicagoShares ? `
+    <div class="pc-bar-lab">City of Chicago · all households · ${D.households2024.chicagoTotal.toLocaleString('en-US')}</div>
+    <div class="pc-bar pc-bar-sub" id="bracket-bar-c"></div>` : ''}
     <div class="pc-leg" id="bracket-leg"></div>
   </div>`;
+  }
+
+  /* renter households by income group (dot plot); its own card in the dashboard layout */
+  function renterGroupsBox(D, card, repoHref) {
+    if (!D.renterIncomes2024) return '';
+    const cap = 'Renter households by income group (2024)';
+    const body = `<p class="pc-nar">Renter households in the eleven income groups the Census reports, North Lawndale beside the
+          City of Chicago. The dashed red line sits above the group containing the income this payment requires.<span class="pc-formula">Formula: each dot = renter households in the group ÷ all renter households in that area. The dashed line sits above the group containing the income needed.</span><span class="pc-need" id="renter-groups-note"></span></p>
+        <div class="pc-rg" id="renter-groups"></div>`;
+    return card ? `
+      <div class="pc-card pc-panel">
+        <div class="pc-cap">${cap}</div>
+        ${body}
+        <a class="pc-jump" href="${repoHref}" target="_blank" rel="noopener" data-jump="appendix-households">Data Appendix ↗</a>
+      </div>
+` : `
+  <div class="pc-dist"><div class="pc-bar-lab">${cap}</div>
+        ${body}</div>`;
   }
 
   function bodyPayment(D, repoHref) {
@@ -204,7 +256,7 @@
 
   ${gapBox(true)}
 
-  ${bracketBox(D, true)}`;
+  ${bracketBox(D, true)}${renterGroupsBox(D, false)}`;
   }
 
   function bodyBuyers() {
@@ -238,6 +290,11 @@
        claimed the homeowner exemption and 19% the senior exemption.</p>`,
       `<p>Interest rate, down payment, insurance, PMI (0.75%/yr of the loan when the down payment is under 20%),
        the 1.5% effective tax rate, and the income-share threshold are adjustable assumptions, not dataset values.
+       In multi-unit mode (2-flat or 3–4 flat, buyer in one unit) the price tiers are the median and the 25th and 75th
+       percentiles of 2024 arm's-length sales of that building type in North Lawndale (Cook County Assessor sales
+       records by number of apartments; 3- and 4-flats pooled because 4-flat sales are few) and the rent from the other
+       units defaults to the HUD Small Area Fair Market Rent for a 2-bedroom unit in the chosen ZIP code; lenders count 75% of that rent as the buyer's income and
+       the whole payment stays a debt (HUD Handbook 4000.1; Fannie Mae B3-3.8; Freddie Mac 5306.1).
        ${dash ? `The four benchmark incomes in the People panel default to dataset values and are adjustable
        for what-if scenarios; the optional custom benchmark (dashed marker) joins the charts only when you
        enter a value and is never a dataset figure. ` : ''}Payment status uses standard cost-burden definitions: over 30% of income = cost-burdened, over 50% = severely burdened.
@@ -278,11 +335,13 @@
       <div class="pc-railhead">
         <h2 class="pc-railtitle">Housing</h2>
       </div>
-      <p class="pc-nar">Sets the home price and loan terms. The typical tier is the 2024 median price of
-        mortgage-financed 1 to 4 unit purchases; down payment, rate, taxes, and insurance are adjustable.
+      <p class="pc-nar">Sets the property type, home price and loan terms. For a house the typical tier is the 2024 median
+        price of mortgage-financed 1 to 4 unit purchases; for a 2-flat or a 3–4 flat the tiers are the median and quartiles of
+        that type's 2024 sales, and rent from the other units counts toward the buyer's income. Down payment, rate, taxes,
+        insurance and rent are adjustable.
         Values marked <span class="pc-badge pc-data">dataset</span> are from the SFF indicator tables; values
         marked <span class="pc-badge pc-assume">assumption</span> are estimates. Sources are listed in the
-        <a href="${repoHref}" target="_blank" rel="noopener">Data Appendix</a>.</p>
+        <a href="${repoHref}" target="_blank" rel="noopener">Data Appendix</a>.<span class="pc-formula">Formulas: loan = price × (1 − down payment %). Property taxes = 1.5% × price per year until you type an amount.</span></p>
       ${inputsInner(D, true)}
       <button type="button" class="pc-reset" id="pc-reset">Reset</button>
     </aside>
@@ -296,7 +355,7 @@
           <div class="pc-cap">Renter/buyer typologies</div>
           <p class="pc-nar">The payment as a share of each benchmark household's income, at the income share set
             in People. Over 30% of income is cost-burdened; over 50% is severely burdened. Max price is the most
-            that household could pay at that share.<span class="pc-need" id="need-line"></span></p>
+            that household could pay at that share.<span class="pc-formula">Formula: share of income = payment ÷ (annual income ÷ 12 + 75% of the rent from other units). Affordable at 30% or less; cost-burdened above 30%; severely burdened above 50%.</span><span class="pc-need" id="need-line"></span></p>
           ${profilesBox()}
         </div>
       </div>
@@ -306,22 +365,20 @@
         <p class="pc-nar">Each tick marks the maximum price that household could pay at the income share set in
           People. The dashed red line is this home's price. The bar between them is the gap:
           <span class="pc-gleg-neg">red</span> where the household falls short,
-          <span class="pc-gleg-pos">green</span> where it clears the price.</p>
+          <span class="pc-gleg-pos">green</span> where it clears the price.<span class="pc-formula">Formulas: max price = monthly budget ÷ cost of one dollar of price. Budget = (income ÷ 12 + 75% of the rent from other units) × housing share − insurance ÷ 12 (− taxes ÷ 12 when you typed a tax amount). Cost per dollar = (1 − down payment %) × (payment factor + 0.75% ÷ 12 while under 20% down) + 1.5% ÷ 12 unless a tax amount was typed. Gap = max price − this home's price.</span></p>
         ${gapBox(false)}
       </div>
 
       <div class="pc-card pc-panel">
         <div class="pc-cap">Share of North Lawndale's ${D.households2024.total.toLocaleString()} households by income bracket (2024)</div>
-        <p class="pc-nar">The income distribution of North Lawndale households, in total and by tenure. The red
-          line marks the bracket containing the income this payment requires. The owner row is derived: all
-          households minus renters.<span class="pc-need" id="bracket-note"></span></p>
+        <p class="pc-nar">The income distribution of North Lawndale's renter and owner households, with all City of Chicago households for comparison. The red line marks the bracket containing the income this payment requires. The owner row is derived: all households minus renters.<span class="pc-formula">Formulas: renter share = Census renter households in the bracket ÷ all renter households. Owner households = round(bracket share of all households × all households) − renters in the bracket; owner share = owners ÷ all owners. City of Chicago shares are dataset values. The marker sits in the bracket containing the income needed.</span><span class="pc-need" id="bracket-note"></span></p>
         ${bracketBox(D, false)}
         <a class="pc-jump" href="${repoHref}" target="_blank" rel="noopener" data-jump="appendix-households">Data Appendix ↗</a>
       </div>
-
+${renterGroupsBox(D, true, repoHref)}
       <div class="pc-card pc-panel">
         <div class="pc-cap">Who is actually buying?</div>
-        <p class="pc-nar">Mortgage records (HMDA) of North Lawndale home purchases: loan counts, borrower incomes, and race and ethnicity, 2019 to 2024.<span class="pc-need" id="buyers-intro"></span></p>
+        <p class="pc-nar">Mortgage records (HMDA) of North Lawndale home purchases: loan counts, borrower incomes, and race and ethnicity, 2019 to 2024.<span class="pc-formula">No formula: loan counts and shares are dataset values (share = loans in the group ÷ all loans).</span><span class="pc-need" id="buyers-intro"></span></p>
         ${bodyBuyers()}
       </div>
 
@@ -335,7 +392,7 @@
       <div class="pc-railhead">
         <h2 class="pc-railtitle">People</h2>
       </div>
-      <p class="pc-nar">Benchmark incomes used in the typologies and the gap chart. Defaults are 2024 dataset medians; each is editable, and a custom benchmark adds a fifth comparison.</p>
+      <p class="pc-nar">Benchmark incomes used in the typologies and the gap chart. Defaults are 2024 dataset medians; each is editable, and a custom benchmark adds a fifth comparison.<span class="pc-formula">Formula: income needed at the housing share = monthly payment × 12 ÷ share (less 75% of the rent from other units in multi-unit mode).</span></p>
 
       <div class="pc-field pc-field-first">
         <div class="pc-row"${D.renterIncomes2024 ? ' data-tipkey="renters-nl"' : ''}>
@@ -426,6 +483,12 @@
     const $ = id => mount.querySelector('#' + id);
     const TAX_RATE = D.effectiveTaxRate.rate;            // 1.5% of price, assumption
     const effTax = () => TAX_RATE * S.price;
+    /* multi-unit data block (CMS: gap.multiUnit.*). Absent = single-family only, as before. */
+    const MU = D.multiUnit && Array.isArray(D.multiUnit.types) && D.multiUnit.types.length && D.multiUnit.hudRent
+      ? { types: D.multiUnit.types.map(t => Object.assign({}, t, { units: +t.units })), hudRent: D.multiUnit.hudRent,
+          zips: Object.keys(D.multiUnit.hudRent).map(k => k.replace(/^z/, '')),
+          fy: D.multiUnit.hudRentFY || 'FY2027' }
+      : null;
 
     // ---------- state ----------
     /* initState() doubles as the Reset button's target (dashboard rail) */
@@ -438,6 +501,12 @@
       taxAnnual: 0,               // set below
       insAnnual: INS_DEFAULT,
       ratio: 28,
+      /* multi-unit mode: 1 = single-family (the original calculator). zip picks the HUD rent default;
+         rentMode 'hud' follows the dataset, 'custom' keeps a typed total */
+      type: 'house',
+      zip: MU && MU.zips[0],
+      rentMode: 'hud',
+      rentTotal: 0,
       /* benchmark incomes: dataset defaults, editable in the dashboard
          layout's People rail (badges flag any custom value) */
       incRenter: D.incomes2024.nlRenter,
@@ -449,26 +518,96 @@
     });
     const S = initState();
     S.taxAnnual = effTax();
+    /* price tiers of the active property type: the 2–4 unit medians in multi-unit mode */
+    const curType = () => MU && S.type !== 'house' ? MU.types.find(t => t.key === S.type) || null : null;
+    const isMU = () => !!curType();
+    const curTiers = () => isMU() ? curType() : D.priceTiers2024;     // a type carries lower / typical / higher
+    /* HUD Small Area Fair Market Rent for the chosen ZIP, times the units the buyer does not occupy */
+    const hudRentUnit = () => MU ? MU.hudRent['z' + S.zip]['br' + MU_BEDROOMS] : 0;
+    const hudRent = () => isMU() ? hudRentUnit() * (curType().units - 1) : 0;
+    S.rentTotal = hudRent();
 
     // ---------- price-tier chips ----------
     const chipBox = $('tier-chips');
     const seg = chipBox.classList.contains('pc-seg');
     const chipList = seg ? SEG_ORDER.map(k => TIERS.find(t => t.key === k)) : TIERS;
-    chipBox.innerHTML = chipList.map(t => seg
-      ? `<button class="pc-chip" data-t="${t.key}" aria-pressed="false" aria-label="${t.label}: ${fmtK(D.priceTiers2024[t.key])}, ${t.badge}">${t.seg}</button>`
-      : `
-      <button class="pc-chip" data-t="${t.key}" aria-pressed="false" aria-label="${t.label}: ${fmtK(D.priceTiers2024[t.key])}, ${t.badge}">
+    /* multi-unit tiers are all dataset values (Assessor sales): median and the 25th / 75th percentiles */
+    const tierBadge = t => {
+      const ty = curType();
+      if (!ty) return t.badge;
+      return `dataset · 2024 ${t.key === 'typical' ? 'median' : t.key === 'lower' ? '25th pct.' : '75th pct.'}, ${ty.label} sales`;
+    };
+    function paintTierChips() {
+      const T = curTiers();
+      chipBox.innerHTML = chipList.map(t => seg
+        ? `<button class="pc-chip" data-t="${t.key}" aria-pressed="false" aria-label="${t.label}: ${fmtK(T[t.key])}, ${tierBadge(t)}">${t.seg}</button>`
+        : `
+      <button class="pc-chip" data-t="${t.key}" aria-pressed="false" aria-label="${t.label}: ${fmtK(T[t.key])}, ${tierBadge(t)}">
         <span class="pc-sw" style="background:${t.color}"></span>
         <span>${t.label}
-          <span class="pc-n">${fmtK(D.priceTiers2024[t.key])} · ${t.key === 'typical' ? '2024 median, financed' : t.badge.replace('placeholder · ', 'placeholder: ')}</span>
+          <span class="pc-n">${fmtK(T[t.key])} · ${curType() ? tierBadge(t).replace('dataset · ', '') : t.key === 'typical' ? '2024 median, financed' : t.badge.replace('placeholder · ', 'placeholder: ')}</span>
         </span>
       </button>`).join('');
+    }
+    paintTierChips();
     chipBox.addEventListener('click', e => {
       const b = e.target.closest('.pc-chip'); if (!b) return;
-      S.price = D.priceTiers2024[b.dataset.t];
+      S.price = curTiers()[b.dataset.t];
       if (S.taxMode === 'rate') S.taxAnnual = effTax();
       syncInputs(); recalc();
     });
+
+    // ---------- property type + rent from the other units (multi-unit mode) ----------
+    const unitBox = $('unit-chips'), zipBox = $('zip-chips'), rentEl = $('rent'), rentField = $('rent-field');
+    if (unitBox && MU) {
+      unitBox.innerHTML = [HOUSE_TYPE].concat(MU.types).map(u =>
+        `<button class="pc-chip" data-u="${u.key}" aria-pressed="false" aria-label="${u.long}">${u.label}</button>`).join('');
+      unitBox.addEventListener('click', e => {
+        const b = e.target.closest('.pc-chip'); if (!b) return;
+        const was = S.type;
+        S.type = b.dataset.u;
+        /* switching property type moves the price to that type's typical tier and refreshes the rent default */
+        if (S.type !== was) {
+          S.price = curTiers().typical;
+          if (S.taxMode === 'rate') S.taxAnnual = effTax();
+          if (S.rentMode === 'hud') S.rentTotal = hudRent();
+          paintTierChips();
+        }
+        syncInputs(); recalc();
+      });
+    }
+    if (zipBox && MU) {
+      zipBox.innerHTML = MU.zips.map(z =>
+        `<button class="pc-chip" data-z="${z}" aria-pressed="false" aria-label="Use the HUD rent for ZIP ${z}">${z}</button>`).join('');
+      zipBox.addEventListener('click', e => {
+        const b = e.target.closest('.pc-chip'); if (!b) return;
+        S.zip = b.dataset.z;
+        if (S.rentMode === 'hud') S.rentTotal = hudRent();
+        syncInputs(); recalc();
+      });
+    }
+    /* chip highlight + rent field visibility, badge and note */
+    function syncUnits() {
+      if (unitBox) unitBox.querySelectorAll('.pc-chip').forEach(c => {
+        const on = c.dataset.u === S.type; c.classList.toggle('pc-on', on); c.setAttribute('aria-pressed', on);
+      });
+      if (zipBox) zipBox.querySelectorAll('.pc-chip').forEach(c => {
+        const on = c.dataset.z === S.zip; c.classList.toggle('pc-on', on); c.setAttribute('aria-pressed', on);
+      });
+      if (rentField) rentField.classList.toggle('pc-mu-off', !isMU());
+      if (!MU || !rentEl) return;
+      const rb = $('rent-badge'), rn = $('rent-note');
+      const n = isMU() ? curType().units - 1 : 0, per = hudRentUnit();
+      /* explanation lives in the field's narrative paragraph (Narrative mode); the note only carries the edited state */
+      if (S.rentMode === 'hud') {
+        if (rb) { rb.className = 'pc-badge pc-data'; rb.textContent = `dataset · HUD ${MU.fy} FMR · ${n} × ${fmt$(per)}`; }
+        if (rn) rn.innerHTML = '';
+      } else {
+        if (rb) { rb.className = 'pc-badge pc-assume'; rb.textContent = 'edited · custom amount'; }
+        if (rn) rn.innerHTML = `Custom amount. <button type="button" class="pc-linkbtn" id="rent-reset">Reset to the HUD
+          ${MU.fy} fair market rent (${fmt$(hudRent())})</button>`;
+      }
+    }
 
     // ---------- inputs ----------
     const priceEl = $('price'), downEl = $('down'), rateEl = $('rate'),
@@ -495,14 +634,15 @@
     /* badges + chip highlight + notes: safe to call while typing (does not
        rewrite the money fields) */
     function syncBadges() {
-      const tier = TIERS.find(t => D.priceTiers2024[t.key] === S.price);
+      const T = curTiers();
+      const tier = TIERS.find(t => T[t.key] === S.price);
       chipBox.querySelectorAll('.pc-chip').forEach(c => {
         const on = !!tier && c.dataset.t === tier.key;
         c.classList.toggle('pc-on', on); c.setAttribute('aria-pressed', on);
       });
       const pb = $('price-badge');
-      pb.className = tier && tier.key === 'typical' ? 'pc-badge pc-data' : 'pc-badge pc-assume';
-      pb.textContent = tier ? tier.badge : 'custom';
+      pb.className = tier && (tier.key === 'typical' || isMU()) ? 'pc-badge pc-data' : 'pc-badge pc-assume';
+      pb.textContent = tier ? tierBadge(tier) : 'custom';
 
       const tb = $('tax-badge');
       if (S.taxMode === 'rate') {
@@ -516,6 +656,7 @@
           ${fmtPct(TAX_RATE, 1)} estimate (${fmt$(effTax())})</button>`;
       }
       syncIncomeMeta();
+      syncUnits();
     }
     /* People-rail badges/notes: rail notes carry only the functional edited
        state (reset link) — explanatory captions removed 2026-08-19 */
@@ -545,6 +686,7 @@
       downEl.value = S.downPct; rateEl.value = S.ratePct; ratioEl.value = S.ratio;
       taxEl.value = Math.round(S.taxAnnual).toLocaleString('en-US');
       insEl.value = Math.round(S.insAnnual).toLocaleString('en-US');
+      if (rentEl) rentEl.value = Math.round(S.rentTotal).toLocaleString('en-US');
       if (INCOMES) INCOMES.forEach(m => { m.el.value = Math.round(S[m.key]).toLocaleString('en-US'); });
       if (customEl) customEl.value = S.incCustom > 0 ? Math.round(S.incCustom).toLocaleString('en-US') : '';
       syncBadges();
@@ -576,6 +718,16 @@
     taxEl.addEventListener('change', () => { syncInputs(); recalc(); });
     insEl.addEventListener('input', () => { S.insAnnual = parseMoney(insEl.value); recalc(); });
     insEl.addEventListener('change', () => { syncInputs(); recalc(); });
+    if (rentEl && MU) {
+      /* like the tax field: a typed total is kept as the price and ZIP move; typing the HUD figure returns to dataset mode */
+      rentEl.addEventListener('input', () => {
+        S.rentTotal = parseMoney(rentEl.value);
+        S.rentMode = S.rentTotal === Math.round(hudRent()) ? 'hud' : 'custom';
+        if (S.rentMode === 'hud') S.rentTotal = hudRent();
+        syncBadges(); recalc();
+      });
+      rentEl.addEventListener('change', () => { syncInputs(); recalc(); });
+    }
     if (INCOMES) INCOMES.forEach(m => {
       /* min 1 so an emptied field doesn't divide-by-zero the burden math */
       m.el.addEventListener('input', () => { S[m.key] = Math.max(1, parseMoney(m.el.value)); syncIncomeMeta(); recalc(); });
@@ -590,6 +742,10 @@
     mount.addEventListener('click', e => {
       if (e.target.closest('#tax-reset')) {
         S.taxMode = 'rate'; S.taxAnnual = effTax();
+        syncInputs(); recalc();
+      }
+      if (e.target.closest('#rent-reset')) {
+        S.rentMode = 'hud'; S.rentTotal = hudRent();
         syncInputs(); recalc();
       }
       if (INCOMES) INCOMES.forEach(m => {
@@ -611,6 +767,8 @@
     if (resetBtn) resetBtn.addEventListener('click', () => {
       Object.assign(S, initState());
       S.taxAnnual = effTax();
+      S.rentTotal = hudRent();
+      paintTierChips();
       $('term').querySelectorAll('button').forEach(x => x.classList.toggle('pc-on', x.dataset.y === '30'));
       syncInputs(); recalc();
     });
@@ -656,7 +814,7 @@
       tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
       tip.style.top = Math.min(e.clientY + 12, innerHeight - tip.offsetHeight - 8) + 'px';
     };
-    [$('bracket-bar'), $('bracket-bar-r'), $('bracket-bar-o'), $('profiles'), mount.querySelector('.pc-rail-people')].filter(Boolean).forEach(el => {
+    [$('bracket-bar'), $('bracket-bar-c'), $('bracket-bar-r'), $('bracket-bar-o'), $('profiles'), mount.querySelector('.pc-rail-people')].filter(Boolean).forEach(el => {
       el.addEventListener('mousemove', tipMove);
       el.addEventListener('mouseleave', () => { tip.style.display = 'none'; tip._for = null; });
     });
@@ -669,15 +827,21 @@
       const pi = loan * pniFactor(r, n);
       const tax = S.taxAnnual / 12, ins = S.insAnnual / 12;
       const pmi = d < 0.2 ? loan * (PMI_RATE / 100) / 12 : 0;
-      return { loan, down$: S.price - loan, pi, tax, ins, pmi, piti: pi + tax + ins + pmi };
+      /* multi-unit: gross rent from the other units and the share of it lenders count as income */
+      const rent = isMU() ? S.rentTotal : 0;
+      const credit = RENT_SHARE * rent;
+      return { loan, down$: S.price - loan, pi, tax, ins, pmi, piti: pi + tax + ins + pmi, rent, credit };
     }
+    /* annual income needed: the payment at the housing share, less the rent lenders count.
+       Single-family: PITI × 12 / ratio, unchanged. */
+    const incomeNeeded = c => Math.max(0, c.piti / (S.ratio / 100) - c.credit) * 12;
     /* max affordable price at the income-share threshold. In rate mode taxes
        scale with the candidate price (1.5%/yr), so the rate joins the per-$
        cost; in custom mode the fixed dollar bill is subtracted from budget. */
     function maxPrice(income, c) {
       const d = S.downPct / 100, r = S.ratePct / 100 / 12, n = S.years * 12;
       const rateMode = S.taxMode === 'rate';
-      const budget = income / 12 * (S.ratio / 100) - c.ins - (rateMode ? 0 : c.tax);
+      const budget = (income / 12 + c.credit) * (S.ratio / 100) - c.ins - (rateMode ? 0 : c.tax);
       if (budget <= 0) return 0;
       const per$ = (1 - d) * (pniFactor(r, n) + (d < 0.2 ? PMI_RATE / 100 / 12 : 0))
                  + (rateMode ? TAX_RATE / 12 : 0);
@@ -698,11 +862,24 @@
       $('piti-leg').innerHTML = SEGS.filter(([k]) => k !== 'pmi' || c.pmi > 0.5)
         .map(([k, nm, col]) => `<div class="pc-lr"><span class="pc-sw" style="background:${col}"></span>
           <span class="pc-nm">${nm}</span><span class="pc-amt">${fmt$(c[k])}</span></div>`).join('');
-      $('loan-kv').innerHTML = [
+      const kv = [
         ['Loan amount', fmt$(c.loan)],
-        ['Down payment', `${fmt$(c.down$)} (${S.downPct}%)`],
-        ['Income needed at ' + S.ratio + '%', fmt$(c.piti * 12 / (S.ratio / 100)) + ' /yr']
-      ].map(([l, v]) => `<div class="pc-lr">${l}<span class="pc-amt">${v}</span></div>`).join('');
+        ['Down payment', `${fmt$(c.down$)} (${S.downPct}%)`]
+      ];
+      if (c.rent > 0) kv.push(
+        ['Rent from the other units', fmt$(c.rent) + ' /mo'],
+        [`Counted by lenders (${fmtPct(RENT_SHARE, 0)})`, '−' + fmt$(c.credit) + ' /mo'],
+        /* negative = the counted rent exceeds the payment (3–4 flats at low prices) */
+        ['Net monthly cost after rent', (c.piti - c.credit < 0 ? '−' : '') + fmt$(Math.abs(c.piti - c.credit)) + ' /mo']);
+      kv.push(['Income needed at ' + S.ratio + '%', fmt$(incomeNeeded(c)) + ' /yr']);
+      $('loan-kv').innerHTML = kv.map(([l, v]) => `<div class="pc-lr">${l}<span class="pc-amt">${v}</span></div>`).join('');
+      /* suggested rent (multi-unit): the rent per unit at which the counted share covers the whole payment */
+      const sv = $('rent-sugg-val'), sn = $('rent-sugg-note');
+      if (sv && isMU()) {
+        const n = curType().units - 1, per = c.piti / RENT_SHARE / n, hud = hudRentUnit();
+        sv.textContent = fmt$(per) + ' /mo';
+        if (sn) sn.innerHTML = `vs HUD FMR ${fmt$(hud)} · ${per > hud ? fmtPct(per / hud - 1, 0) + ' higher' : fmtPct(1 - per / hud, 0) + ' lower'}`;
+      }
       $('down-val').textContent = S.downPct + '%';
       $('price-val').textContent = fmt$(S.price);
       $('rate-val').textContent = S.ratePct.toFixed(3).replace(/0+$/, '').replace(/\.$/, '') + '%';
@@ -730,7 +907,7 @@
          hollow dots mark it as user-entered rather than a dataset value */
       if (S.incCustom > 0) PROFILES.push({ inc: S.incCustom, who: 'Custom benchmark',
         short: 'Custom', note: 'your custom benchmark', custom: true });
-      const needed = c.piti * 12 / (S.ratio / 100);
+      const needed = incomeNeeded(c);
       /* reference chrome fills (experiment): typology benchmark note, gap
          subtitle, target chip, and the People-rail key takeaway */
       if ($('typo-bench')) $('typo-bench').textContent = `Benchmark: ${S.ratio}% max housing ratio`;
@@ -741,7 +918,8 @@
          (2026-09-04, experiments) — its elements exist only in the flat
          legacy layout now, so both renders are guarded */
       if ($('need-line')) {
-      $('need-line').innerHTML = `Staying under ${S.ratio}% of income requires about <b>${fmt$(needed)} a year</b>.
+      $('need-line').innerHTML = `Staying under ${S.ratio}% of income requires about <b>${fmt$(needed)} a year</b>${c.rent > 0
+          ? ` once lenders count ${fmtPct(RENT_SHARE, 0)} of the ${fmt$(c.rent)} monthly rent from the other unit${curType() && curType().units > 2 ? 's' : ''}` : ''}.
         The median North Lawndale renter household earns ${fmt$(S.incRenter)}; the median 2024 homebuyer
         earned ${fmt$(S.incBuyer)}.`;
 
@@ -771,7 +949,8 @@
 
       // profile rows: burden %, max price, gap to this scenario's price, pill
       const rows = PROFILES.map(p => {
-        const burden = c.piti / (p.inc / 12);
+        /* the rent lenders count is added to the household's income, never netted from the payment */
+        const burden = c.piti / (p.inc / 12 + c.credit);
         const mp = maxPrice(p.inc, c);
         return { ...p, burden, mp, gap: mp - S.price };
       });
@@ -832,22 +1011,35 @@
       const floors = [0, 25000, 50000, 100000];
       const bi = floors.findIndex((f, i) => needed >= f && (i === 3 || needed < floors[i + 1]));
       const reqLeft = br.slice(0, bi).reduce((s2, b) => s2 + b.share, 0);
-      $('bracket-bar').innerHTML = br.map((b, i) => `
+      if ($('bracket-bar')) $('bracket-bar').innerHTML = br.map((b, i) => `
         <div data-tip="${b.label} — ${fmtPct(b.share)} of all households${i === bi ? ' · the required income falls in this bracket' : ''}" style="flex:${b.share};background:${RAMP4[i]}">
           <span class="pc-pct${i < 2 ? ' pc-dk' : ''}">${b.share >= 0.08 ? fmtPct(b.share) : ''}</span>
           ${i === bi ? `<span style="position:absolute;left:0;top:-6px;bottom:-6px;width:2.5px;background:#D92D20"></span>` : ''}
         </div>`).join('');
+      /* City of Chicago bar (2026-10-03, SFF feedback 9/28): the citywide row of the same
+         table (A.Demographic_Socioeconomic section 4), same four brackets. Skipped when
+         the element or the data is absent. */
+      const cBarEl = $('bracket-bar-c');
+      const cSh = D.households2024.chicagoShares;
+      const cOK = !!(cSh && cSh.length === br.length && D.households2024.chicagoTotal);
+      if (cBarEl && cOK) {
+        cBarEl.innerHTML = cSh.map((sh, i) => `
+        <div data-tip="${br[i].label} — ${fmtPct(sh)} of all City of Chicago households${i === bi ? ' · the required income falls in this bracket' : ''}" style="flex:${sh};background:${RAMP4[i]}">
+          <span class="pc-pct${i < 2 ? ' pc-dk' : ''}">${sh >= 0.08 ? fmtPct(sh) : ''}</span>
+          ${i === bi ? `<span style="position:absolute;left:0;top:-6px;bottom:-6px;width:2.5px;background:#D92D20"></span>` : ''}
+        </div>`).join('');
+      }
       /* renter sub-bar (2026-09-04): the supplemental renters-by-income raw
          buckets regrouped into the SAME four sections — indices 0–4 <$25K,
          5–6 $25–50K, 7–8 $50–100K, 9–10 $100K+ (arithmetic on audited
          counts; boundaries align exactly with the ACS bucket edges) */
       const rBarEl = $('bracket-bar-r');
       let rSect = null, rTot = 0;
-      if (rBarEl && D.renterIncomes2024) {
+      if (D.renterIncomes2024) {
         const raw = D.renterIncomes2024.raw;
         rTot = D.renterIncomes2024.nlTotal;
         rSect = [[0, 5], [5, 7], [7, 9], [9, 11]].map(([a, z]) => raw.slice(a, z).reduce((s, x) => s + x.nl, 0));
-        rBarEl.innerHTML = rSect.map((n, i) => { const sh = n / rTot; return `
+        if (rBarEl) rBarEl.innerHTML = rSect.map((n, i) => { const sh = n / rTot; return `
         <div data-tip="${br[i].label} — ${fmtPct(sh)} of renter households (${n.toLocaleString('en-US')} of ${rTot.toLocaleString('en-US')})${i === bi ? ' · the required income falls in this bracket' : ''}" style="flex:${sh};background:${RAMP4[i]}">
           <span class="pc-pct${i < 2 ? ' pc-dk' : ''}">${sh >= 0.08 ? fmtPct(sh) : ''}</span>
           ${i === bi ? `<span style="position:absolute;left:0;top:-6px;bottom:-6px;width:2.5px;background:#D92D20"></span>` : ''}
@@ -879,7 +1071,39 @@
         <b>${fmtPct(D.households2024.renterShare)}</b> of the neighborhood's households currently rent${rSect && oSect
           ? `: <b>${fmtPct(rSect.slice(bi).reduce((s, n) => s + n, 0) / rTot)}</b> of its ${rTot.toLocaleString('en-US')} renter households
              are in those brackets, versus <b>${fmtPct(oSect.slice(bi).reduce((s, n) => s + n, 0) / oTot)}</b> of its ${oTot.toLocaleString('en-US')} owner households`
-          : ''}.`;
+          : ''}.${cOK ? ` Citywide, <b>${fmtPct(cSh.slice(bi).reduce((s, x) => s + x, 0))}</b> of Chicago's
+          ${D.households2024.chicagoTotal.toLocaleString('en-US')} households are in those brackets.` : ''}`;
+      /* renter households by income group (2026-10-03, SFF feedback 9/28): the eleven raw
+         ACS tenure-by-income buckets, North Lawndale beside the City of Chicago, each as a
+         share of its own renter total. Bar lengths share one scale (the largest share). */
+      const rgEl = $('renter-groups');
+      if (rgEl && D.renterIncomes2024 && D.renterIncomes2024.raw && D.renterIncomes2024.raw.length === RG_FLOORS.length) {
+        const R = D.renterIncomes2024;
+        const gi = RG_FLOORS.reduce((a, f, i) => needed >= f ? i : a, 0);
+        const gs = R.raw.map(x => ({ label: x.label, nl: x.nl, chi: x.chicago, nlSh: x.nl / R.nlTotal, chiSh: x.chicago / R.chicagoTotal }));
+        /* dot plot: one line per group, a dot per area on a shared scale (rounded up to the
+           next 5%); the dashed red line sits above the group containing the required income */
+        const top = Math.max(0.05, Math.ceil(Math.max(...gs.map(g => Math.max(g.nlSh, g.chiSh))) / 0.05 - 1e-9) * 0.05);
+        const x = sh => (sh / top * 100).toFixed(2);
+        const ticks = []; for (let t = 0; t <= top + 1e-9; t += 0.05) ticks.push(Math.round(t * 100) + '%');
+        rgEl.innerHTML = `<div class="pc-rg-leg">
+          <span class="pc-rg-h"><span class="pc-rg-sw-nl"></span>North Lawndale · ${R.nlTotal.toLocaleString('en-US')}</span>
+          <span class="pc-rg-h"><span class="pc-rg-sw-chi"></span>City of Chicago · ${R.chicagoTotal.toLocaleString('en-US')}</span>
+          <span class="pc-rg-h"><span class="pc-rg-sw-req"></span>Required income</span></div>` +
+          gs.map((g, i) => `${i === gi ? `<div class="pc-rg-req"><span class="pc-rg-req-lab">${fmt$(needed)}</span><span class="pc-rg-req-line"></span></div>` : ''}
+        <div class="pc-rg-row">
+          <span class="pc-rg-lab">${g.label}</span>
+          <span class="pc-rg-track"><span class="pc-rg-rule"></span>
+            <span class="pc-rg-link" style="left:${x(Math.min(g.nlSh, g.chiSh))}%;width:${x(Math.abs(g.nlSh - g.chiSh))}%"></span>
+            <span class="pc-rg-dot-chi" style="left:${x(g.chiSh)}%"></span><span class="pc-rg-dot" style="left:${x(g.nlSh)}%"></span></span>
+          <span class="pc-rg-val"><span class="pc-rg-val-nl">${fmtPct(g.nlSh)}</span> · ${fmtPct(g.chiSh)}</span>
+        </div>`).join('') +
+          `<div class="pc-rg-axis"><span class="pc-rg-h0"></span><span class="pc-rg-ticks">${ticks.map(t => `<span>${t}</span>`).join('')}</span><span></span></div>`;
+        const rn = $('renter-groups-note');
+        if (rn) rn.innerHTML = `The required income (<b>${fmt$(needed)}</b>) falls in the ${gs[gi].label} group.
+          <b>${fmtPct(gs.slice(gi).reduce((s, g) => s + g.nl, 0) / R.nlTotal)}</b> of North Lawndale's renter households are in that group or a higher one,
+          versus <b>${fmtPct(gs.slice(gi).reduce((s, g) => s + g.chi, 0) / R.chicagoTotal)}</b> of Chicago's.`;
+      }
       /* key takeaway (People rail): the NL renter gap restated in words */
       const tk = $('take-note');
       if (tk && rows.length) {
@@ -925,6 +1149,7 @@
       'A.Demographic_Socioeconomic (household & renter incomes, income composition & tenure, 2024 ACS 5-yr); ' +
       'E.Property_Sales (all-sales median prices & counts, 2024). ' +
       'Median homebuyer incomes: IHS baseline data presentation, slide 21 (HMDA). ' +
+      (MU ? `Multi-unit price tiers: Cook County Assessor parcel sales and building characteristics (open data), 2024 arm's-length sales by number of apartments. Rents: HUD ${MU.fy} Small Area Fair Market Rents by ZIP code (huduser.gov). ` : '') +
       'Underlying data: Institute for Housing Studies at DePaul University.';
 
     // ---------- main loop ----------

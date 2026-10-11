@@ -28,6 +28,20 @@
     "condo": 7
   },
 
+  "multiUnit": {
+    "_source": "Multi-unit mode (SFF feedback 2026-09-28; decisions 2026-10-10). types = price tiers by building type from the Cook County Assessor's open data (datacatalog.cookcountyil.gov: Parcel Sales wvhk-k5uv, Single and Multi-Family Improvement Characteristics x54s-btds, Parcel Universe nj4t-kc8j): arm's-length 2024 sales of North Lawndale (community area 29) buildings classified 2-6 units, by number of apartments; typical = median, lower / higher = 25th / 75th percentiles, sales = number of sales. 3- and 4-flats are pooled (4-flats: 172 parcels, 6 sales in 2024). units (text) = units in the building the rent default assumes: 2 for a 2-flat, 3 for the 3–4 flat. Method and yearly table: research/cook-assessor/. The pooled 2–4 unit median from the same query ($299,000) matches IHS table E.14 ($290,000). hudRent = HUD Small Area Fair Market Rents, FY2027 (effective 2026-10-01), Chicago-Joliet-Naperville HUD Metro FMR Area, by ZIP code and bedroom count (gross rent including utilities), huduser.gov/portal/datasets/fmr/smallarea; ZIP 60623 covers North Lawndale south of Roosevelt Road, 60624 the part north of it. The calculator uses the 2-bedroom figure times the units the buyer does not occupy; lenders count 75% of it (HUD Handbook 4000.1 II.A.4.c.xii; Fannie Mae B3-3.8-02; Freddie Mac 5306.1).",
+    "types": [
+      { "key": "u2", "label": "2-flat", "long": "Two-flat, buyer lives in one unit", "units": "2",
+        "lower": 140525, "typical": 249500, "higher": 350000, "sales": 90 },
+      { "key": "u34", "label": "3–4 flat", "long": "Three- or four-flat, buyer lives in one unit", "units": "3",
+        "lower": 213750, "typical": 372000, "higher": 450000, "sales": 74 }
+    ],
+    "hudRentFY": "FY2027",
+    "hudRent": {
+      "z60623": { "br0": 1280, "br1": 1350, "br2": 1530, "br3": 1970, "br4": 2250 },
+      "z60624": { "br0": 1440, "br1": 1520, "br2": 1720, "br3": 2210, "br4": 2530 }
+    }
+  },
   "taxBillsTY2024": {
     "_source": "B.Taxpayer_Characteristics — table 1 (row 18, col N) single family, table 2 (row 33, col N) 2-to-4 unit: median tax bill, North Lawndale, Tax Year 2024 (exact $2,379.49 / $4,436.49, rounded). Single-family bills rose 73% from TY2023. The dataset has no condo tax-bill table.",
     "sf": 2379,
@@ -95,8 +109,10 @@
     "chicago2019": 97000
   },
   "households2024": {
-    "_source": "A.Demographic_Socioeconomic — section 4 (row 67) income composition, section 7 (row 116) tenure, 2024",
+    "_source": "A.Demographic_Socioeconomic — section 4 (row 67; City of Chicago row 72) income composition, section 7 (row 116) tenure, 2024",
     "total": 12307,
+    "chicagoTotal": 1159889,
+    "chicagoShares": [0.187801, 0.15981, 0.25434, 0.398049],
     "ownerShare": 0.266271,
     "renterShare": 0.733729,
     "incomeBrackets": [
