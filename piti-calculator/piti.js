@@ -970,41 +970,7 @@ ${renterGroupsBox(D, true, repoHref)}
         </div>`;
       }).join('');
 
-      // gap chart: one slider-style track per household in home-price space —
-      // navy dot = max affordable price, red line = this home's price, the
-      // filled span between them = the gap (green headroom / red shortfall)
-      {
-        const GL = 134, GR = 746, GMAX = 400000;
-        /* the axis drops to fit a fifth row when the custom benchmark is set */
-        const GY = 46 + rows.length * 34;
-        $('gapchart').setAttribute('viewBox', `0 0 760 ${GY + 22}`);
-        const gx = v => GL + Math.min(v, GMAX) / GMAX * (GR - GL);
-        const px = gx(S.price);
-        let g = `<line class="pc-ax" x1="${GL}" y1="${GY}" x2="${GR}" y2="${GY}"/>`;
-        for (let v = 0; v <= GMAX; v += 100000)
-          g += `<line class="pc-ax" x1="${gx(v)}" y1="${GY - 3}" x2="${gx(v)}" y2="${GY + 3}"/>
-                <text class="pc-tick-lab" x="${gx(v)}" y="${GY + 16}" text-anchor="middle">${v === 0 ? '$0' : '$' + v / 1000 + 'K' + (v === GMAX ? '+' : '')}</text>`;
-        rows.forEach((p, i) => {
-          const y = 52 + i * 34;
-          const ax = gx(p.mp), over = p.mp > GMAX;
-          const col = p.gap >= 0 ? '#16A34A' : '#E23A2E';
-          const mx = Math.min(Math.max((ax + px) / 2, GL + 26), GR - 26);
-          g += `<text x="${GL - 12}" y="${y + 4}" text-anchor="end" font-size="11" fill="#44474E" font-weight="500">${p.short}</text>
-                <line x1="${GL}" y1="${y}" x2="${GR}" y2="${y}" stroke="#E2E2E9" stroke-width="4.5" stroke-linecap="round"/>`;
-          if (Math.abs(ax - px) > 2)
-            g += `<line x1="${ax}" y1="${y}" x2="${px}" y2="${y}" stroke="${col}" stroke-width="4.5" stroke-linecap="round"/>`;
-          g += `<text x="${mx}" y="${y - 11}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${col}">${p.gap >= 0 ? '+' : '−'}${fmtK(Math.abs(p.gap))}</text>
-                <line x1="${ax}" y1="${y - 9}" x2="${ax}" y2="${y + 9}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"${p.custom ? ' stroke-dasharray="3.5 2.5"' : ''}/>
-                ${over ? `<text x="${GR + 7}" y="${y + 4}" font-size="11" fill="#74777F">→</text>` : ''}`;
-        });
-        {
-          const lx = Math.min(Math.max(px, GL + 64), GR - 68);
-          g += `<line x1="${px}" y1="26" x2="${px}" y2="${GY}" stroke="#D92D20" stroke-width="1.8" stroke-dasharray="5 4"/>
-              <rect x="${lx - 64}" y="2" width="128" height="21" rx="5" fill="#D92D20"/>
-              <text x="${lx}" y="16.5" text-anchor="middle" font-size="12" font-weight="700" fill="#FFF">this home ${S.price > GMAX ? '≥ $400K' : fmtK(S.price)}</text>`;
-        }
-        $('gapchart').innerHTML = g;
-      }
+      gapRows = rows; drawGapChart();
 
       // bracket bar
       const br = D.households2024.incomeBrackets;
@@ -1152,9 +1118,61 @@ ${renterGroupsBox(D, true, repoHref)}
       (MU ? `Multi-unit price tiers: Cook County Assessor parcel sales and building characteristics (open data), 2024 arm's-length sales by number of apartments. Rents: HUD ${MU.fy} Small Area Fair Market Rents by ZIP code (huduser.gov). ` : '') +
       'Underlying data: Institute for Housing Studies at DePaul University.';
 
+    // gap chart: one slider-style track per household in home-price space —
+    // navy dot = max affordable price, red line = this home's price, the
+    // filled span between them = the gap (green headroom / red shortfall).
+    // Drawn in CSS pixels (2026-10-12): the viewBox follows the rendered width and the
+    // chart is redrawn when that width changes, so its type stays 11px however wide
+    // the card is instead of stretching with it like the old fixed 760-unit viewBox.
+    let gapRows = [];
+    function drawGapChart() {
+      const svg = $('gapchart'); if (!svg) return;
+      const rows = gapRows;
+      /* 1 SVG unit = 1 CSS px: width from the rendered box (clientWidth is layout px, unaffected by CSS zoom) */
+      const W = Math.max(260, Math.round(svg.clientWidth || (svg.parentNode && svg.parentNode.clientWidth) || 760));
+      const GL = W < 520 ? 116 : 134, GR = W - 14, GMAX = 400000;
+      /* the axis drops to fit a fifth row when the custom benchmark is set */
+      const GY = 46 + rows.length * 34;
+      svg.setAttribute('viewBox', `0 0 ${W} ${GY + 22}`);
+      const gx = v => GL + Math.min(v, GMAX) / GMAX * (GR - GL);
+      const px = gx(S.price);
+      let g = `<line class="pc-ax" x1="${GL}" y1="${GY}" x2="${GR}" y2="${GY}"/>`;
+      const step = W < 520 ? 200000 : 100000;   /* phone-width charts: fewer ticks so the labels do not touch */
+      for (let v = 0; v <= GMAX; v += step)
+        g += `<line class="pc-ax" x1="${gx(v)}" y1="${GY - 3}" x2="${gx(v)}" y2="${GY + 3}"/>
+              <text class="pc-tick-lab" x="${gx(v)}" y="${GY + 16}" text-anchor="middle">${v === 0 ? '$0' : '$' + v / 1000 + 'K' + (v === GMAX ? '+' : '')}</text>`;
+      rows.forEach((p, i) => {
+        const y = 52 + i * 34;
+        const ax = gx(p.mp), over = p.mp > GMAX;
+        const col = p.gap >= 0 ? '#16A34A' : '#E23A2E';
+        const mx = Math.min(Math.max((ax + px) / 2, GL + 26), GR - 26);
+        g += `<text x="${GL - 12}" y="${y + 4}" text-anchor="end" font-size="11" fill="#44474E" font-weight="500">${p.short}</text>
+              <line x1="${GL}" y1="${y}" x2="${GR}" y2="${y}" stroke="#E2E2E9" stroke-width="4.5" stroke-linecap="round"/>`;
+        if (Math.abs(ax - px) > 2)
+          g += `<line x1="${ax}" y1="${y}" x2="${px}" y2="${y}" stroke="${col}" stroke-width="4.5" stroke-linecap="round"/>`;
+        g += `<text x="${mx}" y="${y - 11}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${col}">${p.gap >= 0 ? '+' : '−'}${fmtK(Math.abs(p.gap))}</text>
+              <line x1="${ax}" y1="${y - 9}" x2="${ax}" y2="${y + 9}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"${p.custom ? ' stroke-dasharray="3.5 2.5"' : ''}/>
+              ${over ? `<text x="${GR + 7}" y="${y + 4}" font-size="11" fill="#74777F">→</text>` : ''}`;
+      });
+      {
+        const lx = Math.min(Math.max(px, GL + 64), GR - 68);
+        g += `<line x1="${px}" y1="26" x2="${px}" y2="${GY}" stroke="#D92D20" stroke-width="1.8" stroke-dasharray="5 4"/>
+            <rect x="${lx - 64}" y="2" width="128" height="21" rx="5" fill="#D92D20"/>
+            <text x="${lx}" y="16.5" text-anchor="middle" font-size="12" font-weight="700" fill="#FFF">this home ${S.price > GMAX ? '≥ $400K' : fmtK(S.price)}</text>`;
+      }
+      svg.innerHTML = g;
+  }
+
     // ---------- main loop ----------
     function recalc() { const c = compute(); renderPayment(c); renderAfford(c); }
     syncInputs(); renderBuyers(); recalc();
+    /* the gap chart is drawn in CSS pixels: redraw it when its box changes width (window
+       resize, the above-the-fold zoom fit on Webflow, a stacked phone layout) */
+    if (window.ResizeObserver && $('gapchart')) {
+      let gw = $('gapchart').clientWidth;
+      new ResizeObserver(() => { const w = $('gapchart').clientWidth; if (w && w !== gw) { gw = w; drawGapChart(); } })
+        .observe($('gapchart').parentNode);
+    }
   }
 
   window.PITI = { render };
